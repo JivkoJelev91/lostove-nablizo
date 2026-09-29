@@ -44,3 +44,8 @@ yarn-error.*
 # local planning notes
 street-fitnes-planning.*
 README.draft.md
+
+# agent skills — large binary assets (6+ MB of reference screenshots), not source.
+# skills-lock.json records each skill's source and a content hash, so a fresh clone can
+# re-fetch and verify them instead of carrying the images in git history forever.
+.agents/skills/
