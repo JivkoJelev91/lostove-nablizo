@@ -1,0 +1,12 @@
+node_modules/
+.expo/
+dist/
+android/
+ios/
+package-lock.json
+
+# tooling + agent assets, not app source
+.agents/
+assets/
+street-fitnes-planning.txt
+designSystem.json

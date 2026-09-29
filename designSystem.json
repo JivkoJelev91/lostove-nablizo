@@ -1,0 +1,291 @@
+{
+  "designSystem": {
+    "name": "Street Fitness App",
+    "version": "1.0.0",
+    "colors": {
+      "bg": {
+        "main": {
+          "light": "#FFFFFF",
+          "dark": "#0B0B0F"
+        },
+        "surface": {
+          "light": "#F5F5F7",
+          "dark": "#15151A"
+        }
+      },
+      "text": {
+        "primary": {
+          "light": "#0B0B0F",
+          "dark": "#FFFFFF"
+        },
+        "secondary": {
+          "light": "#6B7280",
+          "dark": "#9CA3AF"
+        },
+        "onPrimary": "#FFFFFF"
+      },
+      "primary": "#A3FF12",
+      "primaryPressed": "#8CE60F",
+      "border": {
+        "light": "#E5E7EB",
+        "dark": "#27272A"
+      },
+      "status": {
+        "good": "#22C55E",
+        "warning": "#F59E0B",
+        "bad": "#EF4444"
+      }
+    },
+    "typography": {
+      "fontFamily": "Inter",
+      "styles": {
+        "display": {
+          "fontSize": 24,
+          "fontWeight": 700,
+          "lineHeight": 1.2
+        },
+        "h1": {
+          "fontSize": 22,
+          "fontWeight": 700,
+          "lineHeight": 1.2
+        },
+        "h2": {
+          "fontSize": 18,
+          "fontWeight": 600,
+          "lineHeight": 1.3
+        },
+        "body": {
+          "fontSize": 16,
+          "fontWeight": 400,
+          "lineHeight": 1.5
+        },
+        "bodySmall": {
+          "fontSize": 14,
+          "fontWeight": 400,
+          "lineHeight": 1.5
+        },
+        "caption": {
+          "fontSize": 12,
+          "fontWeight": 400,
+          "lineHeight": 1.4
+        }
+      }
+    },
+    "spacing": {
+      "space4": 4,
+      "space8": 8,
+      "space12": 12,
+      "space16": 16,
+      "space20": 20,
+      "space24": 24
+    },
+    "radius": {
+      "sm": 8,
+      "md": 12,
+      "lg": 16
+    },
+    "shadows": {
+      "card": {
+        "offsetX": 0,
+        "offsetY": 2,
+        "blur": 8,
+        "spread": 0,
+        "color": "rgba(0, 0, 0, 0.08)"
+      },
+      "button": {
+        "offsetX": 0,
+        "offsetY": 1,
+        "blur": 2,
+        "spread": 0,
+        "color": "rgba(0, 0, 0, 0.12)"
+      }
+    },
+    "components": {
+      "button": {
+        "height": 48,
+        "paddingHorizontal": 16,
+        "paddingVertical": 12,
+        "borderRadius": 12,
+        "fontSize": 16,
+        "fontWeight": 600,
+        "variants": {
+          "primary": {
+            "background": "primary",
+            "textColor": "onPrimary"
+          },
+          "secondary": {
+            "background": "transparent",
+            "borderColor": "border",
+            "textColor": "text.primary"
+          },
+          "disabled": {
+            "background": "#E5E7EB",
+            "textColor": "#9CA3AF"
+          }
+        }
+      },
+      "spotCard": {
+        "borderRadius": 12,
+        "padding": 16,
+        "gap": 12,
+        "imageHeight": 150,
+        "content": {
+          "name": {
+            "style": "h2",
+            "color": "text.primary"
+          },
+          "rating": {
+            "style": "bodySmall",
+            "color": "text.secondary"
+          },
+          "equipment": {
+            "style": "bodySmall",
+            "color": "text.secondary"
+          },
+          "verified": {
+            "style": "caption",
+            "color": "status.good"
+          }
+        }
+      },
+      "reviewCard": {
+        "borderRadius": 12,
+        "padding": 16,
+        "gap": 8,
+        "avatar": {
+          "size": 36,
+          "borderRadius": 18
+        },
+        "name": {
+          "style": "body",
+          "fontWeight": 600,
+          "color": "text.primary"
+        },
+        "reviewText": {
+          "style": "body",
+          "color": "text.primary"
+        },
+        "date": {
+          "style": "caption",
+          "color": "text.secondary"
+        }
+      },
+      "equipmentCard": {
+        "width": 80,
+        "height": 80,
+        "borderRadius": 12,
+        "padding": 8,
+        "background": "bg.surface",
+        "name": {
+          "style": "bodySmall",
+          "fontWeight": 600,
+          "color": "text.primary"
+        },
+        "count": {
+          "style": "caption",
+          "color": "text.secondary"
+        }
+      },
+      "searchBar": {
+        "height": 44,
+        "borderRadius": 12,
+        "paddingHorizontal": 12,
+        "background": "bg.surface",
+        "placeholderColor": "text.secondary",
+        "iconColor": "text.secondary",
+        "fontSize": 16
+      },
+      "filterChip": {
+        "height": 36,
+        "paddingHorizontal": 12,
+        "borderRadius": 18,
+        "fontSize": 14,
+        "fontWeight": 500,
+        "variants": {
+          "inactive": {
+            "background": "bg.surface",
+            "textColor": "text.primary",
+            "borderColor": "border"
+          },
+          "active": {
+            "background": "primary",
+            "textColor": "onPrimary"
+          }
+        }
+      },
+      "bottomNav": {
+        "height": 64,
+        "background": "bg.main",
+        "borderTop": {
+          "color": "border",
+          "width": 1
+        },
+        "iconSize": 24,
+        "label": {
+          "style": "caption",
+          "colorActive": "primary",
+          "colorInactive": "text.secondary"
+        }
+      },
+      "input": {
+        "height": 48,
+        "borderRadius": 12,
+        "paddingHorizontal": 12,
+        "background": "bg.surface",
+        "borderColor": "border",
+        "fontSize": 16,
+        "label": {
+          "style": "caption",
+          "color": "text.secondary"
+        }
+      }
+    },
+    "screens": {
+      "home": {
+        "header": {
+          "padding": 16,
+          "logoStyle": "h1",
+          "profileIconSize": 32
+        },
+        "searchBar": {
+          "marginHorizontal": 16,
+          "marginTop": 8
+        },
+        "filterChips": {
+          "marginTop": 12,
+          "marginHorizontal": 16,
+          "gap": 8
+        },
+        "mapPreviewSection": {
+          "marginTop": 16,
+          "paddingHorizontal": 16
+        },
+        "spotList": {
+          "marginTop": 16,
+          "paddingHorizontal": 16,
+          "gap": 12
+        },
+        "bottomNav": {
+          "position": "fixed-bottom"
+        }
+      },
+      "spotDetails": {
+        "header": {
+          "padding": 12,
+          "backIconSize": 24
+        },
+        "heroImage": {
+          "height": 220
+        },
+        "infoBlock": {
+          "padding": 16,
+          "gap": 8
+        },
+        "equipmentSection": {
+          "paddingHorizontal": 16,
+          "gap": 12
+        },
+        "conditionSection": {
+          "paddingHorizontal": 16,
+          "marginTop": 8
+        },
