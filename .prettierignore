@@ -5,6 +5,10 @@ android/
 ios/
 package-lock.json
 
+# lockfiles are owned by the package manager, not by us
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
 # tooling + agent assets, not app source
 .agents/
 .opencode/

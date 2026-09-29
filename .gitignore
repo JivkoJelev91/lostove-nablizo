@@ -45,6 +45,11 @@ yarn-error.*
 street-fitnes-planning.*
 README.draft.md
 
+# This project uses pnpm. EAS picks the package manager from whichever lockfile it finds,
+# so an npm lockfile must not be present or builds become unpredictable.
+package-lock.json
+yarn.lock
+
 # agent skills — large binary assets (6+ MB of reference screenshots), not source.
 # skills-lock.json records each skill's source and a content hash, so a fresh clone can
 # re-fetch and verify them instead of carrying the images in git history forever.

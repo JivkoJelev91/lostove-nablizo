@@ -10,18 +10,25 @@ Expo ships breaking changes every SDK release. APIs you remember are likely rena
 
 ## Commands
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+This project uses **pnpm**. There is no `bun.lock` or `package-lock.json`, and `package.json`
+declares `"packageManager": "pnpm@12.3.4"`. Run local binaries with `pnpm exec` (or `pnpm <script>`
+for the scripts already defined in `package.json`) — do not use `npx`, which bypasses pnpm and can
+install a different version than the lockfile pins.
 
 ```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
+pnpm install                          # install dependencies
+pnpm exec expo install <package>      # ALWAYS use instead of pnpm add — resolves SDK-compatible versions
+pnpm start                            # start the dev server
+pnpm lint                             # lint
+pnpm typecheck                        # typecheck
+pnpm doctor                           # diagnose dependency and config issues
+pnpm exec expo install --fix          # fix incompatible package versions
 ```
 
 Run lint and typecheck before declaring any task done.
+
+Never reintroduce an npm or yarn lockfile. EAS selects the package manager from whichever lockfile
+it finds, so two lockfiles make build behaviour unpredictable.
 
 ## Navigation & Routing
 
@@ -31,7 +38,7 @@ Run lint and typecheck before declaring any task done.
 
 ## Building with EAS
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
+Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `pnpm exec eas-cli <command>`; substitute that for bare `eas` in docs examples.
 Docs: https://docs.expo.dev/eas/index.md
 
 ## Coding conventions
@@ -54,7 +61,7 @@ Enforced where a rule can be mechanical. The "enforced by" column names the rule
 
 Notes:
 
-- Rules marked _warn_ come from `eslint-config-expo` and are not upgraded here. They still print on `npx expo lint`; promoting them to errors is a deliberate decision, not an oversight.
+- Rules marked _warn_ come from `eslint-config-expo` and are not upgraded here. They still print on `pnpm lint`; promoting them to errors is a deliberate decision, not an oversight.
 - `react/function-component-definition` is **not** enabled, so "use a function component" is held by review and by `react/no-this-in-sfc` only.
 - `exactOptionalPropertyTypes` and type-aware linting are deliberately **off**. They fight React component props and need a type-checking ESLint project, which is more machinery than this codebase earns yet.
 - Duplicate _logic_ cannot be linted without an extra plugin. `import/no-duplicates` only catches repeated import statements.
@@ -63,5 +70,5 @@ Notes:
 ## Rules
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
+- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `pnpm exec expo run:ios|android` locally, or `pnpm exec eas-cli build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md

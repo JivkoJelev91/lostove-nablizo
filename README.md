@@ -1,4 +1,4 @@
-# lostove-nablizo
+# Street Fitness
 
 Work-in-progress repository.
 
@@ -6,34 +6,35 @@ Public documentation for this project has not been written yet.
 
 ## Development
 
-Requires Node.js 20+ and npm.
+Requires Node.js 20+ and pnpm.
 
 ```bash
-npm install
-npm start
+pnpm install
+pnpm start
 ```
 
 Scan the QR code with Expo Go on a physical device. No Android Studio, Android SDK or Xcode is
 needed at this stage.
 
-| Command                | Description                                         |
-| ---------------------- | --------------------------------------------------- |
-| `npm start`            | Start the Metro dev server                          |
-| `npm run android`      | Start Metro and open the Android emulator           |
-| `npm run ios`          | Start Metro and open the iOS simulator (macOS only) |
-| `npm run web`          | Start Metro and open the web version                |
-| `npm run lint`         | Run ESLint                                          |
-| `npm run typecheck`    | Run `tsc --noEmit`                                  |
-| `npm run format`       | Format with Prettier                                |
-| `npm run format:check` | Verify formatting                                   |
-| `npm run doctor`       | Run `expo-doctor`                                   |
+| Command             | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| `pnpm start`        | Start the Metro dev server                          |
+| `pnpm android`      | Start Metro and open the Android emulator           |
+| `pnpm ios`          | Start Metro and open the iOS simulator (macOS only) |
+| `pnpm web`          | Start Metro and open the web version                |
+| `pnpm lint`         | Run ESLint                                          |
+| `pnpm typecheck`    | Run `tsc --noEmit`                                  |
+| `pnpm format`       | Format with Prettier                                |
+| `pnpm format:check` | Verify formatting                                   |
+| `pnpm doctor`       | Run `expo-doctor`                                   |
 
-Run `npm run typecheck && npm run lint && npm run format:check` before considering a task done.
+Run `pnpm typecheck && pnpm lint && pnpm format:check` before considering a task done.
 
 ### Dependencies
 
-Always install Expo-managed packages with `npx expo install <package>` so the version matches the
-SDK. Use `npx expo install --check` to verify, and `npx expo install --fix` to correct.
+Always install Expo-managed packages with `pnpm exec expo install <package>` so the version matches
+the SDK. Use `pnpm exec expo install --check` to verify, and `pnpm exec expo install --fix` to
+correct.
 
 ### Environment variables
 
@@ -65,16 +66,30 @@ imports it yet, so the app still starts without a `.env` file.
 ## Structure
 
 ```
-src/app/        Expo Router routes — every file here is a screen
-src/lib/        framework and third-party integrations (env, supabase, …)
-src/components/ reusable, presentation-only components
-assets/         icons and images
-app.json        Expo app configuration
-AGENTS.md       conventions for AI agents working in this repo
+src/app/         Expo Router routes — every file here is a screen
+src/features/    business logic, one directory per feature
+src/components/  reusable, presentation-only components
+src/hooks/       shared hooks
+src/lib/         framework and third-party integrations (env, supabase, …)
+src/constants/   design tokens
+src/utils/       pure helpers
+src/types/       shared type definitions
+scripts/         repository maintenance scripts
+assets/          icons and images
+app.json         Expo app configuration
+designSystem.json design tokens and component rules, mirrored by src/constants/theme.ts
+AGENTS.md        conventions for AI agents working in this repo
 ```
 
 `ios/` and `android/` are generated. Configure native behaviour in `app.json`, never by editing
 them by hand.
+
+## Agent skills
+
+Skills live in `.agents/skills/` and are **gitignored**: the React Native best-practices skill
+alone is 6+ MB, mostly reference screenshots. `skills-lock.json` records each skill's source and a
+content hash, so a fresh clone re-fetches and verifies them instead of carrying the images in git
+history.
 
 ## License
 

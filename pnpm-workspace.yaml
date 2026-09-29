@@ -1,0 +1,15 @@
+# Packages that run install scripts. `unrs-resolver` is a native binary required by
+# eslint-import-resolver-typescript, which eslint-config-expo pulls in, so linting fails
+# on a fresh install if its build script is blocked.
+allowBuilds:
+  unrs-resolver: true
+
+# Dependencies Expo pins to an exact SDK version. These are excluded from the
+# minimum-release-age supply-chain guard so a reproducible SDK install is not blocked
+# waiting on a package that is older than the guard window.
+minimumReleaseAgeExclude:
+  - '@expo/ui@57.0.21'
+  - expo-constants@57.0.20
+  - expo-modules-core@57.0.20
+  - expo-router@57.0.24
+  - expo@57.0.26
