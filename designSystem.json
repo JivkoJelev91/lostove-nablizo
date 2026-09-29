@@ -2,13 +2,40 @@
   "designSystem": {
     "name": "Street Fitness App",
     "version": "1.0.0",
+    "description": "Visual direction: modern, sporty, premium, map-first. Strong typography, visually rich but never cluttered.",
     "colors": {
+      "primary": {
+        "base": "#A3FF12",
+        "pressed": "#8CE60F",
+        "onPrimary": "#0B0B0F"
+      },
+      "secondary": {
+        "light": "#1A1A1F",
+        "pressedLight": "#2A2A31",
+        "dark": "#E8E8EC",
+        "pressedDark": "#FFFFFF",
+        "onSecondary": "#FFFFFF"
+      },
       "bg": {
         "main": {
           "light": "#FFFFFF",
           "dark": "#0B0B0F"
         },
         "surface": {
+          "light": "#F5F5F7",
+          "dark": "#15151A"
+        }
+      },
+      "surface": {
+        "card": {
+          "light": "#FFFFFF",
+          "dark": "#15151A"
+        },
+        "cardElevated": {
+          "light": "#FFFFFF",
+          "dark": "#1E1E24"
+        },
+        "input": {
           "light": "#F5F5F7",
           "dark": "#15151A"
         }
@@ -22,10 +49,13 @@
           "light": "#6B7280",
           "dark": "#9CA3AF"
         },
-        "onPrimary": "#FFFFFF"
+        "muted": {
+          "light": "#9CA3AF",
+          "dark": "#6B7280"
+        },
+        "onPrimary": "#0B0B0F",
+        "onSecondary": "#FFFFFF"
       },
-      "primary": "#A3FF12",
-      "primaryPressed": "#8CE60F",
       "border": {
         "light": "#E5E7EB",
         "dark": "#27272A"
@@ -33,76 +63,124 @@
       "status": {
         "good": "#22C55E",
         "warning": "#F59E0B",
-        "bad": "#EF4444"
+        "bad": "#EF4444",
+        "goodSoft": "#DCFCE7",
+        "warningSoft": "#FEF3C7",
+        "badSoft": "#FEE2E2"
+      },
+      "overlay": {
+        "scrim": "rgba(11, 11, 15, 0.45)",
+        "primaryOnMap": "#0B0B0F"
       }
     },
     "typography": {
       "fontFamily": "Inter",
+      "fontFamilies": {
+        "regular": "Inter_400Regular",
+        "medium": "Inter_500Medium",
+        "semibold": "Inter_600SemiBold",
+        "bold": "Inter_700Bold"
+      },
+      "fontWeights": {
+        "regular": "400",
+        "medium": "500",
+        "semibold": "600",
+        "bold": "700"
+      },
       "styles": {
         "display": {
           "fontSize": 24,
           "fontWeight": 700,
-          "lineHeight": 1.2
+          "lineHeight": 30,
+          "letterSpacing": -0.4
         },
         "h1": {
           "fontSize": 22,
           "fontWeight": 700,
-          "lineHeight": 1.2
+          "lineHeight": 28,
+          "letterSpacing": -0.3
         },
         "h2": {
           "fontSize": 18,
           "fontWeight": 600,
-          "lineHeight": 1.3
+          "lineHeight": 24,
+          "letterSpacing": -0.2
+        },
+        "h3": {
+          "fontSize": 16,
+          "fontWeight": 600,
+          "lineHeight": 22,
+          "letterSpacing": -0.1
         },
         "body": {
           "fontSize": 16,
           "fontWeight": 400,
-          "lineHeight": 1.5
+          "lineHeight": 24
         },
         "bodySmall": {
           "fontSize": 14,
           "fontWeight": 400,
-          "lineHeight": 1.5
+          "lineHeight": 20
         },
         "caption": {
           "fontSize": 12,
-          "fontWeight": 400,
-          "lineHeight": 1.4
+          "fontWeight": 500,
+          "lineHeight": 16
         }
       }
     },
     "spacing": {
+      "space2": 2,
       "space4": 4,
       "space8": 8,
       "space12": 12,
       "space16": 16,
       "space20": 20,
-      "space24": 24
+      "space24": 24,
+      "space32": 32,
+      "space40": 40
+    },
+    "layout": {
+      "screenHorizontalPadding": 16,
+      "sectionGap": 24,
+      "sectionGapLarge": 32,
+      "cardPadding": 16,
+      "cardGap": 8,
+      "cardGapLarge": 16,
+      "listGap": 12
     },
     "radius": {
       "sm": 8,
       "md": 12,
-      "lg": 16
+      "lg": 16,
+      "xl": 20,
+      "pill": 999
+    },
+    "iconSizes": {
+      "xs": 16,
+      "sm": 20,
+      "md": 24,
+      "lg": 32,
+      "xl": 40
     },
     "shadows": {
       "card": {
-        "offsetX": 0,
-        "offsetY": 2,
-        "blur": 8,
-        "spread": 0,
-        "color": "rgba(0, 0, 0, 0.08)"
+        "ios": { "offsetX": 0, "offsetY": 2, "opacity": 0.08, "radius": 8, "color": "#000000" },
+        "android": { "elevation": 2 }
+      },
+      "cardElevated": {
+        "ios": { "offsetX": 0, "offsetY": 6, "opacity": 0.14, "radius": 16, "color": "#000000" },
+        "android": { "elevation": 8 }
       },
       "button": {
-        "offsetX": 0,
-        "offsetY": 1,
-        "blur": 2,
-        "spread": 0,
-        "color": "rgba(0, 0, 0, 0.12)"
+        "ios": { "offsetX": 0, "offsetY": 1, "opacity": 0.12, "radius": 2, "color": "#000000" },
+        "android": { "elevation": 2 }
       }
     },
     "components": {
       "button": {
         "height": 48,
+        "heightSmall": 36,
         "paddingHorizontal": 16,
         "paddingVertical": 12,
         "borderRadius": 12,
@@ -110,65 +188,53 @@
         "fontWeight": 600,
         "variants": {
           "primary": {
-            "background": "primary",
-            "textColor": "onPrimary"
+            "background": "primary.base",
+            "backgroundPressed": "primary.pressed",
+            "textColor": "text.onPrimary"
           },
           "secondary": {
             "background": "transparent",
+            "backgroundPressed": "bg.surface",
             "borderColor": "border",
             "textColor": "text.primary"
           },
+          "ghost": {
+            "background": "transparent",
+            "backgroundPressed": "bg.surface",
+            "textColor": "text.primary"
+          },
           "disabled": {
-            "background": "#E5E7EB",
-            "textColor": "#9CA3AF"
+            "background": "bg.surface",
+            "borderColor": "border",
+            "textColor": "text.muted"
           }
         }
       },
       "spotCard": {
-        "borderRadius": 12,
+        "borderRadius": 16,
         "padding": 16,
         "gap": 12,
-        "imageHeight": 150,
+        "imageHeight": 180,
+        "borderWidth": 1,
         "content": {
-          "name": {
-            "style": "h2",
-            "color": "text.primary"
-          },
+          "name": { "style": "h2", "color": "text.primary" },
           "rating": {
             "style": "bodySmall",
-            "color": "text.secondary"
+            "color": "text.primary",
+            "iconColor": "status.warning"
           },
-          "equipment": {
-            "style": "bodySmall",
-            "color": "text.secondary"
-          },
-          "verified": {
-            "style": "caption",
-            "color": "status.good"
-          }
+          "equipment": { "style": "bodySmall", "color": "text.secondary" },
+          "verified": { "style": "caption", "color": "status.good" }
         }
       },
       "reviewCard": {
-        "borderRadius": 12,
+        "borderRadius": 16,
         "padding": 16,
         "gap": 8,
-        "avatar": {
-          "size": 36,
-          "borderRadius": 18
-        },
-        "name": {
-          "style": "body",
-          "fontWeight": 600,
-          "color": "text.primary"
-        },
-        "reviewText": {
-          "style": "body",
-          "color": "text.primary"
-        },
-        "date": {
-          "style": "caption",
-          "color": "text.secondary"
-        }
+        "avatar": { "size": 36, "borderRadius": 18 },
+        "name": { "style": "h3", "color": "text.primary" },
+        "reviewText": { "style": "body", "color": "text.primary" },
+        "date": { "style": "caption", "color": "text.muted" }
       },
       "equipmentCard": {
         "width": 80,
@@ -176,23 +242,17 @@
         "borderRadius": 12,
         "padding": 8,
         "background": "bg.surface",
-        "name": {
-          "style": "bodySmall",
-          "fontWeight": 600,
-          "color": "text.primary"
-        },
-        "count": {
-          "style": "caption",
-          "color": "text.secondary"
-        }
+        "iconSize": 24,
+        "name": { "style": "bodySmall", "fontWeight": 600, "color": "text.primary" },
+        "count": { "style": "caption", "color": "text.muted" }
       },
       "searchBar": {
-        "height": 44,
+        "height": 48,
         "borderRadius": 12,
         "paddingHorizontal": 12,
         "background": "bg.surface",
-        "placeholderColor": "text.secondary",
-        "iconColor": "text.secondary",
+        "iconSize": 20,
+        "placeholderColor": "text.muted",
         "fontSize": 16
       },
       "filterChip": {
@@ -208,23 +268,9 @@
             "borderColor": "border"
           },
           "active": {
-            "background": "primary",
-            "textColor": "onPrimary"
+            "background": "primary.base",
+            "textColor": "text.onPrimary"
           }
-        }
-      },
-      "bottomNav": {
-        "height": 64,
-        "background": "bg.main",
-        "borderTop": {
-          "color": "border",
-          "width": 1
-        },
-        "iconSize": 24,
-        "label": {
-          "style": "caption",
-          "colorActive": "primary",
-          "colorInactive": "text.secondary"
         }
       },
       "input": {
@@ -233,63 +279,48 @@
         "paddingHorizontal": 12,
         "background": "bg.surface",
         "borderColor": "border",
+        "borderWidth": 1,
         "fontSize": 16,
+        "label": { "style": "caption", "color": "text.secondary" }
+      },
+      "bottomNav": {
+        "height": 64,
+        "background": "bg.main",
+        "borderTop": { "color": "border", "width": 1 },
+        "iconSize": 24,
         "label": {
           "style": "caption",
-          "color": "text.secondary"
+          "colorActive": "primary.base",
+          "colorInactive": "text.muted"
         }
       }
     },
     "screens": {
       "home": {
-        "header": {
-          "padding": 16,
-          "logoStyle": "h1",
-          "profileIconSize": 32
-        },
-        "searchBar": {
-          "marginHorizontal": 16,
-          "marginTop": 8
-        },
-        "filterChips": {
-          "marginTop": 12,
-          "marginHorizontal": 16,
-          "gap": 8
-        },
-        "mapPreviewSection": {
-          "marginTop": 16,
-          "paddingHorizontal": 16
-        },
-        "spotList": {
-          "marginTop": 16,
-          "paddingHorizontal": 16,
-          "gap": 12
-        },
-        "bottomNav": {
-          "position": "fixed-bottom"
-        }
+        "header": { "padding": 16, "logoStyle": "h1", "profileIconSize": 32 },
+        "searchBar": { "marginHorizontal": 16, "marginTop": 8 },
+        "filterChips": { "marginTop": 12, "marginHorizontal": 16, "gap": 8 },
+        "mapPreviewSection": { "marginTop": 24, "paddingHorizontal": 16, "height": 240 },
+        "spotList": { "marginTop": 24, "paddingHorizontal": 16, "gap": 12 },
+        "bottomNav": { "position": "fixed-bottom" }
       },
       "spotDetails": {
-        "header": {
-          "padding": 12,
-          "backIconSize": 24
-        },
-        "heroImage": {
-          "height": 220
-        },
-        "infoBlock": {
-          "padding": 16,
-          "gap": 8
-        },
-        "equipmentSection": {
-          "paddingHorizontal": 16,
-          "gap": 12
-        },
-        "conditionSection": {
-          "paddingHorizontal": 16,
-          "marginTop": 8
-        }
+        "header": { "padding": 12, "backIconSize": 24 },
+        "heroImage": { "height": 280 },
+        "infoBlock": { "padding": 16, "gap": 8 },
+        "equipmentSection": { "paddingHorizontal": 16, "gap": 12, "marginTop": 24 },
+        "conditionSection": { "paddingHorizontal": 16, "marginTop": 32 },
+        "reviewsSection": { "paddingHorizontal": 16, "marginTop": 32, "gap": 16 }
       }
-    }
+    },
+    "rules": [
+      "Screen horizontal padding is always 16.",
+      "Major sections are separated by 24, or 32 when the section is a distinct content block.",
+      "Elements inside a card are separated by 8 to 16.",
+      "Primary actions are visually distinct from secondary actions; never place two primary buttons adjacent.",
+      "The most important information for the current screen appears highest in the scroll order.",
+      "Large visual content such as photos gets more space than text: hero images are 240 to 280 tall, thumbnails are 120 to 180.",
+      "Never hardcode a colour, radius, spacing value, or font size in a component. Use a token."
+    ]
   }
 }
