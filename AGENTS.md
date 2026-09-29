@@ -45,19 +45,20 @@ Docs: https://docs.expo.dev/eas/index.md
 
 Enforced where a rule can be mechanical. The "enforced by" column names the rule that fails the build, so you can trust it rather than guessing.
 
-| Rule                            | How to follow it                                                                | Enforced by                                                                         |
-| ------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Strict TypeScript               | `strict` plus `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals` | `tsconfig.json` + `tsc --noEmit`                                                    |
-| No `any`                        | Use `unknown` at a boundary and narrow it, or model the shape                   | `@typescript-eslint/no-explicit-any`                                                |
-| Functional components           | `function` components, no classes, no `this`                                    | `react/no-this-in-sfc` (warn), review                                               |
-| Hooks for reusable behaviour    | Extract to `src/hooks/` or the owning feature; never call hooks conditionally   | `react-hooks/rules-of-hooks` (error)                                                |
-| Feature-based organisation      | Business logic lives in `src/features/<name>/`, not in `components/`            | layout, review                                                                      |
-| Small components, no huge files | Split before a file passes 300 lines or a function 120                          | `max-lines`, `max-lines-per-function` (error)                                       |
-| No duplicated logic             | One owner per behaviour; reuse instead of re-implementing                       | `import/no-duplicates` (warn, imports only); review for logic                       |
-| No hardcoded secrets            | Everything through `EXPO_PUBLIC_*` in a gitignored `.env`                       | `src/lib/env.ts` validation; never commit `.env`                                    |
-| No scattered API calls          | Screens and shared components import a feature/lib function, never `fetch`      | `no-restricted-globals` (error) on `src/app/` and `src/components/`                 |
-| Reusable types                  | `type` over `interface`, `import type` for type-only imports                    | `@typescript-eslint/consistent-type-definitions`, `consistent-type-imports` (error) |
-| Clear naming                    | Names describe what a thing is, not how it works                                | review                                                                              |
+| Rule                            | How to follow it                                                                             | Enforced by                                                                         |
+| ------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Strict TypeScript               | `strict` plus `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals`              | `tsconfig.json` + `tsc --noEmit`                                                    |
+| No `any`                        | Use `unknown` at a boundary and narrow it, or model the shape                                | `@typescript-eslint/no-explicit-any`                                                |
+| Functional components           | `function` components, no classes, no `this`                                                 | `react/no-this-in-sfc` (warn), review                                               |
+| Hooks for reusable behaviour    | Extract to `src/hooks/` or the owning feature; never call hooks conditionally                | `react-hooks/rules-of-hooks` (error)                                                |
+| Feature-based organisation      | Business logic lives in `src/features/<name>/`, not in `components/`                         | layout, review                                                                      |
+| Small components, no huge files | Split before a file passes 300 lines or a function 120                                       | `max-lines`, `max-lines-per-function` (error)                                       |
+| No duplicated logic             | One owner per behaviour; reuse instead of re-implementing                                    | `import/no-duplicates` (warn, imports only); review for logic                       |
+| No hardcoded secrets            | Everything through `EXPO_PUBLIC_*` in a gitignored `.env`                                    | `src/lib/env.ts` validation; never commit `.env`                                    |
+| No scattered API calls          | Screens and shared components import a feature/lib function, never `fetch`                   | `no-restricted-globals` (error) on `src/app/` and `src/components/`                 |
+| Reusable types                  | `type` over `interface`, `import type` for type-only imports                                 | `@typescript-eslint/consistent-type-definitions`, `consistent-type-imports` (error) |
+| Styling through tokens          | Use NativeWind `className` and existing design tokens; never a raw colour or a one-off style | review; `prettier-plugin-tailwindcss` sorts class order                             |
+| Clear naming                    | Names describe what a thing is, not how it works                                             | review                                                                              |
 
 Notes:
 
@@ -66,6 +67,17 @@ Notes:
 - `exactOptionalPropertyTypes` and type-aware linting are deliberately **off**. They fight React component props and need a type-checking ESLint project, which is more machinery than this codebase earns yet.
 - Duplicate _logic_ cannot be linted without an extra plugin. `import/no-duplicates` only catches repeated import statements.
 - `env.ts` throws on import by design, so a missing variable fails immediately instead of surfacing later as an unrelated error.
+
+## Styling and theming
+
+Styling is **NativeWind** over `designSystem.json`. Use `className`, not `StyleSheet`. The token chain is `designSystem.json` → `tailwind.config.js` → generated `global.css`; see the README's Styling section for the workflow.
+
+- Tailwind emits CSS only for classes it sees as literal text. Write `text-text-primary`; never build a class name by interpolation such as `text-${token}`.
+- `global.css` is generated by `scripts/write-theme-css.mjs` from `tailwind.config.js`. Never hand-edit it; regenerate it instead.
+- Dark mode belongs to NativeWind (`darkMode: 'class'`, following the system). Scheme-dependent colours resolve through CSS variables, so `bg-bg-main` adapts without a `dark:` prefix.
+- The dark variable block in `global.css` must use the selector `.dark:root`. NativeWind only recognises that form (bare `.dark` and `:root.dark` are silently dropped, leaving the dark values unused). `scripts/write-theme-css.mjs` emits it; do not "simplify" it by hand.
+- For APIs that take a colour string (navigators, `StatusBar`), read `src/constants/design-tokens.ts` — do not paste hex values.
+- `boxShadow` tokens must be CSS shadow strings. RN style objects (`{ shadowColor, ... }`) crash Tailwind's parser, and inside Metro that crash surfaces only as a bundler hang, not an error.
 
 ## Rules
 

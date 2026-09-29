@@ -71,18 +71,51 @@ src/features/    business logic, one directory per feature
 src/components/  reusable, presentation-only components
 src/hooks/       shared hooks
 src/lib/         framework and third-party integrations (env, supabase, …)
-src/constants/   design tokens
+src/constants/   values TypeScript needs directly (see Styling)
 src/utils/       pure helpers
 src/types/       shared type definitions
 scripts/         repository maintenance scripts
 assets/          icons and images
 app.json         Expo app configuration
-designSystem.json design tokens and component rules, mirrored by src/constants/theme.ts
+designSystem.json source of truth for colours, typography, spacing and shadows
+tailwind.config.js maps designSystem.json to Tailwind/NativeWind classes
+global.css       generated theme variables — do not edit by hand (see Styling)
 AGENTS.md        conventions for AI agents working in this repo
 ```
 
 `ios/` and `android/` are generated. Configure native behaviour in `app.json`, never by editing
 them by hand.
+
+## Styling
+
+Styling is **NativeWind** (Tailwind utilities) over a design system defined in
+`designSystem.json`. Use classes in `className` rather than `StyleSheet`:
+
+```tsx
+<View className="rounded-lg bg-surface-card p-card-pad shadow-card">
+  <Text className="font-medium text-bodySmall text-text-primary">Hello</Text>
+</View>
+```
+
+Tailwind only emits CSS for classes it can see as literal text, so write `text-text-primary`,
+never a template such as `text-${token}`.
+
+Tokens reach CSS through one chain, so there is a single place to change a value:
+
+1. `designSystem.json` holds the raw values.
+2. `tailwind.config.js` maps them to utilities and exposes scheme-dependent colours as CSS
+   variables.
+3. `pnpm exec node scripts/write-theme-css.mjs` regenerates `global.css` from that config. It runs
+   as part of the theme workflow; `global.css` is generated and must not be hand-edited.
+
+Dark mode is owned by NativeWind (`darkMode: 'class'`, driven by the system via
+`useColorScheme`). Colours that differ per scheme resolve through the CSS variables in
+`global.css`, so a class such as `bg-bg-main` adapts on its own — you rarely need a `dark:`
+prefix. `app.json` sets `userInterfaceStyle: 'automatic'`.
+
+For the few APIs that need a colour string instead of a class (navigator options, `StatusBar`),
+read `src/constants/design-tokens.ts`, which loads the same `designSystem.json`. Never paste a raw
+hex value into a screen or component.
 
 ## Agent skills
 
