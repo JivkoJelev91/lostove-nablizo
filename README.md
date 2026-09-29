@@ -37,14 +37,36 @@ SDK. Use `npx expo install --check` to verify, and `npx expo install --fix` to c
 
 ### Environment variables
 
-No environment variables are required. No secrets are stored in this repository. Real values, if
-any are added later, belong in a gitignored `.env` file; anything prefixed `EXPO_PUBLIC_` is
-inlined into the client bundle and is publicly readable, so it must never hold a secret.
+Configuration lives in `src/lib/env.ts`, which reads and validates every variable in one place.
+`.env.example` documents each one with empty placeholders. Copy it to `.env` and fill in real
+values:
+
+```bash
+cp .env.example .env
+```
+
+`.env` is gitignored. Anything prefixed `EXPO_PUBLIC_` is inlined into the client bundle at build
+time and is publicly readable, so it must never hold a secret — the Supabase and Clerk keys below
+are safe to ship because Supabase Row Level Security and Clerk enforce access, not the key itself.
+
+| Variable                            | Required | Purpose                                  |
+| ----------------------------------- | -------- | ---------------------------------------- |
+| `EXPO_PUBLIC_SUPABASE_URL`          | yes      | Supabase project URL                     |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY`     | yes      | Supabase anon/publishable key            |
+| `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | yes      | Clerk publishable key                    |
+| `EXPO_PUBLIC_SENTRY_DSN`            | no       | Error monitoring; leave empty to disable |
+| `EXPO_PUBLIC_ANALYTICS_ENABLED`     | no       | Product analytics, off by default        |
+| `EXPO_PUBLIC_ANALYTICS_DEBUG`       | no       | Log analytics events to the console      |
+
+Importing `@/lib/env` validates the environment once and throws a single error listing every
+missing or malformed variable, rather than failing later at an unrelated call site. Nothing
+imports it yet, so the app still starts without a `.env` file.
 
 ## Structure
 
 ```
 src/app/        Expo Router routes — every file here is a screen
+src/lib/        framework and third-party integrations (env, supabase, …)
 src/components/ reusable, presentation-only components
 assets/         icons and images
 app.json        Expo app configuration
