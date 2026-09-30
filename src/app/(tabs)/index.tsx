@@ -1,22 +1,113 @@
+import { useCallback, useMemo, useState } from 'react';
+import { View } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
 
-import { ScreenShell, SearchInput } from '@/components';
+import { EmptyState, GhostButton, ScreenShell, SectionHeader, SpotCard } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
+import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
+import { MOCK_SPOTS } from '@/features/spots/mock-spots';
+import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
+import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
+import type { Spot } from '@/features/spots/types';
+import { useSpotFilters } from '@/features/spots/useSpotFilters';
 
-export default function MapScreen() {
+/**
+ * The app's home feed: the spots nearest to the athlete, discovered through photos.
+ *
+ * It sits on the first tab, which the design labels "Map"; the real map is a separate
+ * screen reachable from later flows.
+ */
+export default function HomeScreen() {
+  const { selectedNames, toggle, clear, filtered } = useSpotFilters(MOCK_SPOTS);
+  const [favouriteIds, setFavouriteIds] = useState<readonly string[]>([]);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const nearby = useMemo(
+    () => [...filtered].sort((first, second) => first.distanceKm - second.distanceKm),
+    [filtered],
+  );
+
+  const toggleFavourite = useCallback((id: string) => {
+    setFavouriteIds((previous) =>
+      previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id],
+    );
+  }, []);
+
+  const closeSearch = useCallback(() => {
+    setSearchVisible(false);
+    setSearchQuery('');
+  }, []);
+
+  const openSpot = useCallback(
+    (spot: Spot) => {
+      closeSearch();
+      router.push({ pathname: '/spot/[id]', params: { id: spot.id } });
+    },
+    [closeSearch],
+  );
+
   return (
-    <ScreenShell description="Calisthenics spots near you" title="Map" variant="tab">
-      <SearchInput placeholder="Search street spots" />
+    <>
+      <ScreenShell header={false} padded={false} scroll variant="tab">
+        <View className="gap-space-12">
+          <View className="px-screen-px">
+            <SpotsSearchBar onPress={() => setSearchVisible(true)} />
+          </View>
 
-      <View className="flex-1 items-center justify-center gap-space-12 pb-section-gap">
-        <View className="h-icon-xl w-icon-xl items-center justify-center rounded-pill bg-bg-surface">
-          <Ionicons color={brandColors.primary} name="map-outline" size={iconSizeValues.md} />
+          <EquipmentFilterChips onToggle={toggle} selectedNames={selectedNames} />
         </View>
-        <Text className="text-center text-bodySmall text-text-secondary">
-          The map lands here: spot pins, your location and the distance to each spot.
-        </Text>
-      </View>
-    </ScreenShell>
+
+        <View className="gap-space-12 px-screen-px">
+          <SectionHeader
+            action={
+              <View accessible accessibilityLabel="Spots sorted by distance from you">
+                <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
+              </View>
+            }
+            title="Around you"
+            titleSize="h1"
+          />
+
+          {nearby.length === 0 ? (
+            <EmptyState
+              action={<GhostButton label="Clear filters" onPress={clear} />}
+              description="No spots carry every selected piece of equipment."
+              padded={false}
+              title="No spots match"
+            />
+          ) : (
+            <View className="gap-space-16">
+              {nearby.map((spot) => (
+                <SpotCard
+                  key={spot.id}
+                  equipment={spot.equipment}
+                  imageUri={spot.image}
+                  isFavorite={favouriteIds.includes(spot.id)}
+                  name={spot.name}
+                  onPress={() => openSpot(spot)}
+                  onToggleFavorite={() => toggleFavourite(spot.id)}
+                  rating={spot.rating}
+                  reviewCount={spot.reviewCount}
+                  variant="list"
+                  verifiedAt={spot.verifiedAt}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      </ScreenShell>
+
+      <SpotSearchSheet
+        onChangeQuery={setSearchQuery}
+        onClose={closeSearch}
+        onSelect={openSpot}
+        query={searchQuery}
+        spots={nearby}
+        visible={searchVisible}
+      />
+    </>
   );
 }

@@ -1,6 +1,6 @@
 const { designSystem: ds } = require('./designSystem.json');
 
-const { colors, typography, spacing, layout, radius, iconSizes, shadows, components } = ds;
+const { colors, typography, spacing, layout, radius, iconSizes, shadows, components, screens } = ds;
 
 /** `#RRGGBB` to the `R G B` channel triplet a CSS custom property needs. */
 function toChannels(hex) {
@@ -112,6 +112,7 @@ const componentSize = {
   input: components.input.height,
   'bottom-nav': components.bottomNav.height,
   'spot-image': components.spotCard.imageHeight,
+  'spot-hero': screens.spotDetails.heroImage.height,
   'equipment-tile': components.equipmentCard.width,
   'review-avatar': components.reviewCard.avatar.size,
 };
@@ -167,6 +168,7 @@ const config = {
         card: toBoxShadow(shadows.card),
         'card-elevated': toBoxShadow(shadows.cardElevated),
         button: toBoxShadow(shadows.button),
+        glow: toBoxShadow(shadows.glow),
       },
       // No `elevation` scale. Tailwind has no elevation utility, and NativeWind's preset
       // adds none, so an `elevation-*` class would compile to nothing. NativeWind derives

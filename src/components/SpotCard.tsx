@@ -101,7 +101,9 @@ function SpotBody({
         ) : null}
       </View>
 
-      {rating !== undefined ? <Rating count={reviewCount} size="sm" value={rating} /> : null}
+      {rating !== undefined ? (
+        <Rating count={reviewCount} size="sm" value={rating} variant="summary" />
+      ) : null}
 
       {equipmentText.length > 0 ? (
         <Text className="text-bodySmall text-text-secondary" numberOfLines={2}>
@@ -176,7 +178,9 @@ function CompactSpotCard({
           <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
             {name}
           </Text>
-          {rating !== undefined ? <Rating count={reviewCount} size="sm" value={rating} /> : null}
+          {rating !== undefined ? (
+            <Rating count={reviewCount} size="sm" value={rating} variant="summary" />
+          ) : null}
           {equipmentText.length > 0 ? (
             <Text className="text-bodySmall text-text-secondary" numberOfLines={1}>
               {equipmentText}

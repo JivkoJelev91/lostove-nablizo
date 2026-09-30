@@ -62,3 +62,16 @@ export function DipBarsIcon(props: EquipmentIconProps) {
     </EquipmentGlyph>
   );
 }
+
+/** Monkey bars: an overhead ladder, two uprights holding three rungs. */
+export function MonkeyBarsIcon(props: EquipmentIconProps) {
+  return (
+    <EquipmentGlyph {...props}>
+      <Line strokeWidth={2} x1={5.5} x2={5.5} y1={2.5} y2={21.5} />
+      <Line strokeWidth={2} x1={18.5} x2={18.5} y1={2.5} y2={21.5} />
+      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={5.5} y2={5.5} />
+      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={12} y2={12} />
+      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={18.5} y2={18.5} />
+    </EquipmentGlyph>
+  );
+}

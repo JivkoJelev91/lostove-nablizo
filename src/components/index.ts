@@ -19,13 +19,16 @@ export type {
   StatusTone,
 } from './Chip';
 
+export { ConditionBadge } from './ConditionBadge';
+export type { ConditionBadgeProps } from './ConditionBadge';
+
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
-export { DipBarsIcon, PullUpBarIcon, RingsIcon } from './EquipmentIcons';
+export { DipBarsIcon, MonkeyBarsIcon, PullUpBarIcon, RingsIcon } from './EquipmentIcons';
 export type { EquipmentIconProps } from './EquipmentIcons';
 
 export { EquipmentItem, EquipmentList } from './EquipmentList';
@@ -58,7 +61,7 @@ export { PhotoGrid } from './PhotoGrid';
 export type { PhotoGridItem, PhotoGridProps } from './PhotoGrid';
 
 export { Rating } from './Rating';
-export type { RatingProps, RatingSize } from './Rating';
+export type { RatingProps, RatingSize, RatingVariant } from './Rating';
 
 export { ReviewCard } from './ReviewCard';
 export type { ReviewCardProps } from './ReviewCard';
@@ -73,7 +76,7 @@ export { ScreenShell } from './ScreenShell';
 export type { ScreenShellProps, ScreenShellVariant } from './ScreenShell';
 
 export { SectionHeader } from './SectionHeader';
-export type { SectionHeaderProps } from './SectionHeader';
+export type { SectionHeaderProps, SectionHeaderTitleSize } from './SectionHeader';
 
 export { Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';

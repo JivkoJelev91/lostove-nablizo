@@ -175,6 +175,10 @@
       "button": {
         "ios": { "offsetX": 0, "offsetY": 1, "opacity": 0.12, "radius": 2, "color": "#000000" },
         "android": { "elevation": 2 }
+      },
+      "glow": {
+        "ios": { "offsetX": 0, "offsetY": 0, "opacity": 0.35, "radius": 10, "color": "#A3FF12" },
+        "android": { "elevation": 0 }
       }
     },
     "components": {
@@ -225,7 +229,7 @@
           "rating": {
             "style": "bodySmall",
             "color": "text.primary",
-            "iconColor": "status.warning"
+            "iconColor": "primary.base"
           },
           "equipment": { "style": "bodySmall", "color": "text.secondary" },
           "verified": { "style": "caption", "color": "status.good" }
@@ -272,8 +276,10 @@
             "borderColor": "border"
           },
           "active": {
-            "background": "primary.base",
-            "textColor": "text.onPrimary"
+            "background": "bg.surface",
+            "borderColor": "primary.base",
+            "textColor": "primary.base",
+            "shadow": "glow"
           }
         }
       },

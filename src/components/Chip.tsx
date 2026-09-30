@@ -34,7 +34,11 @@ export type FilterChipProps = {
   className?: string;
 };
 
-/** A selectable filter. The active state is the only thing that differs from {@link Chip}. */
+/**
+ * A selectable filter. The active state is the only thing that differs from {@link Chip}:
+ * a lime outline and a soft glow, so selection reads as emphasis rather than as a filled
+ * button competing with the screen's primary action.
+ */
 export function FilterChip({
   label,
   selected = false,
@@ -50,10 +54,8 @@ export function FilterChip({
       accessibilityRole="button"
       accessibilityState={{ selected, disabled }}
       className={cn(
-        'h-chip-control flex-row items-center gap-space-4 rounded-pill px-space-12',
-        selected
-          ? 'bg-primary active:bg-primary-pressed'
-          : 'border border-border bg-bg-surface active:bg-bg-main',
+        'h-chip-control flex-row items-center gap-space-4 rounded-pill border bg-bg-surface px-space-12',
+        selected ? 'border-primary shadow-glow' : 'border-border active:bg-bg-main',
         disabled && 'opacity-50',
         className,
       )}
@@ -62,10 +64,7 @@ export function FilterChip({
     >
       {leftIcon !== undefined ? <View accessible={false}>{leftIcon}</View> : null}
       <Text
-        className={cn(
-          'font-medium text-caption',
-          selected ? 'text-text-on-primary' : 'text-text-primary',
-        )}
+        className={cn('font-medium text-caption', selected ? 'text-primary' : 'text-text-primary')}
       >
         {label}
       </Text>

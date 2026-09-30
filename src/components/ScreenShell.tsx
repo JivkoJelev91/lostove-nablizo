@@ -8,8 +8,7 @@ import { cn } from '@/utils/cn';
 
 export type ScreenShellVariant = 'tab' | 'stack';
 
-export type ScreenShellProps = {
-  title: string;
+type ScreenShellBaseProps = {
   description?: string;
   /** Header content on the trailing edge, such as an icon button. */
   action?: ReactNode;
@@ -21,12 +20,22 @@ export type ScreenShellProps = {
   variant?: ScreenShellVariant;
   /** Overrides the variant's own answer for whether the back control shows. */
   back?: boolean;
+  /** Set false when the content owns its horizontal padding, such as an edge-to-edge map. */
+  padded?: boolean;
   /** Wraps the content in a scroll view that owns its bottom padding and dismisses the keyboard. */
   scroll?: boolean;
   children: ReactNode;
   className?: string;
   contentContainerClassName?: string;
 };
+
+/**
+ * The title is required exactly when the header shows: a screen that supplies its own top
+ * controls (the map) must not be forced to invent a title for a header it never renders.
+ */
+export type ScreenShellProps =
+  | (ScreenShellBaseProps & { header?: true; title: string })
+  | (ScreenShellBaseProps & { header: false; title?: string });
 
 const VARIANT_EDGES: Record<ScreenShellVariant, Edge[]> = {
   tab: ['top'],
@@ -44,40 +53,47 @@ const VARIANT_EDGES: Record<ScreenShellVariant, Edge[]> = {
  * Keyboard awareness lives in the scroll view: iOS adjusts its insets while Android resizes
  * the window, so a form scrolls itself clear of the keyboard without the screen thinking
  * about it.
+ *
+ * Immersive screens opt out deliberately: `header={false}` drops the title row and
+ * `padded={false}` hands the horizontal padding to the screen. The map needs both.
  */
-export function ScreenShell({
-  title,
-  description,
-  action,
-  variant = 'stack',
-  back,
-  scroll = false,
-  children,
-  className,
-  contentContainerClassName,
-}: ScreenShellProps) {
-  const header = (
-    <ScreenHeader
-      action={action}
-      back={back ?? variant === 'stack'}
-      description={description}
-      title={title}
-    />
-  );
+export function ScreenShell(props: ScreenShellProps) {
+  const {
+    description,
+    action,
+    variant = 'stack',
+    back,
+    padded = true,
+    scroll = false,
+    children,
+    className,
+    contentContainerClassName,
+  } = props;
+
+  const headerElement =
+    props.header === false ? null : (
+      <ScreenHeader
+        action={action}
+        back={back ?? variant === 'stack'}
+        description={description}
+        title={props.title}
+      />
+    );
 
   if (scroll) {
     return (
       <Screen
         className={className}
         contentContainerClassName={cn(
-          'gap-section-gap px-screen-px pb-section-gap-lg pt-space-8',
+          'gap-section-gap pb-section-gap-lg pt-space-8',
+          padded && 'px-screen-px',
           contentContainerClassName,
         )}
         edges={VARIANT_EDGES[variant]}
         padded={false}
         scroll
       >
-        {header}
+        {headerElement}
         {children}
       </Screen>
     );
@@ -86,9 +102,13 @@ export function ScreenShell({
   return (
     <Screen className={className} edges={VARIANT_EDGES[variant]} padded={false}>
       <View
-        className={cn('flex-1 gap-section-gap px-screen-px pt-space-8', contentContainerClassName)}
+        className={cn(
+          'flex-1 gap-section-gap pt-space-8',
+          padded && 'px-screen-px',
+          contentContainerClassName,
+        )}
       >
-        {header}
+        {headerElement}
         {children}
       </View>
     </Screen>

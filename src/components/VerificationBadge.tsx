@@ -1,10 +1,16 @@
+import { Text, View } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
 
-import { StatusChip } from '@/components/Chip';
-import type { StatusTone } from '@/components/Chip';
-import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
+import {
+  brandColors,
+  iconSizeValues,
+  schemeTextSecondary,
+  statusColors,
+} from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
 import { DAY_IN_MS } from '@/utils/dates';
+import { cn } from '@/utils/cn';
 
 /** A verification date, either a `Date` or an ISO string. */
 export type VerifiedAt = Date | string;
@@ -26,10 +32,16 @@ export type VerificationRecency = {
 const FRESH_DAYS = 7;
 const AGING_DAYS = 30;
 
-const STATUS_TONE: Record<VerificationTone, StatusTone> = {
-  fresh: 'good',
-  aging: 'warning',
-  stale: 'neutral',
+const BORDER_TONE_CLASS: Record<VerificationTone, string> = {
+  fresh: 'border-primary',
+  aging: 'border-status-warning',
+  stale: 'border-border',
+};
+
+const LABEL_TONE_CLASS: Record<VerificationTone, string> = {
+  fresh: 'text-text-primary',
+  aging: 'text-text-primary',
+  stale: 'text-text-secondary',
 };
 
 function toDate(value: VerifiedAt): Date | undefined {
@@ -99,23 +111,31 @@ export function VerificationBadge({ verifiedAt, label, className }: Verification
   const recency = describeVerification(verifiedAt);
 
   const iconColor: Record<VerificationTone, string> = {
-    fresh: statusColors.good,
+    fresh: brandColors.primary,
     aging: statusColors.warning,
     stale: schemeTextSecondary[scheme],
   };
 
   return (
-    <StatusChip
-      className={className}
-      icon={
-        <Ionicons
-          color={iconColor[recency.tone]}
-          name={recency.tone === 'stale' ? 'shield-outline' : 'shield-checkmark'}
-          size={iconSizeValues.xs}
-        />
-      }
-      label={label ?? recency.label}
-      tone={STATUS_TONE[recency.tone]}
-    />
+    <View
+      accessible
+      className={cn(
+        'flex-row items-center gap-space-4 self-start rounded-pill border bg-bg-surface px-space-8 py-space-4',
+        BORDER_TONE_CLASS[recency.tone],
+        className,
+      )}
+    >
+      <Ionicons
+        color={iconColor[recency.tone]}
+        name={recency.tone === 'stale' ? 'checkmark-circle-outline' : 'checkmark-circle'}
+        size={iconSizeValues.xs}
+      />
+      <Text
+        className={cn('font-medium text-caption', LABEL_TONE_CLASS[recency.tone])}
+        numberOfLines={1}
+      >
+        {label ?? recency.label}
+      </Text>
+    </View>
   );
 }

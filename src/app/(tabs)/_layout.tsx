@@ -67,6 +67,9 @@ export default function TabsLayout() {
         }}
       />
 
+      {/* Registered but kept out of the bar: the real map ships in a later phase. */}
+      <Tabs.Screen name="map" options={{ href: null }} />
+
       <Tabs.Screen
         name="favorites"
         options={{
