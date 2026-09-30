@@ -41,6 +41,24 @@ it finds, so two lockfiles make build behaviour unpredictable.
 EAS builds, signs and submits the app in the cloud (`eas build`, `eas submit`) and ships over-the-air updates (`eas update`) with no local Xcode or Android Studio. Nothing in this project uses EAS yet — Expo Go runs everything, including on a device — so the CLI is not installed. To add it, install `eas-cli` as a devDependency and run its binary, which is named `eas`: `pnpm add -D eas-cli` then `pnpm exec eas <command>`.
 Docs: https://docs.expo.dev/eas/index.md
 
+## Supabase
+
+Supabase is the only backend: hosted PostgreSQL + Storage + RLS. No Prisma, no custom Node backend, no separately managed database. The CLI is a **pinned devDependency**, so run it through pnpm (`pnpm exec supabase <command>`, never a global `supabase`).
+
+```bash
+pnpm exec supabase migration new <name>   # write a timestamped migration
+pnpm exec supabase migration up --local   # apply migrations to the local database
+pnpm exec supabase db push                # apply migrations to the linked cloud project
+pnpm exec supabase db lint                # check the schema
+```
+
+- Schema changes go through migration files in `supabase/migrations/`, never through the dashboard's table editor. `supabase/config.toml` and `supabase/migrations/` are committed; `supabase/.temp/` is not.
+- `pnpm exec supabase start` needs Docker Desktop, which is **not installed** on this machine. Until it is, or until a cloud project is linked with `pnpm exec supabase link --project-ref <ref>`, no database can be reached — migrations can be written but not applied.
+- The database password is asked for interactively by `link` (or stored in the OS keychain). Never put it in `.env`, which Expo reads and inlines into the bundle.
+- Screens and shared components never touch Supabase directly (enforced by `no-restricted-globals` on `fetch`). Data access lives in `src/lib/` and `src/features/`.
+
+Docs: https://supabase.com/docs/guides/cli/getting-started
+
 ## Coding conventions
 
 Enforced where a rule can be mechanical. The "enforced by" column names the rule that fails the build, so you can trust it rather than guessing.

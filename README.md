@@ -63,6 +63,51 @@ Importing `@/lib/env` validates the environment once and throws a single error l
 missing or malformed variable, rather than failing later at an unrelated call site. Nothing
 imports it yet, so the app still starts without a `.env` file.
 
+### Supabase
+
+Supabase is the backend: one hosted **PostgreSQL** database with **Storage**, **Row Level
+Security** and database functions. The app reaches it through one typed client in `src/lib/`, and
+no screen or shared component talks to Supabase directly. There is no Prisma, no custom Node
+backend and no separately managed PostgreSQL server — the database _is_ the Supabase project, so
+auth, storage and RLS stay in one place.
+
+The Supabase CLI is a **pinned devDependency** (`supabase`), not a global install, so every
+developer and CI run uses the same version:
+
+```bash
+pnpm exec supabase --help
+```
+
+| Command                                   | Description                                       |
+| ----------------------------------------- | ------------------------------------------------- |
+| `pnpm exec supabase init`                 | Create `supabase/config.toml` (already committed) |
+| `pnpm exec supabase start`                | Run the whole stack locally (needs Docker)        |
+| `pnpm exec supabase stop`                 | Stop the local stack                              |
+| `pnpm exec supabase status`               | Show what is running and its local credentials    |
+| `pnpm exec supabase link`                 | Link this directory to a cloud project            |
+| `pnpm exec supabase migration new <name>` | Write a timestamped migration file                |
+| `pnpm exec supabase migration up --local` | Apply migrations to the local database            |
+| `pnpm exec supabase db push`              | Apply pending migrations to the linked project    |
+| `pnpm exec supabase db diff -f <name>`    | Snapshot local schema changes as a migration      |
+| `pnpm exec supabase db lint`              | Check the schema for mistakes                     |
+
+`supabase/config.toml` and `supabase/migrations/` are committed: the config is the local
+environment's definition and the migrations are the schema's history. Everything the CLI writes
+while running (`supabase/.temp/`, branches, local secrets) is ignored by `supabase/.gitignore`.
+
+There are two ways to run the database, and the app is pointed at whichever one is in use by
+`EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` in `.env`:
+
+- **Local stack** — `pnpm exec supabase start` prints the local URL and publishable key. Requires
+  [Docker Desktop](https://docs.docker.com/desktop); nothing is written to the cloud.
+- **Cloud project** — create a project at [supabase.com/dashboard](https://supabase.com/dashboard),
+  then run `pnpm exec supabase link --project-ref <ref>` and paste the database password when
+  asked. Migrations reach it with `pnpm exec supabase db push`. The password is asked for
+  interactively or stored in the OS keychain; it does not belong in `.env`, which Expo reads.
+
+Schema changes always go through a migration file, never through the dashboard's table editor, so
+that local, cloud and review all see the same history.
+
 ### Location
 
 The Add Spot flow records the spot's position from the device rather than a map pin, so it asks for
