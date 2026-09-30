@@ -183,7 +183,7 @@
         "heightSmall": 36,
         "paddingHorizontal": 16,
         "paddingVertical": 12,
-        "borderRadius": 12,
+        "borderRadius": 999,
         "fontSize": 16,
         "fontWeight": 600,
         "variants": {
@@ -195,13 +195,17 @@
           "secondary": {
             "background": "transparent",
             "backgroundPressed": "bg.surface",
-            "borderColor": "border",
-            "textColor": "text.primary"
+            "borderColor": "primary.base",
+            "textColor": "primary.base"
           },
           "ghost": {
             "background": "transparent",
             "backgroundPressed": "bg.surface",
-            "textColor": "text.primary"
+            "textColor": "primary.base"
+          },
+          "danger": {
+            "background": "status.bad",
+            "textColor": "text.onSecondary"
           },
           "disabled": {
             "background": "bg.surface",

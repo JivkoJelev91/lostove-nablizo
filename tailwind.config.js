@@ -116,6 +116,9 @@ const componentSize = {
   'review-avatar': components.reviewCard.avatar.size,
 };
 
+/** Icon dimensions, exposed as `w-icon-<name>` / `h-icon-<name>`. */
+const iconSize = rekey(iconSizes, (name) => `icon-${name}`);
+
 /**
  * Renders a shadow as a CSS `box-shadow` string.
  *
@@ -156,8 +159,8 @@ const config = {
         'list-gap': layout.listGap,
       },
       borderRadius: rekey(radius),
-      height: componentSize,
-      width: componentSize,
+      height: { ...componentSize, ...iconSize },
+      width: { ...componentSize, ...iconSize },
       minHeight: componentSize,
       boxShadow: {
         card: toBoxShadow(shadows.card),

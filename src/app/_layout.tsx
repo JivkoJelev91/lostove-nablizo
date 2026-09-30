@@ -16,16 +16,15 @@ export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme === 'dark' ? 'dark' : 'light';
 
-  const [fontsLoaded, fontError] = Font.useFonts({
+  // Inter is loaded for its side effect: the tree is deliberately not gated on it. Returning
+  // null until fonts resolve leaves a permanently blank screen with no error when a font load
+  // stalls, and rendering a few frames in the system font beats an undebuggable blank page.
+  Font.useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
   });
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
 
   return (
     <>

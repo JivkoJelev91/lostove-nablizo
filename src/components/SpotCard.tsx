@@ -1,0 +1,275 @@
+import { Image, Text, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
+
+import { Ionicons } from '@expo/vector-icons';
+
+import { Card } from '@/components/Card';
+import { StatusChip } from '@/components/Chip';
+import { IconButton } from '@/components/IconButton';
+import { Rating } from '@/components/Rating';
+import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
+import { useScheme } from '@/hooks/useScheme';
+
+export type SpotEquipment = {
+  name: string;
+  quantity?: number;
+};
+
+export type SpotCardVariant = 'list' | 'map' | 'compact';
+
+export type SpotCardProps = {
+  name: string;
+  rating?: number;
+  reviewCount?: number;
+  equipment?: readonly SpotEquipment[];
+  /** e.g. `Verified 4 days ago`. Rendered as a status badge. */
+  verificationLabel?: string;
+  /** e.g. `1.2 km away`. */
+  distanceLabel?: string;
+  imageUri?: ImageSourcePropType;
+  isFavorite?: boolean;
+  onPress?: () => void;
+  onToggleFavorite?: () => void;
+  variant?: SpotCardVariant;
+  accessibilityLabel?: string;
+  className?: string;
+};
+
+function formatEquipment(equipment: readonly SpotEquipment[], withQuantity: boolean): string {
+  return equipment
+    .map((item) =>
+      withQuantity && item.quantity !== undefined ? `${item.name} ×${item.quantity}` : item.name,
+    )
+    .join(' · ');
+}
+
+function FavoriteButton({ isFavorite, onPress }: { isFavorite: boolean; onPress: () => void }) {
+  const scheme = useScheme();
+
+  return (
+    <IconButton
+      accessibilityLabel={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
+      icon={
+        <Ionicons
+          color={isFavorite ? statusColors.bad : schemeTextSecondary[scheme]}
+          name={isFavorite ? 'heart' : 'heart-outline'}
+          size={iconSizeValues.sm}
+        />
+      }
+      onPress={onPress}
+      size="sm"
+    />
+  );
+}
+
+type SpotBodyProps = {
+  name: string;
+  rating?: number;
+  reviewCount?: number;
+  equipmentText: string;
+  verificationLabel?: string;
+  distanceLabel?: string;
+  isFavorite: boolean;
+  onToggleFavorite?: () => void;
+  showVerification: boolean;
+};
+
+function SpotBody({
+  name,
+  rating,
+  reviewCount,
+  equipmentText,
+  verificationLabel,
+  distanceLabel,
+  isFavorite,
+  onToggleFavorite,
+  showVerification,
+}: SpotBodyProps) {
+  const scheme = useScheme();
+  const showFooter = (showVerification && verificationLabel !== undefined) || distanceLabel;
+
+  return (
+    <View className="gap-card-gap p-card-pad">
+      <View className="flex-row items-start justify-between gap-space-8">
+        <Text className="flex-1 font-semibold text-h2 text-text-primary" numberOfLines={2}>
+          {name}
+        </Text>
+        {onToggleFavorite !== undefined ? (
+          <FavoriteButton isFavorite={isFavorite} onPress={onToggleFavorite} />
+        ) : null}
+      </View>
+
+      {rating !== undefined ? <Rating count={reviewCount} size="sm" value={rating} /> : null}
+
+      {equipmentText.length > 0 ? (
+        <Text className="text-bodySmall text-text-secondary" numberOfLines={2}>
+          {equipmentText}
+        </Text>
+      ) : null}
+
+      {showFooter ? (
+        <View className="flex-row items-center justify-between gap-space-8">
+          {showVerification && verificationLabel !== undefined ? (
+            <StatusChip
+              icon={
+                <Ionicons
+                  color={statusColors.good}
+                  name="checkmark-circle"
+                  size={iconSizeValues.xs}
+                />
+              }
+              label={verificationLabel}
+              tone="good"
+            />
+          ) : (
+            <View />
+          )}
+
+          {distanceLabel !== undefined ? (
+            <View className="flex-row items-center gap-space-4">
+              <Ionicons
+                color={schemeTextSecondary[scheme]}
+                name="location-outline"
+                size={iconSizeValues.xs}
+              />
+              <Text className="text-caption text-text-secondary">{distanceLabel}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+type CompactSpotCardProps = {
+  name: string;
+  rating?: number;
+  reviewCount?: number;
+  equipmentText: string;
+  imageUri?: ImageSourcePropType;
+  isFavorite: boolean;
+  onToggleFavorite?: () => void;
+  onPress?: () => void;
+  accessibilityLabel?: string;
+  className?: string;
+};
+
+function CompactSpotCard({
+  name,
+  rating,
+  reviewCount,
+  equipmentText,
+  imageUri,
+  isFavorite,
+  onToggleFavorite,
+  onPress,
+  accessibilityLabel,
+  className,
+}: CompactSpotCardProps) {
+  return (
+    <Card
+      accessibilityLabel={accessibilityLabel}
+      className={className}
+      gap="sm"
+      onPress={onPress}
+      padding="sm"
+      variant="flat"
+    >
+      <View className="flex-row items-center gap-space-12">
+        {imageUri !== undefined ? (
+          <Image
+            accessibilityLabel={name}
+            className="h-equipment-tile w-equipment-tile rounded-md bg-bg-surface"
+            source={imageUri}
+          />
+        ) : null}
+
+        <View className="flex-1 gap-space-4">
+          <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
+            {name}
+          </Text>
+          {rating !== undefined ? <Rating count={reviewCount} size="sm" value={rating} /> : null}
+          {equipmentText.length > 0 ? (
+            <Text className="text-bodySmall text-text-secondary" numberOfLines={1}>
+              {equipmentText}
+            </Text>
+          ) : null}
+        </View>
+
+        {onToggleFavorite !== undefined ? (
+          <FavoriteButton isFavorite={isFavorite} onPress={onToggleFavorite} />
+        ) : null}
+      </View>
+    </Card>
+  );
+}
+
+/**
+ * A spot summary in three densities: a photo-led list card, a text-only map preview and a
+ * compact row. It renders data and reports intent through callbacks; it never fetches.
+ */
+export function SpotCard({
+  name,
+  rating,
+  reviewCount,
+  equipment = [],
+  verificationLabel,
+  distanceLabel,
+  imageUri,
+  isFavorite = false,
+  onPress,
+  onToggleFavorite,
+  variant = 'list',
+  accessibilityLabel,
+  className,
+}: SpotCardProps) {
+  const equipmentText = formatEquipment(equipment, variant !== 'map');
+
+  if (variant === 'compact') {
+    return (
+      <CompactSpotCard
+        accessibilityLabel={accessibilityLabel ?? name}
+        className={className}
+        equipmentText={equipmentText}
+        imageUri={imageUri}
+        isFavorite={isFavorite}
+        name={name}
+        onPress={onPress}
+        onToggleFavorite={onToggleFavorite}
+        rating={rating}
+        reviewCount={reviewCount}
+      />
+    );
+  }
+
+  return (
+    <Card
+      accessibilityLabel={accessibilityLabel ?? name}
+      className={className}
+      gap="none"
+      onPress={onPress}
+      padding="none"
+      variant={variant === 'map' ? 'flat' : 'elevated'}
+    >
+      {variant === 'list' && imageUri !== undefined ? (
+        <Image
+          accessibilityLabel={name}
+          className="h-spot-image w-full bg-bg-surface"
+          source={imageUri}
+        />
+      ) : null}
+
+      <SpotBody
+        distanceLabel={distanceLabel}
+        equipmentText={equipmentText}
+        isFavorite={isFavorite}
+        name={name}
+        onToggleFavorite={onToggleFavorite}
+        rating={rating}
+        reviewCount={reviewCount}
+        showVerification
+        verificationLabel={verificationLabel}
+      />
+    </Card>
+  );
+}
