@@ -5,8 +5,8 @@ import type { SpotEquipment } from '@/components';
 import { GalleryGroup, GalleryRow, GalleryScreen } from '@/components/gallery/GalleryScreen';
 import { daysAgo } from '@/utils/dates';
 
-const PHOTO = require('@/assets/images/home.jpg') as number;
-const DETAIL_PHOTO = require('@/assets/images/spot-details.jpg') as number;
+const PHOTO_1 = require('@/assets/images/lostove1.png') as number;
+const PHOTO_2 = require('@/assets/images/lostove2.png') as number;
 
 const EQUIPMENT: SpotEquipment[] = [
   { name: 'Pull-up', quantity: 2 },
@@ -58,7 +58,7 @@ export default function CardsGalleryScreen() {
           <SpotCard
             distanceLabel="1.2 km away"
             equipment={EQUIPMENT}
-            imageUri={PHOTO}
+            imageUri={PHOTO_1}
             isFavorite
             name="Trakia Fitness Park"
             onToggleFavorite={() => {}}
@@ -84,7 +84,7 @@ export default function CardsGalleryScreen() {
         <GalleryRow label="Compact" stack>
           <SpotCard
             equipment={EQUIPMENT}
-            imageUri={DETAIL_PHOTO}
+            imageUri={PHOTO_2}
             name="Vitosha Park"
             rating={4.9}
             reviewCount={61}
@@ -97,12 +97,12 @@ export default function CardsGalleryScreen() {
         <GalleryRow label="Pressable, removable, loading">
           <View className="w-40 gap-space-8">
             <PhotoCard
-              accessibilityLabel="Pull-up bars"
+              accessibilityLabel="Spot photo 1"
               onPress={() => {}}
               onRemove={() => {}}
-              uri={PHOTO}
+              uri={PHOTO_1}
             />
-            <PhotoCard loading uri={PHOTO} />
+            <PhotoCard loading uri={PHOTO_1} />
           </View>
         </GalleryRow>
       </GalleryGroup>
