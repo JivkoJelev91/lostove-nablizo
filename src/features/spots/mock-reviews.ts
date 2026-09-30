@@ -4,6 +4,9 @@ import { daysAgo } from '@/utils/dates';
 /**
  * Mock reviews so every spot page has something to read. The dates are relative to now so the
  * wording never drifts; the authors and the text are invented.
+ *
+ * `Alex Ivanov` is the mock athlete on the Profile tab, so the reviews named in `mock-profile`
+ * are written by them here. One athlete, one name, wherever the review appears.
  */
 export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
@@ -25,7 +28,7 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
     id: 'review-trakia-3',
     spotId: 'trakia-fitness-park',
-    authorName: 'Nikolay Georgiev',
+    authorName: 'Alex Ivanov',
     rating: 4,
     text: 'Solid bars and a good surface, though the rings could use new straps. Still my usual morning stop.',
     date: daysAgo(9),
@@ -73,7 +76,7 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
     id: 'review-vitosha-2',
     spotId: 'vitosha-view-park',
-    authorName: 'Anna Koleva',
+    authorName: 'Alex Ivanov',
     rating: 4,
     text: 'Basic setup but everything works. Bring chalk in the summer, the bar gets slippery.',
     date: daysAgo(52),

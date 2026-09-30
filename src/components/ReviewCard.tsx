@@ -6,7 +6,8 @@ import { Card } from '@/components/Card';
 import { Rating } from '@/components/Rating';
 
 export type ReviewCardProps = {
-  authorName: string;
+  /** Omit on the author's own profile, where repeating their name above every review is noise. */
+  authorName?: string;
   /** Avatar source: a remote `{ uri }` or a local `require(...)` asset. */
   avatarUri?: ImageSourcePropType;
   rating: number;
@@ -27,12 +28,14 @@ export function ReviewCard({
 }: ReviewCardProps) {
   return (
     <Card className={className} variant="flat">
-      <View className="flex-row items-center gap-space-8">
-        <Avatar name={authorName} size="md" uri={avatarUri} />
-        <Text className="flex-1 font-semibold text-h3 text-text-primary" numberOfLines={1}>
-          {authorName}
-        </Text>
-      </View>
+      {authorName !== undefined ? (
+        <View className="flex-row items-center gap-space-8">
+          <Avatar name={authorName} size="md" uri={avatarUri} />
+          <Text className="flex-1 font-semibold text-h3 text-text-primary" numberOfLines={1}>
+            {authorName}
+          </Text>
+        </View>
+      ) : null}
 
       <Rating showValue={false} size="sm" value={rating} />
 
