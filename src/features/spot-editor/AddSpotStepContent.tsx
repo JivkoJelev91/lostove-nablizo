@@ -40,6 +40,7 @@ export function AddSpotStepContent({
       return (
         <AddSpotLocationStep
           coordinate={draft.coordinate}
+          errorText={errors.location}
           onChangeCoordinate={onChangeCoordinate}
         />
       );

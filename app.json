@@ -31,6 +31,12 @@
         {
           "backgroundColor": "#208AEF"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Street Fitness uses your location to place the spot you add where you are standing."
+        }
       ]
     ],
     "experiments": {

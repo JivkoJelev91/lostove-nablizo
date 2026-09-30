@@ -46,7 +46,7 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
         <View className="flex-row items-center gap-space-8">
           <Ionicons color={brandColors.primary} name="location-outline" size={iconSizeValues.sm} />
           <Text className="flex-1 text-body text-text-primary">
-            {describeLocality(draft.coordinate)}
+            {draft.coordinate === null ? 'Not captured' : describeLocality(draft.coordinate)}
           </Text>
         </View>
       </View>

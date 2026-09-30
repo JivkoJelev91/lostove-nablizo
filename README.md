@@ -14,7 +14,7 @@ pnpm start
 ```
 
 Scan the QR code with Expo Go on a physical device. No Android Studio, Android SDK or Xcode is
-needed at this stage.
+needed — every native module the app uses ships inside Expo Go.
 
 | Command             | Description                                         |
 | ------------------- | --------------------------------------------------- |
@@ -62,6 +62,15 @@ are safe to ship because Supabase Row Level Security and Clerk enforce access, n
 Importing `@/lib/env` validates the environment once and throws a single error listing every
 missing or malformed variable, rather than failing later at an unrelated call site. Nothing
 imports it yet, so the app still starts without a `.env` file.
+
+### Location
+
+The Add Spot flow records the spot's position from the device rather than a map pin, so it asks for
+foreground location access the first time the button is tapped. `expo-location` handles the request
+and the app never reads the position in the background; the permission prompt text lives in
+`app.json` under the `expo-location` plugin. There is no map in the app: Google Maps needed a
+project-owned API key baked into the binary, which does not work in Expo Go, so V1 uses coordinates
+only.
 
 ## Structure
 

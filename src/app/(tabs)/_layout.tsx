@@ -62,13 +62,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Map',
-          tabBarIcon: tabIcon('map', 'map-outline'),
+          title: 'Nearby',
+          tabBarIcon: tabIcon('navigate', 'navigate-outline'),
         }}
       />
-
-      {/* Registered but kept out of the bar: the real map ships in a later phase. */}
-      <Tabs.Screen name="map" options={{ href: null }} />
 
       <Tabs.Screen
         name="favorites"

@@ -14,6 +14,7 @@ export type AddSpotStep = 1 | 2 | 3 | 4 | 5;
 
 /** The fields an editor validates, each holding the message to show under its control. */
 export type SpotDraftErrors = {
+  location?: string;
   name?: string;
   description?: string;
   equipment?: string;
@@ -22,18 +23,10 @@ export type SpotDraftErrors = {
 
 /** A spot being created or edited, before anything reaches a backend. */
 export type SpotDraft = {
-  coordinate: Coordinate;
+  /** Null until the device reports a position; the wizard refuses to continue without one. */
+  coordinate: Coordinate | null;
   name: string;
   description: string;
   equipment: readonly EquipmentDraftItem[];
   photos: readonly ImageSourcePropType[];
-};
-
-/**
- * Both platform implementations of the pin picker take this shape: the native one wraps a
- * map with a draggable marker, and the web one stands in for it.
- */
-export type LocationPickerProps = {
-  coordinate: Coordinate;
-  onChange: (coordinate: Coordinate) => void;
 };

@@ -38,7 +38,7 @@ it finds, so two lockfiles make build behaviour unpredictable.
 
 ## Building with EAS
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `pnpm exec eas-cli <command>`; substitute that for bare `eas` in docs examples.
+EAS builds, signs and submits the app in the cloud (`eas build`, `eas submit`) and ships over-the-air updates (`eas update`) with no local Xcode or Android Studio. Nothing in this project uses EAS yet — Expo Go runs everything, including on a device — so the CLI is not installed. To add it, install `eas-cli` as a devDependency and run its binary, which is named `eas`: `pnpm add -D eas-cli` then `pnpm exec eas <command>`.
 Docs: https://docs.expo.dev/eas/index.md
 
 ## Coding conventions
@@ -82,5 +82,5 @@ Styling is **NativeWind** over `designSystem.json`. Use `className`, not `StyleS
 ## Rules
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `pnpm exec expo run:ios|android` locally, or `pnpm exec eas-cli build --profile development`.
+- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `pnpm exec expo run:ios|android` locally, or `pnpm exec eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md

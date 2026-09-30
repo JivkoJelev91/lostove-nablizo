@@ -35,8 +35,3 @@ export function describeLocality(coordinate: Coordinate): string {
 
   return `${nearest.name}, Sofia`;
 }
-
-/** A compact coordinate readout for the platforms that cannot show the map. */
-export function formatCoordinate(coordinate: Coordinate): string {
-  return `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`;
-}

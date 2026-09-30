@@ -16,8 +16,7 @@ import { useSpotFilters } from '@/features/spots/useSpotFilters';
 /**
  * The app's home feed: the spots nearest to the athlete, discovered through photos.
  *
- * It sits on the first tab, which the design labels "Map"; the real map is a separate
- * screen reachable from later flows.
+ * It sits on the first tab, which lists spots by distance rather than on a map.
  */
 export default function HomeScreen() {
   const { selectedNames, toggle, clear, filtered } = useSpotFilters(MOCK_SPOTS);

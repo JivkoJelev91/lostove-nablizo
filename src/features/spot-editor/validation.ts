@@ -45,9 +45,15 @@ export function validatePhotos(photos: SpotDraft['photos']): string | undefined 
   return photos.length === 0 ? 'Add at least one photo of the spot.' : undefined;
 }
 
+/** The message the location step shows, or undefined once a position was captured. */
+export function validateLocation(coordinate: SpotDraft['coordinate']): string | undefined {
+  return coordinate === null ? 'Capture the location before continuing.' : undefined;
+}
+
 /** Every field's state for a whole draft, used when the final action validates everything. */
 export function validateDraft(draft: SpotDraft): SpotDraftErrors {
   return {
+    location: validateLocation(draft.coordinate),
     name: validateName(draft.name),
     description: validateDescription(draft.description),
     equipment: validateEquipment(draft.equipment),
@@ -58,6 +64,8 @@ export function validateDraft(draft: SpotDraft): SpotDraftErrors {
 /** Only the fields the given step owns, so Continue never reveals a later step's errors. */
 export function validateStep(step: AddSpotStep, draft: SpotDraft): SpotDraftErrors {
   switch (step) {
+    case 1:
+      return { location: validateLocation(draft.coordinate) };
     case 2:
       return {
         name: validateName(draft.name),
@@ -79,6 +87,10 @@ export function hasErrors(errors: SpotDraftErrors): boolean {
 
 /** The step a failed submit should jump back to: the first one carrying an error. */
 export function firstInvalidStep(errors: SpotDraftErrors): AddSpotStep {
+  if (errors.location !== undefined) {
+    return 1;
+  }
+
   if (errors.name !== undefined || errors.description !== undefined) {
     return 2;
   }

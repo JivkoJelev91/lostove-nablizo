@@ -12,11 +12,9 @@ import {
   validateStep,
 } from '@/features/spot-editor/validation';
 
-/** Where a new spot's pin starts: Sofia's centre, until the picker moves it. */
-const DEFAULT_COORDINATE: Coordinate = { latitude: 42.6977, longitude: 23.3219 };
-
+/** The draft with nothing filled in: step 1 captures the coordinate before anything else. */
 const EMPTY_DRAFT: SpotDraft = {
-  coordinate: DEFAULT_COORDINATE,
+  coordinate: null,
   name: '',
   description: '',
   equipment: [],
@@ -107,6 +105,7 @@ export function useAddSpotFlow() {
 
   const changeCoordinate = useCallback((coordinate: Coordinate) => {
     setDraft((current) => ({ ...current, coordinate }));
+    setErrors((current) => ({ ...current, location: undefined }));
   }, []);
 
   const changeEquipment = useCallback((equipment: SpotDraft['equipment']) => {
