@@ -11,8 +11,8 @@ import { INITIAL_REGION, MOCK_USER_LOCATION } from '@/features/map/map-region';
 import { MapFilterBar } from '@/features/map/MapFilterBar';
 import { SpotMarker } from '@/features/map/SpotMarker';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
-import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
+import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
 

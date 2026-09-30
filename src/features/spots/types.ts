@@ -3,16 +3,24 @@ import type { ImageSourcePropType } from 'react-native';
 import type { EquipmentCondition, SpotEquipment } from '@/components';
 
 /**
+ * A geographic point as plain numbers rather than a map library's type, which keeps it
+ * usable outside the map feature.
+ */
+export type Coordinate = {
+  latitude: number;
+  longitude: number;
+};
+
+/**
  * A spot as the discovery screens render it: the summary facts and the photo.
  *
  * The data layer will later map database rows into this shape, so the components never
- * learn where the data came from. Coordinates stay plain numbers rather than a map
- * library's type, which keeps this shape usable outside the map feature.
+ * learn where the data came from.
  */
 export type Spot = {
   id: string;
   name: string;
-  coordinate: { latitude: number; longitude: number };
+  coordinate: Coordinate;
   rating: number;
   reviewCount: number;
   equipment: readonly SpotEquipment[];

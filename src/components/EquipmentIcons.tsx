@@ -75,3 +75,16 @@ export function MonkeyBarsIcon(props: EquipmentIconProps) {
     </EquipmentGlyph>
   );
 }
+
+/** A ladder: two close-set rails joined by three rungs. */
+export function LadderIcon(props: EquipmentIconProps) {
+  return (
+    <EquipmentGlyph {...props}>
+      <Line strokeWidth={2} x1={8.5} x2={8.5} y1={2.5} y2={21.5} />
+      <Line strokeWidth={2} x1={15.5} x2={15.5} y1={2.5} y2={21.5} />
+      <Line strokeWidth={2} x1={8.5} x2={15.5} y1={6} y2={6} />
+      <Line strokeWidth={2} x1={8.5} x2={15.5} y1={12} y2={12} />
+      <Line strokeWidth={2} x1={8.5} x2={15.5} y1={18} y2={18} />
+    </EquipmentGlyph>
+  );
+}

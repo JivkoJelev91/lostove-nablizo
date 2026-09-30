@@ -28,7 +28,13 @@ export type { DividerProps } from './Divider';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
-export { DipBarsIcon, MonkeyBarsIcon, PullUpBarIcon, RingsIcon } from './EquipmentIcons';
+export {
+  DipBarsIcon,
+  LadderIcon,
+  MonkeyBarsIcon,
+  PullUpBarIcon,
+  RingsIcon,
+} from './EquipmentIcons';
 export type { EquipmentIconProps } from './EquipmentIcons';
 
 export { EquipmentItem, EquipmentList } from './EquipmentList';

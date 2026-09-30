@@ -6,15 +6,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 import {
   ConditionBadge,
-  EmptyState,
   EquipmentList,
-  GhostButton,
   IconButton,
   PrimaryButton,
   Rating,
   ReviewCard,
   Screen,
-  ScreenShell,
   SectionHeader,
   VerificationBadge,
 } from '@/components';
@@ -30,6 +27,7 @@ import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-ico
 import { MOCK_REVIEWS } from '@/features/spots/mock-reviews';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { spotDirectionsUrl } from '@/features/spots/spot-links';
+import { SpotNotFound } from '@/features/spots/SpotNotFound';
 import type { Spot, SpotReview } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
 import { formatMonthDayYear } from '@/utils/dates';
@@ -48,18 +46,6 @@ function equipmentItemsFor(spot: Spot): EquipmentListItem[] {
         ),
     };
   });
-}
-
-function SpotNotFound() {
-  return (
-    <ScreenShell padded={false} title="Spot not found" variant="stack">
-      <EmptyState
-        action={<GhostButton label="Back to spots" onPress={() => router.replace('/')} />}
-        description="The spot you are looking for may have been removed, or the link may be wrong."
-        title="Spot not found"
-      />
-    </ScreenShell>
-  );
 }
 
 type SpotReviewsProps = {
@@ -121,7 +107,7 @@ export default function SpotScreen() {
       padded={false}
       scroll
     >
-      <View className="p-space-12">
+      <View className="flex-row items-center justify-between p-space-12">
         <IconButton
           accessibilityLabel="Back"
           icon={
@@ -132,6 +118,19 @@ export default function SpotScreen() {
             />
           }
           onPress={() => router.back()}
+          variant="surface"
+        />
+
+        <IconButton
+          accessibilityLabel="Edit spot"
+          icon={
+            <Ionicons
+              color={schemeTextPrimary[scheme]}
+              name="create-outline"
+              size={iconSizeValues.md}
+            />
+          }
+          onPress={() => router.push({ pathname: '/spot/[id]/edit', params: { id: spot.id } })}
           variant="surface"
         />
       </View>
