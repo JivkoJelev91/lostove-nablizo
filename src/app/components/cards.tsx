@@ -3,10 +3,8 @@ import { View } from 'react-native';
 import { Card, PhotoCard, ReviewCard, SpotCard } from '@/components';
 import type { SpotEquipment } from '@/components';
 import { GalleryGroup, GalleryRow, GalleryScreen } from '@/components/gallery/GalleryScreen';
+import { SPOT_PHOTO } from '@/features/spots/spot-photos';
 import { daysAgo } from '@/utils/dates';
-
-const PHOTO_1 = require('@/assets/images/lostove1.png') as number;
-const PHOTO_2 = require('@/assets/images/lostove2.png') as number;
 
 const EQUIPMENT: SpotEquipment[] = [
   { name: 'Pull-up', quantity: 2 },
@@ -58,7 +56,7 @@ export default function CardsGalleryScreen() {
           <SpotCard
             distanceLabel="1.2 km away"
             equipment={EQUIPMENT}
-            imageUri={PHOTO_1}
+            imageUri={SPOT_PHOTO}
             isFavorite
             name="Trakia Fitness Park"
             onToggleFavorite={() => {}}
@@ -84,7 +82,7 @@ export default function CardsGalleryScreen() {
         <GalleryRow label="Compact" stack>
           <SpotCard
             equipment={EQUIPMENT}
-            imageUri={PHOTO_2}
+            imageUri={SPOT_PHOTO}
             name="Vitosha Park"
             rating={4.9}
             reviewCount={61}
@@ -100,9 +98,9 @@ export default function CardsGalleryScreen() {
               accessibilityLabel="Spot photo 1"
               onPress={() => {}}
               onRemove={() => {}}
-              uri={PHOTO_1}
+              uri={SPOT_PHOTO}
             />
-            <PhotoCard loading uri={PHOTO_1} />
+            <PhotoCard loading uri={SPOT_PHOTO} />
           </View>
         </GalleryRow>
       </GalleryGroup>

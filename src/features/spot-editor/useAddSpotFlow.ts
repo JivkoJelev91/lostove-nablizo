@@ -77,11 +77,13 @@ export function useAddSpotFlow() {
     }, [reset]),
   );
 
-  // Android's back gesture walks the wizard backwards before it leaves the tab.
+  // Android's back gesture walks the wizard backwards before it leaves the tab. Once the spot
+  // is submitted the wizard has nothing left to walk: the success screen is the end of the
+  // flow, so back falls through and leaves the tab like it would anywhere else.
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        if (step === 1) {
+        if (submitted || step === 1) {
           return false;
         }
 
@@ -90,7 +92,7 @@ export function useAddSpotFlow() {
       });
 
       return () => subscription.remove();
-    }, [step]),
+    }, [step, submitted]),
   );
 
   const changeName = useCallback((name: string) => {

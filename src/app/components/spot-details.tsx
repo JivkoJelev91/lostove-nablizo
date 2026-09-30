@@ -12,18 +12,14 @@ import {
 import type { EquipmentListItem, PhotoGridItem } from '@/components';
 import { iconSizeValues } from '@/constants/design-tokens';
 import { GalleryGroup, GalleryRow, GalleryScreen } from '@/components/gallery/GalleryScreen';
+import { SPOT_PHOTO } from '@/features/spots/spot-photos';
 import { daysAgo } from '@/utils/dates';
 
-const PHOTO_1 = require('@/assets/images/lostove1.png') as number;
-const PHOTO_2 = require('@/assets/images/lostove2.png') as number;
-const PHOTO_3 = require('@/assets/images/lostove3.png') as number;
-const PHOTO_4 = require('@/assets/images/lostove4.png') as number;
-
 const PHOTOS: PhotoGridItem[] = [
-  { uri: PHOTO_1, accessibilityLabel: 'Spot photo 1' },
-  { uri: PHOTO_2, accessibilityLabel: 'Spot photo 2' },
-  { uri: PHOTO_3, accessibilityLabel: 'Spot photo 3' },
-  { uri: PHOTO_4, accessibilityLabel: 'Spot photo 4' },
+  { uri: SPOT_PHOTO, accessibilityLabel: 'Spot photo 1' },
+  { uri: SPOT_PHOTO, accessibilityLabel: 'Spot photo 2' },
+  { uri: SPOT_PHOTO, accessibilityLabel: 'Spot photo 3' },
+  { uri: SPOT_PHOTO, accessibilityLabel: 'Spot photo 4' },
 ];
 
 // The equipment tile's own token asks for a 24pt icon, larger than the 16pt the chips use.

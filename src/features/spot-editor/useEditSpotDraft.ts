@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
-import { router } from 'expo-router';
-
 import type { EquipmentCondition } from '@/components';
 import type { Spot } from '@/features/spots/types';
 import {
@@ -17,6 +15,7 @@ import {
   validateName,
   validatePhotos,
 } from '@/features/spot-editor/validation';
+import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
 /** How long the mock save spends "saving" before the confirmation appears. */
 const SAVE_DELAY_MS = 1100;
@@ -25,8 +24,9 @@ const SAVE_DELAY_MS = 1100;
  * The Edit Spot form's state: every field's draft value, validation, dirtiness, and the mock
  * save lifecycle.
  *
- * Leaving the screen routes through {@link requestClose}, so a dirty form asks before it
- * discards. Saving is simulated until the data layer exists.
+ * A dirty form asks before it discards, whichever way the screen is left: the header back
+ * button and Cancel call {@link requestClose}, and Android's back button is intercepted by
+ * {@link useUnsavedChangesGuard}. Saving is simulated until the data layer exists.
  */
 export function useEditSpotDraft(spot: Spot) {
   const initialEquipment = useMemo(() => equipmentDraftFromSpot(spot), [spot]);
@@ -47,6 +47,9 @@ export function useEditSpotDraft(spot: Spot) {
     !equipmentDraftsEqual(equipment, initialEquipment) ||
     photos.length !== 1 ||
     photos[0] !== spot.image;
+
+  const showDiscard = useCallback(() => setDiscardVisible(true), []);
+  const leave = useUnsavedChangesGuard(isDirty, showDiscard);
 
   useEffect(() => {
     if (!saving) {
@@ -87,15 +90,15 @@ export function useEditSpotDraft(spot: Spot) {
       return;
     }
 
-    router.back();
-  }, [isDirty]);
+    leave();
+  }, [isDirty, leave]);
 
   const cancelDiscard = useCallback(() => setDiscardVisible(false), []);
 
   const confirmDiscard = useCallback(() => {
     setDiscardVisible(false);
-    router.back();
-  }, []);
+    leave();
+  }, [leave]);
 
   const handleSave = useCallback(() => {
     const nextErrors: SpotDraftErrors = {
@@ -116,8 +119,8 @@ export function useEditSpotDraft(spot: Spot) {
 
   const handleSavedDone = useCallback(() => {
     setSavedVisible(false);
-    router.back();
-  }, []);
+    leave();
+  }, [leave]);
 
   return {
     cancelDiscard,

@@ -1,4 +1,4 @@
-import { SPOT_PHOTOS } from '@/features/spots/spot-photos';
+import { SPOT_PHOTO } from '@/features/spots/spot-photos';
 import type { Spot } from '@/features/spots/types';
 import { daysAgo } from '@/utils/dates';
 
@@ -24,7 +24,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'Outdoor fitness area with pull-up bars, parallel dip bars, gymnastic rings and monkey bars. The stations sit on rubberised ground under the trees, so a session works right after rain.',
     verifiedAt: daysAgo(4),
     distanceKm: 0.8,
-    image: SPOT_PHOTOS[0],
+    image: SPOT_PHOTO,
   },
   {
     id: 'south-park-calisthenics',
@@ -41,7 +41,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'A quiet corner of South Park with three pull-up bars and two dip stations. Best before nine in the morning — the nearby playground fills up once school lets out.',
     verifiedAt: daysAgo(14),
     distanceKm: 2.1,
-    image: SPOT_PHOTOS[1],
+    image: SPOT_PHOTO,
   },
   {
     id: 'borisova-gradina-bars',
@@ -55,7 +55,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       "The city's classic calisthenics spot: pull-up bars, rings and dip bars in the shade of the old trees. Expect company on weekend mornings — the local crowd trains here most days.",
     verifiedAt: daysAgo(45),
     distanceKm: 3.6,
-    image: SPOT_PHOTOS[2],
+    image: SPOT_PHOTO,
   },
   {
     id: 'vitosha-view-park',
@@ -69,7 +69,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'A small workout corner on the way up to Vitosha with a pull-up bar and a set of rings. Basic but solid, and the view over the city makes the warm-up worth it.',
     verifiedAt: daysAgo(8),
     distanceKm: 4.9,
-    image: SPOT_PHOTOS[3],
+    image: SPOT_PHOTO,
   },
   {
     id: 'studentski-grad-gym',
@@ -86,7 +86,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'An outdoor gym between the student blocks with four pull-up stations and four dip stations. Heavily used in the evening, and the lower bars have started to wear through.',
     verifiedAt: daysAgo(120),
     distanceKm: 6.2,
-    image: SPOT_PHOTOS[0],
+    image: SPOT_PHOTO,
   },
   {
     id: 'north-park-corner',
@@ -100,6 +100,6 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'Newly checked fitness corner in North Park with a pull-up bar and a full set of monkey bars. There are lights, so both early morning and late evening sessions work.',
     verifiedAt: daysAgo(2),
     distanceKm: 1.4,
-    image: SPOT_PHOTOS[1],
+    image: SPOT_PHOTO,
   },
 ];

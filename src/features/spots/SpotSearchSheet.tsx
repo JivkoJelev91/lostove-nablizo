@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
-import { Modal as RNModal, ScrollView, Text, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import type { ListRenderItemInfo } from 'react-native';
+import { FlatList, Modal as RNModal, Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,6 +49,24 @@ export function SpotSearchSheet({
     return spots.filter((spot) => spot.name.toLowerCase().includes(needle));
   }, [query, spots]);
 
+  const renderResult = useCallback(
+    ({ item }: ListRenderItemInfo<Spot>) => (
+      <Card gap="md" onPress={() => onSelect(item)} padding="sm">
+        <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
+          {item.name}
+        </Text>
+
+        <View className="flex-row items-center justify-between gap-space-8">
+          <Rating count={item.reviewCount} size="sm" value={item.rating} variant="summary" />
+          <Text className="shrink text-caption text-text-muted" numberOfLines={1}>
+            {equipmentSummary(item)}
+          </Text>
+        </View>
+      </Card>
+    ),
+    [onSelect],
+  );
+
   return (
     <RNModal animationType="slide" onRequestClose={onClose} statusBarTranslucent visible={visible}>
       <SafeAreaView className="flex-1 bg-bg-main" edges={['top', 'bottom']}>
@@ -77,38 +96,21 @@ export function SpotSearchSheet({
             </View>
           </View>
 
-          <ScrollView
+          <FlatList
+            className="flex-1"
             contentContainerClassName="gap-list-gap pb-section-gap-lg"
+            data={results}
             keyboardShouldPersistTaps="handled"
-          >
-            {results.length === 0 ? (
+            keyExtractor={(spot) => spot.id}
+            ListEmptyComponent={
               <EmptyState
                 description={`Nothing matches "${query.trim()}".`}
                 padded={false}
                 title="No spots found"
               />
-            ) : (
-              results.map((spot) => (
-                <Card key={spot.id} gap="md" onPress={() => onSelect(spot)} padding="sm">
-                  <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
-                    {spot.name}
-                  </Text>
-
-                  <View className="flex-row items-center justify-between gap-space-8">
-                    <Rating
-                      count={spot.reviewCount}
-                      size="sm"
-                      value={spot.rating}
-                      variant="summary"
-                    />
-                    <Text className="shrink text-caption text-text-muted" numberOfLines={1}>
-                      {equipmentSummary(spot)}
-                    </Text>
-                  </View>
-                </Card>
-              ))
-            )}
-          </ScrollView>
+            }
+            renderItem={renderResult}
+          />
         </View>
       </SafeAreaView>
     </RNModal>

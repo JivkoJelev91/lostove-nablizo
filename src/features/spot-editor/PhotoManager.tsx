@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { PhotoGrid, SecondaryButton } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
-import { nextMockPhoto } from '@/features/spots/spot-photos';
+import { SPOT_PHOTO } from '@/features/spots/spot-photos';
 import { cn } from '@/utils/cn';
 
 /** The most photos one spot can carry in the mock editors. */
@@ -22,14 +22,14 @@ export type PhotoManagerProps = {
  * A spot's photo collection while it is being written: previews with remove affordances and
  * an add action.
  *
- * Add Photo attaches the next bundled demo photo rather than opening a picker, so previews
- * and removal work end to end before the storage layer exists.
+ * Add Photo attaches the bundled placeholder rather than opening a picker, so previews and
+ * removal work end to end before the storage layer exists.
  */
 export function PhotoManager({ photos, onChange, errorText, className }: PhotoManagerProps) {
   const atLimit = photos.length >= MAX_SPOT_PHOTOS;
 
   const addPhoto = () => {
-    onChange([...photos, nextMockPhoto(photos)]);
+    onChange([...photos, SPOT_PHOTO]);
   };
 
   const removePhoto = (index: number) => {
