@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 
 import { EmptyState, GhostButton, ScreenShell, SectionHeader, SpotCard } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
+import { useFavorites } from '@/features/favorites/useFavorites';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
@@ -20,7 +21,7 @@ import { useSpotFilters } from '@/features/spots/useSpotFilters';
  */
 export default function HomeScreen() {
   const { selectedNames, toggle, clear, filtered } = useSpotFilters(MOCK_SPOTS);
-  const [favouriteIds, setFavouriteIds] = useState<readonly string[]>([]);
+  const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,12 +29,6 @@ export default function HomeScreen() {
     () => [...filtered].sort((first, second) => first.distanceKm - second.distanceKm),
     [filtered],
   );
-
-  const toggleFavourite = useCallback((id: string) => {
-    setFavouriteIds((previous) =>
-      previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id],
-    );
-  }, []);
 
   const closeSearch = useCallback(() => {
     setSearchVisible(false);
@@ -84,10 +79,10 @@ export default function HomeScreen() {
                   key={spot.id}
                   equipment={spot.equipment}
                   imageUri={spot.image}
-                  isFavorite={favouriteIds.includes(spot.id)}
+                  isFavorite={isFavorite(spot.id)}
                   name={spot.name}
                   onPress={() => openSpot(spot)}
-                  onToggleFavorite={() => toggleFavourite(spot.id)}
+                  onToggleFavorite={() => toggleFavorite(spot.id)}
                   rating={spot.rating}
                   reviewCount={spot.reviewCount}
                   variant="list"

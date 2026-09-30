@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
 
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
+import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -29,12 +30,16 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style={schemeStatusBarStyle[scheme]} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: schemeBackground[scheme] },
-        }}
-      />
+      {/* Above both navigators, so a heart tapped on a pushed spot page and the Favorites tab
+          read the same saved spots. */}
+      <FavoritesProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: schemeBackground[scheme] },
+          }}
+        />
+      </FavoritesProvider>
     </>
   );
 }

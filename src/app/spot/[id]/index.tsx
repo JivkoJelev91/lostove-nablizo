@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Image, Linking, Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +22,7 @@ import {
   schemeTextSecondary,
   statusColors,
 } from '@/constants/design-tokens';
+import { useFavorites } from '@/features/favorites/useFavorites';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
 import { MOCK_REVIEWS } from '@/features/spots/mock-reviews';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
@@ -85,7 +85,7 @@ function SpotReviews({ rating, reviews }: SpotReviewsProps) {
 
 export default function SpotScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const scheme = useScheme();
 
   const spot = MOCK_SPOTS.find((candidate) => candidate.id === id);
@@ -95,6 +95,7 @@ export default function SpotScreen() {
   }
 
   const reviews = MOCK_REVIEWS.filter((review) => review.spotId === spot.id);
+  const saved = isFavorite(spot.id);
 
   const openDirections = () => {
     void Linking.openURL(spotDirectionsUrl(spot));
@@ -147,15 +148,15 @@ export default function SpotScreen() {
             <Text className="flex-1 font-bold text-h1 text-text-primary">{spot.name}</Text>
 
             <IconButton
-              accessibilityLabel={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
+              accessibilityLabel={saved ? 'Remove from favorites' : 'Add to favorites'}
               icon={
                 <Ionicons
-                  color={isFavorite ? statusColors.bad : schemeTextSecondary[scheme]}
-                  name={isFavorite ? 'heart' : 'heart-outline'}
+                  color={saved ? statusColors.bad : schemeTextSecondary[scheme]}
+                  name={saved ? 'heart' : 'heart-outline'}
                   size={iconSizeValues.sm}
                 />
               }
-              onPress={() => setIsFavorite((value) => !value)}
+              onPress={() => toggleFavorite(spot.id)}
               variant="surface"
             />
           </View>
