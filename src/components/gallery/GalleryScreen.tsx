@@ -1,11 +1,7 @@
-import { router } from 'expo-router';
-import { ScrollView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 
-import { Card, IconButton, Screen, SectionHeader } from '@/components';
-import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
-import { useScheme } from '@/hooks/useScheme';
-import { Ionicons } from '@expo/vector-icons';
+import { Card, ScreenShell } from '@/components';
 import { cn } from '@/utils/cn';
 
 export type GalleryRowProps = {
@@ -48,36 +44,11 @@ export type GalleryScreenProps = {
   children: ReactNode;
 };
 
-/** The scrollable shell every gallery screen sits in, with a back control. */
+/** The shell every gallery screen sits in: the same one the app's own routes use. */
 export function GalleryScreen({ title, description, children }: GalleryScreenProps) {
-  const scheme = useScheme();
-
   return (
-    // `padded={false}` because the ScrollView below supplies the horizontal padding itself;
-    // leaving Screen's own padding on would double it to 32.
-    <Screen padded={false}>
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="gap-section-gap px-screen-px pb-section-gap-lg"
-      >
-        <View className="flex-row items-center gap-space-8">
-          <IconButton
-            accessibilityLabel="Back"
-            icon={
-              <Ionicons
-                color={schemeTextPrimary[scheme]}
-                name="chevron-back"
-                size={iconSizeValues.md}
-              />
-            }
-            onPress={() => router.back()}
-            variant="surface"
-          />
-          <SectionHeader className="flex-1" description={description} title={title} />
-        </View>
-
-        {children}
-      </ScrollView>
-    </Screen>
+    <ScreenShell description={description} scroll title={title}>
+      {children}
+    </ScreenShell>
   );
 }

@@ -156,6 +156,7 @@ const config = {
         'card-pad': layout.cardPadding,
         'card-gap': layout.cardGap,
         'card-gap-lg': layout.cardGapLarge,
+        'spot-gap': components.spotCard.gap,
         'list-gap': layout.listGap,
       },
       borderRadius: rekey(radius),

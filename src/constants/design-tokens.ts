@@ -15,7 +15,7 @@ import { designSystem } from '../../designSystem.json';
 
 export type ColorScheme = 'light' | 'dark';
 
-const { colors, iconSizes } = designSystem;
+const { colors, components, iconSizes, typography } = designSystem;
 
 /** Background colours the navigation container and status bar need per scheme. */
 export const schemeBackground: Record<ColorScheme, string> = {
@@ -27,6 +27,12 @@ export const schemeBackground: Record<ColorScheme, string> = {
 export const schemeStatusBarStyle: Record<ColorScheme, 'light' | 'dark'> = {
   light: 'dark',
   dark: 'light',
+};
+
+/** Border colour per scheme, for navigator separators that take a plain colour string. */
+export const schemeBorder: Record<ColorScheme, string> = {
+  light: colors.border.light,
+  dark: colors.border.dark,
 };
 
 /**
@@ -52,6 +58,18 @@ export const schemeTextSecondary: Record<ColorScheme, string> = {
   dark: colors.text.secondary.dark,
 };
 
+/** Muted text colour per scheme, for inactive navigator tints. */
+export const schemeTextMuted: Record<ColorScheme, string> = {
+  light: colors.text.muted.light,
+  dark: colors.text.muted.dark,
+};
+
+/** The font family names the app loads, for APIs that take a family rather than a class. */
+export const fontFamilies = typography.fontFamilies;
+
+/** The design system's text styles, for APIs that take a style object, such as navigators. */
+export const textStyles = typography.styles;
+
 export const brandColors = {
   primary: colors.primary.base,
   onPrimary: colors.text.onPrimary,
@@ -76,3 +94,9 @@ export const iconSizeValues = {
 } as const;
 
 export type IconSize = keyof typeof iconSizeValues;
+
+/** Bottom tab bar metrics, for the `Tabs` navigator. */
+export const bottomNav = {
+  height: components.bottomNav.height,
+  iconSize: components.bottomNav.iconSize,
+} as const;

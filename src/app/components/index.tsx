@@ -20,6 +20,11 @@ const GROUPS = [
   },
   { href: '/components/feedback', title: 'Feedback', blurb: 'Spinner, skeleton, empty, error' },
   {
+    href: '/components/spot-details',
+    title: 'Spot details',
+    blurb: 'Photo grid, equipment list, verification',
+  },
+  {
     href: '/components/overlays',
     title: 'Overlays & layout',
     blurb: 'Bottom sheet, modal, screen',

@@ -4,9 +4,10 @@ import type { ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Card } from '@/components/Card';
-import { StatusChip } from '@/components/Chip';
 import { IconButton } from '@/components/IconButton';
 import { Rating } from '@/components/Rating';
+import { VerificationBadge } from '@/components/VerificationBadge';
+import type { VerifiedAt } from '@/components/VerificationBadge';
 import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
 
@@ -22,8 +23,11 @@ export type SpotCardProps = {
   rating?: number;
   reviewCount?: number;
   equipment?: readonly SpotEquipment[];
-  /** e.g. `Verified 4 days ago`. Rendered as a status badge. */
-  verificationLabel?: string;
+  /**
+   * When the spot was last verified, as a `Date` or an ISO string. The badge works out the
+   * wording and the colour from it, so a date that is six weeks old stops looking reassuring.
+   */
+  verifiedAt?: VerifiedAt;
   /** e.g. `1.2 km away`. */
   distanceLabel?: string;
   imageUri?: ImageSourcePropType;
@@ -67,11 +71,10 @@ type SpotBodyProps = {
   rating?: number;
   reviewCount?: number;
   equipmentText: string;
-  verificationLabel?: string;
+  verifiedAt?: VerifiedAt;
   distanceLabel?: string;
   isFavorite: boolean;
   onToggleFavorite?: () => void;
-  showVerification: boolean;
 };
 
 function SpotBody({
@@ -79,17 +82,16 @@ function SpotBody({
   rating,
   reviewCount,
   equipmentText,
-  verificationLabel,
+  verifiedAt,
   distanceLabel,
   isFavorite,
   onToggleFavorite,
-  showVerification,
 }: SpotBodyProps) {
   const scheme = useScheme();
-  const showFooter = (showVerification && verificationLabel !== undefined) || distanceLabel;
+  const showFooter = verifiedAt !== undefined || distanceLabel !== undefined;
 
   return (
-    <View className="gap-card-gap p-card-pad">
+    <View className="gap-spot-gap p-card-pad">
       <View className="flex-row items-start justify-between gap-space-8">
         <Text className="flex-1 font-semibold text-h2 text-text-primary" numberOfLines={2}>
           {name}
@@ -109,21 +111,7 @@ function SpotBody({
 
       {showFooter ? (
         <View className="flex-row items-center justify-between gap-space-8">
-          {showVerification && verificationLabel !== undefined ? (
-            <StatusChip
-              icon={
-                <Ionicons
-                  color={statusColors.good}
-                  name="checkmark-circle"
-                  size={iconSizeValues.xs}
-                />
-              }
-              label={verificationLabel}
-              tone="good"
-            />
-          ) : (
-            <View />
-          )}
+          {verifiedAt !== undefined ? <VerificationBadge verifiedAt={verifiedAt} /> : <View />}
 
           {distanceLabel !== undefined ? (
             <View className="flex-row items-center gap-space-4">
@@ -213,7 +201,7 @@ export function SpotCard({
   rating,
   reviewCount,
   equipment = [],
-  verificationLabel,
+  verifiedAt,
   distanceLabel,
   imageUri,
   isFavorite = false,
@@ -267,8 +255,7 @@ export function SpotCard({
         onToggleFavorite={onToggleFavorite}
         rating={rating}
         reviewCount={reviewCount}
-        showVerification
-        verificationLabel={verificationLabel}
+        verifiedAt={verifiedAt}
       />
     </Card>
   );

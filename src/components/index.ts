@@ -28,6 +28,14 @@ export type { EmptyStateProps } from './EmptyState';
 export { DipBarsIcon, PullUpBarIcon, RingsIcon } from './EquipmentIcons';
 export type { EquipmentIconProps } from './EquipmentIcons';
 
+export { EquipmentItem, EquipmentList } from './EquipmentList';
+export type {
+  EquipmentCondition,
+  EquipmentItemProps,
+  EquipmentListItem,
+  EquipmentListProps,
+} from './EquipmentList';
+
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
 
@@ -46,6 +54,9 @@ export type { ModalProps } from './Modal';
 export { PhotoCard } from './PhotoCard';
 export type { PhotoCardProps } from './PhotoCard';
 
+export { PhotoGrid } from './PhotoGrid';
+export type { PhotoGridItem, PhotoGridProps } from './PhotoGrid';
+
 export { Rating } from './Rating';
 export type { RatingProps, RatingSize } from './Rating';
 
@@ -55,6 +66,12 @@ export type { ReviewCardProps } from './ReviewCard';
 export { Screen } from './Screen';
 export type { ScreenProps } from './Screen';
 
+export { ScreenHeader } from './ScreenHeader';
+export type { ScreenHeaderProps } from './ScreenHeader';
+
+export { ScreenShell } from './ScreenShell';
+export type { ScreenShellProps, ScreenShellVariant } from './ScreenShell';
+
 export { SectionHeader } from './SectionHeader';
 export type { SectionHeaderProps } from './SectionHeader';
 
@@ -63,3 +80,11 @@ export type { SkeletonProps } from './Skeleton';
 
 export { SpotCard } from './SpotCard';
 export type { SpotCardProps, SpotCardVariant, SpotEquipment } from './SpotCard';
+
+export { VerificationBadge, describeVerification } from './VerificationBadge';
+export type {
+  VerifiedAt,
+  VerificationBadgeProps,
+  VerificationRecency,
+  VerificationTone,
+} from './VerificationBadge';

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Card, PhotoCard, ReviewCard, SpotCard } from '@/components';
 import type { SpotEquipment } from '@/components';
 import { GalleryGroup, GalleryRow, GalleryScreen } from '@/components/gallery/GalleryScreen';
+import { daysAgo } from '@/utils/dates';
 
 const PHOTO = require('@/assets/images/home.jpg') as number;
 const DETAIL_PHOTO = require('@/assets/images/spot-details.jpg') as number;
@@ -63,21 +64,20 @@ export default function CardsGalleryScreen() {
             onToggleFavorite={() => {}}
             rating={4.7}
             reviewCount={28}
-            verificationLabel="Verified 4 days ago"
+            verifiedAt={daysAgo(4)}
             variant="list"
           />
         </GalleryRow>
 
-        <GalleryRow label="Map preview (no photo)" stack>
+        <GalleryRow label="Map preview (no photo, no distance)" stack>
           <SpotCard
-            distanceLabel="1.2 km away"
             equipment={EQUIPMENT}
             name="South Park calisthenics"
             onToggleFavorite={() => {}}
             rating={4.2}
             reviewCount={9}
+            verifiedAt={daysAgo(14)}
             variant="map"
-            verificationLabel="Verified 2 weeks ago"
           />
         </GalleryRow>
 

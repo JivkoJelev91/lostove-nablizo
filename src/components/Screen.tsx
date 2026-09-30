@@ -48,8 +48,10 @@ export function Screen({
         <LoadingSpinner className="flex-1" label="Loading" />
       ) : scroll ? (
         <ScrollView
+          automaticallyAdjustKeyboardInsets
           className="flex-1"
           contentContainerClassName={cn(padded && 'px-screen-px', contentContainerClassName)}
+          keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
         >
           {children}

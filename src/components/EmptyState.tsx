@@ -10,14 +10,27 @@ export type EmptyStateProps = {
   icon?: ReactNode;
   /** A call to action, typically a button. */
   action?: ReactNode;
+  /** Applies the 16px horizontal screen padding. Set false inside a screen shell, which pads. */
+  padded?: boolean;
   className?: string;
 };
 
 /** A centred, friendly placeholder for a screen or list that has no content yet. */
-export function EmptyState({ title, description, icon, action, className }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  icon,
+  action,
+  padded = true,
+  className,
+}: EmptyStateProps) {
   return (
     <View
-      className={cn('items-center justify-center gap-space-12 px-screen-px py-space-32', className)}
+      className={cn(
+        'items-center justify-center gap-space-12 py-space-32',
+        padded && 'px-screen-px',
+        className,
+      )}
     >
       {icon !== undefined ? (
         <View
