@@ -1,19 +1,19 @@
 {
   "expo": {
     "name": "Лостове Наблизо",
-    "slug": "street-fitnes",
+    "slug": "lostove-nablizo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "streetfitnes",
+    "scheme": "lostovenablizo",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.streetfitnes.app",
+      "bundleIdentifier": "com.lostovenablizo.app",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.streetfitnes.app",
+      "package": "com.lostovenablizo.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
