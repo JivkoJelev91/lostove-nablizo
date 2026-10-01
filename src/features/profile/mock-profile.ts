@@ -16,6 +16,6 @@ export type Profile = {
 
 export const MOCK_PROFILE: Profile = {
   id: 'user-alex-ivanov',
-  displayName: 'Alex Ivanov',
+  displayName: 'Александър Иванов',
   username: 'alex',
 };

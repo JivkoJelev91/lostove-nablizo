@@ -9,6 +9,8 @@ import {
   statusColors,
 } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
+import type { TranslationKey } from '@/i18n';
 import { DAY_IN_MS } from '@/utils/dates';
 import { cn } from '@/utils/cn';
 
@@ -44,13 +46,25 @@ const LABEL_TONE_CLASS: Record<VerificationTone, string> = {
   stale: 'text-text-secondary',
 };
 
+/** The dictionary keys for each unit, so the wording lives in the translation table. */
+const UNIT_KEYS = {
+  day: { one: 'verification.day.one', few: 'verification.day.few' },
+  week: { one: 'verification.week.one', few: 'verification.week.few' },
+  month: { one: 'verification.month.one', few: 'verification.month.few' },
+  year: { one: 'verification.year.one', few: 'verification.year.few' },
+} as const satisfies Record<string, { one: TranslationKey; few: TranslationKey }>;
+
+type Unit = keyof typeof UNIT_KEYS;
+
+function verifiedLabel(unit: Unit, value: number): string {
+  const keys = UNIT_KEYS[unit];
+
+  return value === 1 ? t(keys.one) : t(keys.few, { count: value });
+}
+
 function toDate(value: VerifiedAt): Date | undefined {
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? undefined : date;
-}
-
-function amount(value: number, unit: 'day' | 'week' | 'month' | 'year'): string {
-  return `${value} ${unit}${value === 1 ? '' : 's'}`;
 }
 
 /**
@@ -66,31 +80,31 @@ export function describeVerification(
   const date = toDate(verifiedAt);
 
   if (date === undefined) {
-    return { label: 'Verification date unknown', tone: 'stale' };
+    return { label: t('verification.unknown'), tone: 'stale' };
   }
 
   const days = Math.max(0, Math.floor((now.getTime() - date.getTime()) / DAY_IN_MS));
 
   if (days < 1) {
-    return { label: 'Verified today', tone: 'fresh' };
+    return { label: t('verification.today'), tone: 'fresh' };
   }
 
   const tone: VerificationTone =
     days <= FRESH_DAYS ? 'fresh' : days <= AGING_DAYS ? 'aging' : 'stale';
 
   if (days < 7) {
-    return { label: `Verified ${amount(days, 'day')}`, tone };
+    return { label: verifiedLabel('day', days), tone };
   }
 
   if (days < AGING_DAYS) {
-    return { label: `Verified ${amount(Math.floor(days / 7), 'week')}`, tone };
+    return { label: verifiedLabel('week', Math.floor(days / 7)), tone };
   }
 
   if (days < 365) {
-    return { label: `Verified ${amount(Math.floor(days / 30), 'month')}`, tone };
+    return { label: verifiedLabel('month', Math.floor(days / 30)), tone };
   }
 
-  return { label: `Verified ${amount(Math.floor(days / 365), 'year')}`, tone };
+  return { label: verifiedLabel('year', Math.floor(days / 365)), tone };
 }
 
 export type VerificationBadgeProps = {

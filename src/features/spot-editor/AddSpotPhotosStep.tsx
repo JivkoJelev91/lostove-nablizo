@@ -3,6 +3,7 @@ import type { ImageSourcePropType } from 'react-native';
 import { SectionHeader } from '@/components';
 import { PhotoManager } from '@/features/spot-editor/PhotoManager';
 import { StepScrollView } from '@/features/spot-editor/StepScrollView';
+import { t } from '@/i18n';
 
 export type AddSpotPhotosStepProps = {
   photos: readonly ImageSourcePropType[];
@@ -15,8 +16,8 @@ export function AddSpotPhotosStep({ photos, errorText, onChangePhotos }: AddSpot
   return (
     <StepScrollView>
       <SectionHeader
-        description="Show people what the spot actually looks like."
-        title="Add photos"
+        description={t('photosStep.description')}
+        title={t('photosStep.title')}
         titleSize="h1"
       />
 

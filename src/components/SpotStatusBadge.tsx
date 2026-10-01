@@ -4,6 +4,7 @@ import { StatusChip } from '@/components/Chip';
 import type { StatusTone } from '@/components/Chip';
 import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 /**
  * Where a spot sits in the directory's moderation. Only `approved` spots are public; every
@@ -14,10 +15,10 @@ export type SpotStatus = 'under_review' | 'approved' | 'rejected' | 'closed';
 
 /** The words a status is shown with, wherever one appears. */
 export const SPOT_STATUS_LABEL: Record<SpotStatus, string> = {
-  under_review: 'Under review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  closed: 'Closed',
+  under_review: t('status.under_review'),
+  approved: t('status.approved'),
+  rejected: t('status.rejected'),
+  closed: t('status.closed'),
 };
 
 type StatusAppearance = {

@@ -2,6 +2,7 @@ import { SectionHeader } from '@/components';
 import { EquipmentQuantityGrid } from '@/features/spot-editor/EquipmentQuantityGrid';
 import { StepScrollView } from '@/features/spot-editor/StepScrollView';
 import type { EquipmentDraftItem } from '@/features/spot-editor/types';
+import { t } from '@/i18n';
 
 export type AddSpotEquipmentStepProps = {
   equipment: readonly EquipmentDraftItem[];
@@ -17,7 +18,7 @@ export function AddSpotEquipmentStep({
 }: AddSpotEquipmentStepProps) {
   return (
     <StepScrollView>
-      <SectionHeader title="What equipment is there?" titleSize="h1" />
+      <SectionHeader title={t('equipmentStep.title')} titleSize="h1" />
 
       <EquipmentQuantityGrid errorText={errorText} onChange={onChangeEquipment} value={equipment} />
     </StepScrollView>

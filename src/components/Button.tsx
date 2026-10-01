@@ -1,6 +1,13 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
 import { brandColors } from '@/constants/design-tokens';
 import { cn } from '@/utils/cn';
 
@@ -65,9 +72,11 @@ const SIZE_CLASS: Record<ButtonSize, string> = {
 /**
  * The button primitive every named button wraps.
  *
- * It owns the shared shape, spacing and disabled/loading behaviour; the variant decides the
- * colour treatment. Prefer {@link PrimaryButton} and friends at call sites so the intent reads
- * from the name — reach for `Button` only when the variant is genuinely dynamic.
+ * It owns the shared shape, spacing, disabled/loading behaviour and a 97% press dip; the
+ * variant decides the colour treatment. The dip lives on a Reanimated wrapper rather than on a
+ * class so the Pressable's class set stays stable, which is what the comment above protects.
+ * Prefer {@link PrimaryButton} and friends at call sites so the intent reads from the name —
+ * reach for `Button` only when the variant is genuinely dynamic.
  */
 export function Button({
   label,
@@ -85,44 +94,65 @@ export function Button({
   testID,
 }: ButtonProps) {
   const inactive = disabled || loading;
+  const scale = useSharedValue(1);
 
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const pressIn = () => {
+    if (!inactive) {
+      scale.set(withTiming(0.97, { duration: 90, reduceMotion: ReduceMotion.System }));
+    }
+  };
+
+  const pressOut = () => {
+    scale.set(withTiming(1, { duration: 140, reduceMotion: ReduceMotion.System }));
+  };
+
+  // The classes live on a plain view and the animated style on the view inside it. An animated
+  // component never carries `className`: Reanimated's own props replace it, so the classes are
+  // dropped on a device while react-native-web still applies them. See AGENTS.md.
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: inactive, busy: loading }}
-      className={cn(
-        'flex-row items-center justify-center gap-space-8 rounded-pill',
-        SIZE_CLASS[size],
-        inactive
-          ? 'border border-border bg-bg-surface opacity-60 shadow-none active:bg-bg-surface'
-          : VARIANT_CLASS[variant],
-        fullWidth && 'w-full',
-        className,
-      )}
-      disabled={inactive}
-      onPress={onPress}
-      testID={testID}
-    >
-      {loading ? (
-        <ActivityIndicator color={VARIANT_SPINNER_COLOR[variant]} size="small" />
-      ) : leftIcon ? (
-        <View accessible={false}>{leftIcon}</View>
-      ) : null}
+    <View className={cn('rounded-pill', fullWidth && 'w-full', className)}>
+      <Animated.View style={animatedStyle}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={{ disabled: inactive, busy: loading }}
+          className={cn(
+            'flex-row items-center justify-center gap-space-8 rounded-pill',
+            SIZE_CLASS[size],
+            inactive
+              ? 'border border-border bg-bg-surface opacity-60 shadow-none active:bg-bg-surface'
+              : VARIANT_CLASS[variant],
+            fullWidth && 'w-full',
+          )}
+          disabled={inactive}
+          onPress={onPress}
+          onPressIn={pressIn}
+          onPressOut={pressOut}
+          testID={testID}
+        >
+          {loading ? (
+            <ActivityIndicator color={VARIANT_SPINNER_COLOR[variant]} size="small" />
+          ) : leftIcon ? (
+            <View accessible={false}>{leftIcon}</View>
+          ) : null}
 
-      <Text
-        className={cn(
-          'font-semibold text-body',
-          inactive ? 'text-text-muted' : VARIANT_TEXT_CLASS[variant],
-        )}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
+          <Text
+            className={cn(
+              'font-semibold text-body',
+              inactive ? 'text-text-muted' : VARIANT_TEXT_CLASS[variant],
+            )}
+            numberOfLines={1}
+          >
+            {label}
+          </Text>
 
-      {!loading && rightIcon ? <View accessible={false}>{rightIcon}</View> : null}
-    </Pressable>
+          {!loading && rightIcon ? <View accessible={false}>{rightIcon}</View> : null}
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 

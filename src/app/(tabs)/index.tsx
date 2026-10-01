@@ -5,7 +5,14 @@ import { FlatList, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { EmptyState, GhostButton, ScreenShell, SectionHeader, SpotCard } from '@/components';
+import {
+  BrandLogo,
+  EmptyState,
+  GhostButton,
+  ScreenShell,
+  SectionHeader,
+  SpotCard,
+} from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
@@ -16,6 +23,7 @@ import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
 import { useSpots } from '@/features/spots/useSpots';
+import { t } from '@/i18n';
 
 function SpotCardSeparator() {
   return <View className="h-space-16" />;
@@ -86,15 +94,21 @@ export default function HomeScreen() {
           ListEmptyComponent={
             <View className="px-screen-px">
               <EmptyState
-                action={<GhostButton label="Clear filters" onPress={clear} />}
-                description="No spots carry every selected piece of equipment."
+                action={<GhostButton label={t('home.clearFilters')} onPress={clear} />}
+                description={t('home.noMatchDescription')}
                 padded={false}
-                title="No spots match"
+                title={t('home.noMatchTitle')}
               />
             </View>
           }
           ListHeaderComponent={
             <View className="gap-space-12 pb-space-12">
+              {/* The brand stays visible on the app's first screen, not just in the opening
+                  mark that fades away. */}
+              <View className="px-screen-px">
+                <BrandLogo />
+              </View>
+
               <View className="gap-space-12">
                 <View className="px-screen-px">
                   <SpotsSearchBar onPress={() => setSearchVisible(true)} />
@@ -106,7 +120,7 @@ export default function HomeScreen() {
               <View className="px-screen-px">
                 <SectionHeader
                   action={
-                    <View accessible accessibilityLabel="Spots sorted by distance from you">
+                    <View accessible accessibilityLabel={t('home.sortedByDistance')}>
                       <Ionicons
                         color={brandColors.primary}
                         name="location"
@@ -114,7 +128,7 @@ export default function HomeScreen() {
                       />
                     </View>
                   }
-                  title="Around you"
+                  title={t('home.aroundYou')}
                   titleSize="h1"
                 />
               </View>

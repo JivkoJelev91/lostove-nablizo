@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 
+import { t } from '@/i18n';
+import { equipmentLabel } from '@/i18n/equipment';
 import { cn } from '@/utils/cn';
 
 /** How usable a piece of equipment is, shown as a colour-coded dot on its tile. */
@@ -13,9 +15,9 @@ const CONDITION_DOT_CLASS: Record<EquipmentCondition, string> = {
 };
 
 const CONDITION_LABEL: Record<EquipmentCondition, string> = {
-  good: 'in good condition',
-  worn: 'worn',
-  damaged: 'damaged',
+  good: t('condition.goodLong'),
+  worn: t('condition.wornLong'),
+  damaged: t('condition.damagedLong'),
 };
 
 export type EquipmentItemProps = {
@@ -55,7 +57,7 @@ export function EquipmentItem({
       {icon !== undefined ? <View accessible={false}>{icon}</View> : null}
 
       <Text className="font-semibold text-bodySmall text-text-primary" numberOfLines={1}>
-        {name}
+        {equipmentLabel(name)}
       </Text>
 
       {quantity !== undefined ? (
@@ -89,8 +91,8 @@ export function EquipmentItem({
       accessibilityLabel={
         accessibilityLabel ??
         [
-          name,
-          quantity === undefined ? undefined : `quantity ${quantity}`,
+          equipmentLabel(name),
+          quantity === undefined ? undefined : t('equipment.quantity', { count: quantity }),
           condition === undefined ? undefined : CONDITION_LABEL[condition],
         ]
           .filter((part) => part !== undefined)

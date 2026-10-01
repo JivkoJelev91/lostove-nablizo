@@ -1,4 +1,5 @@
 import type { AddSpotStep, SpotDraft, SpotDraftErrors } from '@/features/spot-editor/types';
+import { t } from '@/i18n';
 
 export const SPOT_NAME_MIN_LENGTH = 3;
 export const SPOT_NAME_MAX_LENGTH = 60;
@@ -10,11 +11,11 @@ export function validateName(name: string): string | undefined {
   const trimmed = name.trim();
 
   if (trimmed.length === 0) {
-    return 'Enter a name for the spot.';
+    return t('validation.nameRequired');
   }
 
   if (trimmed.length < SPOT_NAME_MIN_LENGTH) {
-    return `Use at least ${SPOT_NAME_MIN_LENGTH} characters.`;
+    return t('validation.nameMin', { count: SPOT_NAME_MIN_LENGTH });
   }
 
   return undefined;
@@ -25,11 +26,11 @@ export function validateDescription(description: string): string | undefined {
   const trimmed = description.trim();
 
   if (trimmed.length === 0) {
-    return 'Describe the spot so others know what to expect.';
+    return t('validation.descriptionRequired');
   }
 
   if (trimmed.length < SPOT_DESCRIPTION_MIN_LENGTH) {
-    return `Use at least ${SPOT_DESCRIPTION_MIN_LENGTH} characters.`;
+    return t('validation.descriptionMin', { count: SPOT_DESCRIPTION_MIN_LENGTH });
   }
 
   return undefined;
@@ -37,17 +38,17 @@ export function validateDescription(description: string): string | undefined {
 
 /** The message the equipment picker shows, or undefined when at least one piece is picked. */
 export function validateEquipment(equipment: SpotDraft['equipment']): string | undefined {
-  return equipment.length === 0 ? 'Select at least one piece of equipment.' : undefined;
+  return equipment.length === 0 ? t('validation.equipmentRequired') : undefined;
 }
 
 /** The message the photo manager shows, or undefined when at least one photo is attached. */
 export function validatePhotos(photos: SpotDraft['photos']): string | undefined {
-  return photos.length === 0 ? 'Add at least one photo of the spot.' : undefined;
+  return photos.length === 0 ? t('validation.photosRequired') : undefined;
 }
 
 /** The message the location step shows, or undefined once a position was captured. */
 export function validateLocation(coordinate: SpotDraft['coordinate']): string | undefined {
-  return coordinate === null ? 'Capture the location before continuing.' : undefined;
+  return coordinate === null ? t('validation.locationRequired') : undefined;
 }
 
 /** Every field's state for a whole draft, used when the final action validates everything. */

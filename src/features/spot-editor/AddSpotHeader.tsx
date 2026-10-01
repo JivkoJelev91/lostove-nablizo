@@ -6,6 +6,7 @@ import { IconButton } from '@/components';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import type { AddSpotStep } from '@/features/spot-editor/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type AddSpotHeaderProps = {
@@ -23,7 +24,7 @@ export function AddSpotHeader({ step, totalSteps = 5, onBack, className }: AddSp
     <View className={cn('gap-space-12 px-screen-px pt-space-8', className)}>
       <View className="flex-row items-center gap-space-8">
         <IconButton
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
           icon={
             <Ionicons
               color={schemeTextPrimary[scheme]}
@@ -35,7 +36,7 @@ export function AddSpotHeader({ step, totalSteps = 5, onBack, className }: AddSp
           variant="surface"
         />
 
-        <Text className="flex-1 font-semibold text-h2 text-text-primary">Add Spot</Text>
+        <Text className="flex-1 font-semibold text-h2 text-text-primary">{t('editor.title')}</Text>
 
         <Text className="text-bodySmall text-text-secondary">{`${step} / ${totalSteps}`}</Text>
       </View>

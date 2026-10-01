@@ -8,6 +8,7 @@ import { describeLocality } from '@/features/spot-editor/coordinates';
 import { formatEquipmentSummary } from '@/features/spot-editor/equipment-draft';
 import { StepScrollView } from '@/features/spot-editor/StepScrollView';
 import type { SpotDraft } from '@/features/spot-editor/types';
+import { t } from '@/i18n';
 
 export type AddSpotReviewStepProps = {
   draft: SpotDraft;
@@ -19,7 +20,7 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
 
   return (
     <StepScrollView>
-      <SectionHeader title="Review your spot" titleSize="h1" />
+      <SectionHeader title={t('reviewStep.title')} titleSize="h1" />
 
       {cover === undefined ? null : (
         <Image
@@ -35,18 +36,20 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
       </View>
 
       <View className="gap-space-8">
-        <SectionHeader accent title="Equipment" />
+        <SectionHeader accent title={t('reviewStep.equipment')} />
         <Text className="text-body text-text-primary">
           {formatEquipmentSummary(draft.equipment)}
         </Text>
       </View>
 
       <View className="gap-space-8">
-        <SectionHeader accent title="Location" />
+        <SectionHeader accent title={t('reviewStep.location')} />
         <View className="flex-row items-center gap-space-8">
           <Ionicons color={brandColors.primary} name="location-outline" size={iconSizeValues.sm} />
           <Text className="flex-1 text-body text-text-primary">
-            {draft.coordinate === null ? 'Not captured' : describeLocality(draft.coordinate)}
+            {draft.coordinate === null
+              ? t('reviewStep.notCaptured')
+              : describeLocality(draft.coordinate)}
           </Text>
         </View>
       </View>

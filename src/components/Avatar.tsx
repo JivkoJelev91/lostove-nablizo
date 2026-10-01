@@ -1,6 +1,7 @@
 import { Image, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type AvatarSize = 'sm' | 'md' | 'lg';
@@ -39,7 +40,7 @@ function initialsOf(name: string): string {
 
 /** A circular profile image, falling back to initials when no image is available. */
 export function Avatar({ uri, name, size = 'md', accessibilityLabel, className }: AvatarProps) {
-  const label = accessibilityLabel ?? name ?? 'Profile photo';
+  const label = accessibilityLabel ?? name ?? t('common.profilePhoto');
 
   if (uri !== undefined) {
     return (

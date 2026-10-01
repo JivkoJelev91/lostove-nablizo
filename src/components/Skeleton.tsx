@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,12 +27,15 @@ export function Skeleton({ className }: SkeletonProps) {
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
+  // The pulse goes on an animated view that only carries a style; the caller's size and radius
+  // stay on the plain view around it, because an animated component never takes `className`.
   return (
-    <Animated.View
+    <View
       accessibilityElementsHidden
       className={cn('h-space-16 w-full rounded-md bg-bg-surface', className)}
       importantForAccessibility="no-hide-descendants"
-      style={animatedStyle}
-    />
+    >
+      <Animated.View style={[animatedStyle, { flex: 1 }]} />
+    </View>
   );
 }

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { SectionHeader } from '@/components';
 import type { Coordinate } from '@/features/spots/types';
 import { LocationCapture } from '@/features/spot-editor/LocationCapture';
+import { t } from '@/i18n';
 
 export type AddSpotLocationStepProps = {
   coordinate: Coordinate | null;
@@ -18,7 +19,7 @@ export function AddSpotLocationStep({
 }: AddSpotLocationStepProps) {
   return (
     <View className="flex-1 gap-space-16 px-screen-px pt-space-16">
-      <SectionHeader title="Where is the spot?" titleSize="h1" />
+      <SectionHeader title={t('location.title')} titleSize="h1" />
 
       <View className="gap-space-4">
         <LocationCapture coordinate={coordinate} onCapture={onChangeCoordinate} />
@@ -28,9 +29,7 @@ export function AddSpotLocationStep({
         )}
       </View>
 
-      <Text className="text-bodySmall text-text-secondary">
-        Stand at the spot so your phone captures the right position.
-      </Text>
+      <Text className="text-bodySmall text-text-secondary">{t('location.hint')}</Text>
     </View>
   );
 }

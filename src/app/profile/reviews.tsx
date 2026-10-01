@@ -9,6 +9,7 @@ import { ProfileReviewCard } from '@/features/profile/ProfileReviewCard';
 import { useProfile } from '@/features/profile/useProfile';
 import type { SpotReview } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 /**
@@ -23,7 +24,10 @@ export default function ProfileReviewsScreen() {
   );
 
   return (
-    <ScreenShell description="Reviews you wrote, newest first" title="Your reviews">
+    <ScreenShell
+      description={t('profile.allReviewsDescription')}
+      title={t('profile.allReviewsTitle')}
+    >
       <FlatList
         className="flex-1"
         contentContainerClassName={cn(
@@ -34,9 +38,14 @@ export default function ProfileReviewsScreen() {
         keyExtractor={(review) => review.id}
         ListEmptyComponent={
           <EmptyState
-            action={<PrimaryButton label="Find a spot" onPress={() => router.navigate('/')} />}
+            action={
+              <PrimaryButton
+                label={t('profile.allReviewsFindSpot')}
+                onPress={() => router.navigate('/')}
+              />
+            }
             className="flex-1 justify-center"
-            description="Rate the spots you train at so others know what to expect."
+            description={t('profile.allReviewsEmptyDescription')}
             icon={
               <Ionicons
                 color={schemeTextMuted[scheme]}
@@ -45,7 +54,7 @@ export default function ProfileReviewsScreen() {
               />
             }
             padded={false}
-            title="No reviews yet"
+            title={t('profile.allReviewsEmptyTitle')}
           />
         }
         renderItem={renderReview}

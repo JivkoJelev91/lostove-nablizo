@@ -1,6 +1,7 @@
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { brandColors } from '@/constants/design-tokens';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type LoadingSpinnerSize = 'sm' | 'md' | 'lg';
@@ -22,7 +23,7 @@ const INDICATOR_SIZE: Record<LoadingSpinnerSize, 'small' | 'large'> = {
 export function LoadingSpinner({ size = 'md', label, className }: LoadingSpinnerProps) {
   return (
     <View
-      accessibilityLabel={label ?? 'Loading'}
+      accessibilityLabel={label ?? t('common.loading')}
       accessibilityRole="progressbar"
       className={cn('items-center justify-center gap-space-8', className)}
     >

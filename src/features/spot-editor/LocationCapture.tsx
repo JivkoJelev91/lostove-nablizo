@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { LoadingSpinner, SecondaryButton } from '@/components';
 import { brandColors, iconSizeValues, statusColors } from '@/constants/design-tokens';
 import type { Coordinate } from '@/features/spots/types';
+import { t } from '@/i18n';
 
 /** What the current attempt is doing, tracked apart from whether a coordinate is captured. */
 type CaptureStatus = 'idle' | 'locating' | 'failed';
@@ -38,7 +39,7 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
 
       if (!permission.granted) {
         setStatus('failed');
-        setFailure('Allow location access for Street Fitness in your phone settings, then retry.');
+        setFailure(t('location.permissionDenied'));
         return;
       }
 
@@ -50,12 +51,12 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
       setStatus('idle');
     } catch {
       setStatus('failed');
-      setFailure('Your position could not be read. Move away from buildings and retry.');
+      setFailure(t('location.failedPosition'));
     }
   }, [onCapture]);
 
   if (status === 'locating') {
-    return <LoadingSpinner label="Getting your location..." />;
+    return <LoadingSpinner label={t('location.capturing')} />;
   }
 
   if (status === 'failed') {
@@ -66,7 +67,7 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
           <Text className="flex-1 text-bodySmall text-text-secondary">{failure}</Text>
         </View>
 
-        <SecondaryButton fullWidth label="Try again" onPress={capture} />
+        <SecondaryButton fullWidth label={t('common.tryAgain')} onPress={capture} />
       </View>
     );
   }
@@ -75,7 +76,7 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
     return (
       <View className="h-control flex-row items-center justify-center gap-space-8 rounded-pill border border-border bg-bg-surface px-space-16">
         <Ionicons color={statusColors.good} name="checkmark-circle" size={iconSizeValues.sm} />
-        <Text className="font-semibold text-body text-text-primary">Location captured</Text>
+        <Text className="font-semibold text-body text-text-primary">{t('location.captured')}</Text>
       </View>
     );
   }
@@ -83,7 +84,7 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
   return (
     <SecondaryButton
       fullWidth
-      label="Use my current location"
+      label={t('location.capture')}
       leftIcon={<Ionicons color={brandColors.primary} name="location" size={iconSizeValues.sm} />}
       onPress={capture}
     />

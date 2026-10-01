@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Card, GhostButton, IconButton } from '@/components';
 import { iconSizeValues, schemeTextPrimary, schemeTextSecondary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 export type ProfileHeaderProps = {
   displayName: string;
@@ -40,7 +41,7 @@ export function ProfileHeader({ displayName, username, onShare, onSignIn }: Prof
         </View>
 
         <IconButton
-          accessibilityLabel="Share profile"
+          accessibilityLabel={t('profile.shareLabel')}
           icon={
             <Ionicons
               color={schemeTextPrimary[scheme]}
@@ -55,7 +56,7 @@ export function ProfileHeader({ displayName, username, onShare, onSignIn }: Prof
 
       {/* The identity above is the mock athlete. Until Clerk owns the session there is no real
           one, so the button stays as the way into the auth screens. */}
-      <GhostButton label="Sign in" onPress={onSignIn} />
+      <GhostButton label={t('profile.signIn')} onPress={onSignIn} />
     </Card>
   );
 }

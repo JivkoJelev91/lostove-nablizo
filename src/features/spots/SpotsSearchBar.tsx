@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { iconSizeValues, schemePlaceholderColor } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 export type SpotsSearchBarProps = {
   onPress: () => void;
@@ -20,13 +21,13 @@ export function SpotsSearchBar({ onPress }: SpotsSearchBarProps) {
 
   return (
     <Pressable
-      accessibilityLabel="Search spots"
+      accessibilityLabel={t('search.title')}
       accessibilityRole="button"
       className="h-search flex-row items-center gap-space-8 rounded-pill border border-border bg-surface-input px-space-16 active:bg-bg-surface"
       onPress={onPress}
     >
       <Ionicons color={schemePlaceholderColor[scheme]} name="search" size={iconSizeValues.sm} />
-      <Text className="text-body text-text-muted">Search spots...</Text>
+      <Text className="text-body text-text-muted">{t('search.placeholder')}</Text>
     </Pressable>
   );
 }

@@ -18,6 +18,8 @@ import {
 } from '@/features/spot-editor/equipment-draft';
 import type { EquipmentDraftItem } from '@/features/spot-editor/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
+import { equipmentLabel } from '@/i18n/equipment';
 import { cn } from '@/utils/cn';
 
 export type EquipmentQuantityGridProps = {
@@ -68,9 +70,19 @@ function QuantityStepper({ name, quantity, onQuantity }: QuantityStepperProps) {
 
   return (
     <View className="flex-row items-center justify-between">
-      {stepButton(`Decrease ${name} quantity`, quantity <= 1, 'remove', -1)}
+      {stepButton(
+        t('equipmentStep.decrease', { name: equipmentLabel(name) }),
+        quantity <= 1,
+        'remove',
+        -1,
+      )}
       <Text className="font-semibold text-body text-text-primary">{quantity}</Text>
-      {stepButton(`Increase ${name} quantity`, quantity >= MAX_EQUIPMENT_QUANTITY, 'add', 1)}
+      {stepButton(
+        t('equipmentStep.increase', { name: equipmentLabel(name) }),
+        quantity >= MAX_EQUIPMENT_QUANTITY,
+        'add',
+        1,
+      )}
     </View>
   );
 }
@@ -89,8 +101,8 @@ function EquipmentTile({ name, item, onToggle, onQuantity }: EquipmentTileProps)
 
   return (
     <Pressable
-      accessibilityHint={selected ? 'Removes this equipment' : 'Adds this equipment'}
-      accessibilityLabel={name}
+      accessibilityHint={selected ? t('equipmentStep.removeHint') : t('equipmentStep.addHint')}
+      accessibilityLabel={equipmentLabel(name)}
       accessibilityRole="button"
       accessibilityState={{ selected }}
       className={cn(
@@ -107,12 +119,12 @@ function EquipmentTile({ name, item, onToggle, onQuantity }: EquipmentTileProps)
           size={iconSizeValues.sm}
         />
         <Text className="flex-1 font-semibold text-bodySmall text-text-primary" numberOfLines={1}>
-          {name}
+          {equipmentLabel(name)}
         </Text>
       </View>
 
       {item === undefined ? (
-        <Text className="text-caption text-text-muted">Tap to add</Text>
+        <Text className="text-caption text-text-muted">{t('equipmentStep.tapToAdd')}</Text>
       ) : (
         <QuantityStepper name={name} onQuantity={onQuantity} quantity={item.quantity} />
       )}

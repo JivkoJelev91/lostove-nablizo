@@ -1,10 +1,13 @@
 import { View } from 'react-native';
 
+import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
+
 import { LoadingSpinner, PrimaryButton, Screen } from '@/components';
 import { AddSpotHeader } from '@/features/spot-editor/AddSpotHeader';
 import { AddSpotStepContent } from '@/features/spot-editor/AddSpotStepContent';
 import { AddSpotSuccess } from '@/features/spot-editor/AddSpotSuccess';
 import { useAddSpotFlow } from '@/features/spot-editor/useAddSpotFlow';
+import { t } from '@/i18n';
 
 /**
  * The five-step Add Spot flow: where the spot is, what it is, what it carries, what it looks
@@ -61,19 +64,27 @@ export function AddSpotFlow() {
 
         <View className="px-screen-px pb-space-16 pt-space-12">
           {isLastStep ? (
-            <PrimaryButton fullWidth label="Add Spot" loading={submitting} onPress={handleSubmit} />
+            <PrimaryButton
+              fullWidth
+              label={t('submit.add')}
+              loading={submitting}
+              onPress={handleSubmit}
+            />
           ) : (
-            <PrimaryButton fullWidth label="Continue" onPress={handleContinue} />
+            <PrimaryButton fullWidth label={t('common.continue')} onPress={handleContinue} />
           )}
         </View>
       </View>
 
       {submitting ? (
-        <View className="absolute inset-0 items-center justify-center bg-scrim">
+        <Animated.View
+          className="absolute inset-0 items-center justify-center bg-scrim"
+          entering={FadeIn.duration(150).reduceMotion(ReduceMotion.System)}
+        >
           <View className="rounded-xl bg-surface-card-elevated p-card-pad shadow-card-elevated">
-            <LoadingSpinner label="Adding your spot..." />
+            <LoadingSpinner label={t('submit.submitting')} />
           </View>
-        </View>
+        </Animated.View>
       ) : null}
     </Screen>
   );

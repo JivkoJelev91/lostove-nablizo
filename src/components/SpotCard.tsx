@@ -4,14 +4,15 @@ import type { ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Card } from '@/components/Card';
-import { IconButton } from '@/components/IconButton';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import { Rating } from '@/components/Rating';
 import { SpotStatusBadge } from '@/components/SpotStatusBadge';
 import type { SpotStatus } from '@/components/SpotStatusBadge';
 import { VerificationBadge } from '@/components/VerificationBadge';
 import type { VerifiedAt } from '@/components/VerificationBadge';
-import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
+import { iconSizeValues, schemeTextSecondary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { equipmentLabel } from '@/i18n/equipment';
 
 export type SpotEquipment = {
   name: string;
@@ -30,7 +31,7 @@ export type SpotCardProps = {
    * wording and the colour from it, so a date that is six weeks old stops looking reassuring.
    */
   verifiedAt?: VerifiedAt;
-  /** e.g. `1.2 km away`. */
+  /** e.g. `1,2 км от теб`. */
   distanceLabel?: string;
   imageUri?: ImageSourcePropType;
   isFavorite?: boolean;
@@ -49,28 +50,11 @@ export type SpotCardProps = {
 function formatEquipment(equipment: readonly SpotEquipment[], withQuantity: boolean): string {
   return equipment
     .map((item) =>
-      withQuantity && item.quantity !== undefined ? `${item.name} ×${item.quantity}` : item.name,
+      withQuantity && item.quantity !== undefined
+        ? `${equipmentLabel(item.name)} ×${item.quantity}`
+        : equipmentLabel(item.name),
     )
     .join(' · ');
-}
-
-function FavoriteButton({ isFavorite, onPress }: { isFavorite: boolean; onPress: () => void }) {
-  const scheme = useScheme();
-
-  return (
-    <IconButton
-      accessibilityLabel={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
-      icon={
-        <Ionicons
-          color={isFavorite ? statusColors.bad : schemeTextSecondary[scheme]}
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          size={iconSizeValues.sm}
-        />
-      }
-      onPress={onPress}
-      size="sm"
-    />
-  );
 }
 
 type SpotBodyProps = {

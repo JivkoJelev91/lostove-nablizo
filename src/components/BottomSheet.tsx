@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/IconButton';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type BottomSheetProps = {
@@ -40,7 +41,7 @@ export function BottomSheet({
     >
       <View className="flex-1 justify-end">
         <Pressable
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
           accessibilityRole="button"
           className="absolute inset-0 bg-scrim"
           onPress={onClose}
@@ -65,7 +66,7 @@ export function BottomSheet({
                   {title}
                 </Text>
                 <IconButton
-                  accessibilityLabel="Close"
+                  accessibilityLabel={t('common.close')}
                   icon={
                     <Ionicons
                       color={schemeTextPrimary[scheme]}

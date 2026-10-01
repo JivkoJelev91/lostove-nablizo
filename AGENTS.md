@@ -95,6 +95,8 @@ Styling is **NativeWind** over `designSystem.json`. Use `className`, not `StyleS
 - Dark mode belongs to NativeWind (`darkMode: 'class'`, following the system). Scheme-dependent colours resolve through CSS variables, so `bg-bg-main` adapts without a `dark:` prefix.
 - The dark variable block in `global.css` must use the selector `.dark:root`. NativeWind only recognises that form (bare `.dark` and `:root.dark` are silently dropped, leaving the dark values unused). `scripts/write-theme-css.mjs` emits it; do not "simplify" it by hand.
 - For APIs that take a colour string (navigators, `StatusBar`), read `src/constants/design-tokens.ts` — do not paste hex values.
+- Never put `className` and `style` on the same animated component (`Animated.View`, `Animated.Text`, anything from Reanimated). Reanimated replaces the props of its own components, so the classes are dropped on a device while react-native-web keeps applying them — the element looks right in `pnpm start` on web and is broken in Expo Go. Put the classes on a plain `View` around it and the animation on the inner animated view, as `Button`, `Skeleton` and `ImageCarousel` do. Do not "fix" this with `cssInterop`: it was tried, did not apply on device, and only hid the problem on web.
+- Same trap with size: a class like `h-space-12` is 12 **pixels**, so a particle sized that way is invisible in practice. Read `spacingValues` from `src/constants/design-tokens.ts` when something is measured in TypeScript.
 - `boxShadow` tokens must be CSS shadow strings. RN style objects (`{ shadowColor, ... }`) crash Tailwind's parser, and inside Metro that crash surfaces only as a bundler hang, not an error.
 
 ## Rules

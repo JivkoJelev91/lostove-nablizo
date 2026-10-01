@@ -25,6 +25,7 @@ import {
   SPOT_NAME_MAX_LENGTH,
 } from '@/features/spot-editor/validation';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 export type EditSpotFormProps = {
   spot: Spot;
@@ -40,7 +41,7 @@ function EditSpotHeader({ onCancel }: EditSpotHeaderProps) {
   return (
     <View className="flex-row items-center gap-space-8">
       <IconButton
-        accessibilityLabel="Back"
+        accessibilityLabel={t('common.back')}
         icon={
           <Ionicons
             color={schemeTextPrimary[scheme]}
@@ -52,9 +53,11 @@ function EditSpotHeader({ onCancel }: EditSpotHeaderProps) {
         variant="surface"
       />
 
-      <Text className="flex-1 font-semibold text-h2 text-text-primary">Edit Spot</Text>
+      <Text className="flex-1 font-semibold text-h2 text-text-primary">
+        {t('submit.editTitle')}
+      </Text>
 
-      <GhostButton label="Cancel" onPress={onCancel} size="sm" />
+      <GhostButton label={t('common.cancel')} onPress={onCancel} size="sm" />
     </View>
   );
 }
@@ -79,21 +82,21 @@ function EditSpotDialogs({
       <Modal
         actions={
           <>
-            <GhostButton label="Keep editing" onPress={onCancelDiscard} />
-            <DangerButton label="Discard" onPress={onConfirmDiscard} />
+            <GhostButton label={t('submit.keepEditing')} onPress={onCancelDiscard} />
+            <DangerButton label={t('submit.discard')} onPress={onConfirmDiscard} />
           </>
         }
-        description="Your edits to this spot will be lost."
+        description={t('submit.discardDescription')}
         onClose={onCancelDiscard}
-        title="Discard changes?"
+        title={t('submit.discardTitle')}
         visible={discardVisible}
       />
 
       <Modal
-        actions={<PrimaryButton label="Done" onPress={onSavedDone} />}
-        description="Your edits are pending review and will show on the spot once approved."
+        actions={<PrimaryButton label={t('common.done')} onPress={onSavedDone} />}
+        description={t('submit.changesDescription')}
         onClose={onSavedDone}
-        title="Changes submitted"
+        title={t('submit.changesTitle')}
         visible={savedVisible}
       />
     </>
@@ -138,7 +141,7 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
 
         {cover === undefined ? null : (
           <Image
-            accessibilityLabel={`${name} cover photo`}
+            accessibilityLabel={t('photosStep.coverPhoto', { name })}
             className="h-spot-image w-full rounded-lg bg-bg-surface"
             source={cover}
           />
@@ -147,26 +150,26 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
         <View className="gap-space-12">
           <TextInput
             errorText={errors.name}
-            label="Name"
+            label={t('details.name')}
             maxLength={SPOT_NAME_MAX_LENGTH}
             onChangeText={changeName}
-            placeholder="e.g. Trakia Fitness Park"
+            placeholder={t('details.namePlaceholder')}
             value={name}
           />
 
           <TextArea
             errorText={errors.description}
-            label="Description"
+            label={t('details.description')}
             maxLength={SPOT_DESCRIPTION_MAX_LENGTH}
             onChangeText={changeDescription}
-            placeholder="What should athletes know about this spot?"
+            placeholder={t('details.descriptionPlaceholder')}
             showCount
             value={description}
           />
         </View>
 
         <View className="gap-space-12">
-          <SectionHeader accent title="Equipment" />
+          <SectionHeader accent title={t('spot.equipment')} />
           <EquipmentQuantityGrid
             errorText={errors.equipment}
             onChange={changeEquipment}
@@ -175,16 +178,21 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
         </View>
 
         <View className="gap-space-12">
-          <SectionHeader accent title="Condition" />
+          <SectionHeader accent title={t('condition.title')} />
           <ConditionSelector onChange={changeCondition} value={condition} />
         </View>
 
         <View className="gap-space-12">
-          <SectionHeader accent title="Photos" />
+          <SectionHeader accent title={t('photosStep.section')} />
           <PhotoManager errorText={errors.photos} onChange={changePhotos} photos={photos} />
         </View>
 
-        <PrimaryButton fullWidth label="Save Changes" loading={saving} onPress={handleSave} />
+        <PrimaryButton
+          fullWidth
+          label={t('submit.changes')}
+          loading={saving}
+          onPress={handleSave}
+        />
       </ScreenShell>
 
       <EditSpotDialogs

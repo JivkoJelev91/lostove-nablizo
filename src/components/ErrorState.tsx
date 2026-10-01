@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SecondaryButton } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { iconSizeValues, statusColors } from '@/constants/design-tokens';
+import { t } from '@/i18n';
 
 export type ErrorStateProps = {
   title?: string;
@@ -18,10 +19,10 @@ export type ErrorStateProps = {
  * differ only in icon colour and the presence of a retry action.
  */
 export function ErrorState({
-  title = 'Something went wrong',
-  description = 'Please try again in a moment.',
+  title = t('common.errorTitle'),
+  description = t('common.errorDescription'),
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel = t('common.tryAgain'),
   className,
 }: ErrorStateProps) {
   return (

@@ -9,6 +9,8 @@ import { Card, EmptyState, IconButton, Rating, SearchInput } from '@/components'
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
+import { equipmentLabel } from '@/i18n/equipment';
 
 export type SpotSearchSheetProps = {
   visible: boolean;
@@ -25,7 +27,7 @@ export type SpotSearchSheetProps = {
 };
 
 function equipmentSummary(spot: Spot): string {
-  return spot.equipment.map((item) => item.name).join(' · ');
+  return spot.equipment.map((item) => equipmentLabel(item.name)).join(' · ');
 }
 
 /** Full-screen search over the discovery screens, as a modal so the field owns the keyboard. */
@@ -73,7 +75,7 @@ export function SpotSearchSheet({
         <View className="flex-1 gap-section-gap px-screen-px pt-space-8">
           <View className="flex-row items-center gap-space-8">
             <IconButton
-              accessibilityLabel="Close search"
+              accessibilityLabel={t('search.close')}
               icon={
                 <Ionicons
                   color={schemeTextPrimary[scheme]}
@@ -86,11 +88,11 @@ export function SpotSearchSheet({
 
             <View className="flex-1">
               <SearchInput
-                accessibilityLabel="Search spots"
+                accessibilityLabel={t('search.title')}
                 autoFocus
                 onChangeText={onChangeQuery}
                 onClear={() => onChangeQuery('')}
-                placeholder="Search spots..."
+                placeholder={t('search.placeholder')}
                 value={query}
               />
             </View>
@@ -104,9 +106,9 @@ export function SpotSearchSheet({
             keyExtractor={(spot) => spot.id}
             ListEmptyComponent={
               <EmptyState
-                description={`Nothing matches "${query.trim()}".`}
+                description={t('search.noResultsDescription', { query: query.trim() })}
                 padded={false}
-                title="No spots found"
+                title={t('search.noResultsTitle')}
               />
             }
             renderItem={renderResult}

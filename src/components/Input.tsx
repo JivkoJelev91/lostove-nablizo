@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { iconSizeValues, schemePlaceholderColor } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 type FieldFrameProps = {
@@ -191,7 +192,7 @@ export function SearchInput({
         rightIcon={
           hasValue && onClear !== undefined ? (
             <Pressable
-              accessibilityLabel="Clear search"
+              accessibilityLabel={t('common.clearSearch')}
               accessibilityRole="button"
               className="p-space-4"
               hitSlop={8}
@@ -207,7 +208,7 @@ export function SearchInput({
         }
       >
         <RNTextInput
-          accessibilityLabel={accessibilityLabel ?? 'Search'}
+          accessibilityLabel={accessibilityLabel ?? t('common.search')}
           accessibilityState={{ disabled: isDisabled }}
           className="flex-1 py-0 font-regular text-body text-text-primary"
           editable={!isDisabled}

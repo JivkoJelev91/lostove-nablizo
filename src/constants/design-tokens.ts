@@ -15,7 +15,7 @@ import { designSystem } from '../../designSystem.json';
 
 export type ColorScheme = 'light' | 'dark';
 
-const { colors, components, iconSizes, typography } = designSystem;
+const { colors, components, iconSizes, spacing, typography } = designSystem;
 
 /** Background colours the navigation container and status bar need per scheme. */
 export const schemeBackground: Record<ColorScheme, string> = {
@@ -91,6 +91,24 @@ export const iconSizeValues = {
   md: iconSizes.md,
   lg: iconSizes.lg,
   xl: iconSizes.xl,
+} as const;
+
+/**
+ * The spacing scale in pixels, keyed by the same numbers the Tailwind classes use.
+ *
+ * For the few places that measure something in TypeScript rather than through a class, such as
+ * the confetti pieces, which are positioned and sized by one animated style.
+ */
+export const spacingValues = {
+  2: spacing.space2,
+  4: spacing.space4,
+  8: spacing.space8,
+  12: spacing.space12,
+  16: spacing.space16,
+  20: spacing.space20,
+  24: spacing.space24,
+  32: spacing.space32,
+  40: spacing.space40,
 } as const;
 
 export type IconSize = keyof typeof iconSizeValues;

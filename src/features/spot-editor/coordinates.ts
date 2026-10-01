@@ -8,12 +8,12 @@ import type { Coordinate } from '@/features/spots/types';
  * like a place instead of a pair of numbers.
  */
 const MOCK_DISTRICTS = [
-  { name: 'Sofia Center', coordinate: { latitude: 42.6977, longitude: 23.3219 } },
-  { name: 'Studentski Grad', coordinate: { latitude: 42.6504, longitude: 23.3509 } },
-  { name: 'Borisova Gradina', coordinate: { latitude: 42.6873, longitude: 23.3415 } },
-  { name: 'South Park', coordinate: { latitude: 42.6687, longitude: 23.3098 } },
-  { name: 'Vitosha', coordinate: { latitude: 42.6521, longitude: 23.2884 } },
-  { name: 'North Park', coordinate: { latitude: 42.7296, longitude: 23.3233 } },
+  { name: 'Център', coordinate: { latitude: 42.6977, longitude: 23.3219 } },
+  { name: 'Студентски град', coordinate: { latitude: 42.6504, longitude: 23.3509 } },
+  { name: 'Борисова градина', coordinate: { latitude: 42.6873, longitude: 23.3415 } },
+  { name: 'Южен парк', coordinate: { latitude: 42.6687, longitude: 23.3098 } },
+  { name: 'Витоша', coordinate: { latitude: 42.6521, longitude: 23.2884 } },
+  { name: 'Северен парк', coordinate: { latitude: 42.7296, longitude: 23.3233 } },
 ] as const;
 
 /** The squared distance between two coordinates in degrees, enough to rank nearby districts. */
@@ -24,7 +24,7 @@ function squaredDistance(first: Coordinate, second: Coordinate): number {
   return latitudeDelta * latitudeDelta + longitudeDelta * longitudeDelta;
 }
 
-/** Names the pin's position, e.g. `Sofia Center, Sofia`. */
+/** Names the pin's position, e.g. `Център, София`. */
 export function describeLocality(coordinate: Coordinate): string {
   const nearest = MOCK_DISTRICTS.reduce((closest, district) =>
     squaredDistance(district.coordinate, coordinate) <
@@ -33,5 +33,5 @@ export function describeLocality(coordinate: Coordinate): string {
       : closest,
   );
 
-  return `${nearest.name}, Sofia`;
+  return `${nearest.name}, София`;
 }

@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 
 import type { EquipmentCondition } from '@/components/EquipmentList';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type ConditionBadgeProps = {
@@ -21,9 +22,9 @@ const TEXT_CLASS: Record<EquipmentCondition, string> = {
 };
 
 const LABEL: Record<EquipmentCondition, string> = {
-  good: 'Good',
-  worn: 'Worn',
-  damaged: 'Damaged',
+  good: t('condition.good'),
+  worn: t('condition.worn'),
+  damaged: t('condition.damaged'),
 };
 
 /**
@@ -35,7 +36,7 @@ const LABEL: Record<EquipmentCondition, string> = {
 export function ConditionBadge({ condition, className }: ConditionBadgeProps) {
   return (
     <View
-      accessibilityLabel={`Condition: ${LABEL[condition]}`}
+      accessibilityLabel={t('condition.accessibility', { value: LABEL[condition] })}
       accessibilityRole="text"
       className={cn(
         'flex-row items-center gap-space-8 self-start rounded-pill bg-bg-surface px-space-12 py-space-8',

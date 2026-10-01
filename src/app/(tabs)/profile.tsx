@@ -16,6 +16,7 @@ import { ProfileStats } from '@/features/profile/ProfileStats';
 import { useProfile } from '@/features/profile/useProfile';
 import type { Spot, SpotReview } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 /** How many of each contribution the profile previews before it points at the full list. */
 const SPOT_PREVIEW_LIMIT = 3;
@@ -45,7 +46,7 @@ export default function ProfileScreen() {
 
   const shareProfile = useCallback(() => {
     void Share.share({
-      message: `${displayName} (@${username}) trains with Лостове Наблизо — find outdoor calisthenics spots nearby.`,
+      message: t('profile.shareMessage', { name: displayName, username }),
     }).catch(() => {
       // A device with no share sheet has nothing to open; sharing is optional, so it stays quiet.
     });
@@ -57,26 +58,26 @@ export default function ProfileScreen() {
 
     const spotRows: ProfileRow[] =
       spotPreview.length === 0
-        ? [{ kind: 'text', key: 'spots-empty', text: 'You have not added a spot yet.' }]
+        ? [{ kind: 'text', key: 'spots-empty', text: t('profile.spotsEmpty') }]
         : spotPreview.map((spot) => ({ kind: 'spot', key: spot.id, spot }));
 
     const reviewRows: ProfileRow[] =
       reviewPreview.length === 0
-        ? [{ kind: 'text', key: 'reviews-empty', text: 'You have not reviewed a spot yet.' }]
+        ? [{ kind: 'text', key: 'reviews-empty', text: t('profile.reviewsEmpty') }]
         : reviewPreview.map((review) => ({ kind: 'review', key: review.id, review }));
 
     return [
       {
         kind: 'heading',
         key: 'spots-heading',
-        title: 'Your spots',
+        title: t('profile.yourSpots'),
         viewAll: spots.length > SPOT_PREVIEW_LIMIT ? '/profile/spots' : undefined,
       },
       ...spotRows,
       {
         kind: 'heading',
         key: 'reviews-heading',
-        title: 'Your reviews',
+        title: t('profile.yourReviews'),
         viewAll: reviews.length > REVIEW_PREVIEW_LIMIT ? '/profile/reviews' : undefined,
       },
       ...reviewRows,
@@ -98,7 +99,11 @@ export default function ProfileScreen() {
             accent
             action={
               viewAll === undefined ? undefined : (
-                <GhostButton label="View all" onPress={() => router.push(viewAll)} size="sm" />
+                <GhostButton
+                  label={t('common.viewAll')}
+                  onPress={() => router.push(viewAll)}
+                  size="sm"
+                />
               )
             }
             className="mt-space-12"
@@ -124,7 +129,7 @@ export default function ProfileScreen() {
     <ScreenShell
       action={
         <IconButton
-          accessibilityLabel="Settings"
+          accessibilityLabel={t('settings.title')}
           icon={
             <Ionicons
               color={schemeTextPrimary[scheme]}
@@ -136,8 +141,8 @@ export default function ProfileScreen() {
           variant="surface"
         />
       }
-      description="Your spots, reviews and saved places"
-      title="Profile"
+      description={t('profile.description')}
+      title={t('profile.title')}
       variant="tab"
     >
       <FlatList

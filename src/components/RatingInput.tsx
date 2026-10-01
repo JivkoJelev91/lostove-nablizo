@@ -6,6 +6,7 @@ import { RATING_STAR_SIZES } from '@/components/Rating';
 import type { RatingSize } from '@/components/Rating';
 import { brandColors, schemeTextSecondary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type RatingInputProps = {
@@ -30,7 +31,7 @@ export function RatingInput({
   onChange,
   max = 5,
   size = 'lg',
-  accessibilityLabel = 'Your rating',
+  accessibilityLabel = t('reviews.yourRating'),
   className,
 }: RatingInputProps) {
   const scheme = useScheme();
@@ -47,7 +48,7 @@ export function RatingInput({
 
         return (
           <Pressable
-            accessibilityLabel={`${rating} ${rating === 1 ? 'star' : 'stars'}`}
+            accessibilityLabel={t('rating.select', { value: rating, max })}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             className="p-space-4"

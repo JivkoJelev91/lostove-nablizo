@@ -14,6 +14,7 @@ import {
   textStyles,
 } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 type TabIconProps = {
   color: ColorValue;
@@ -40,6 +41,12 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // A short cross-fade between destinations, so switching tabs reads as a move rather
+        // than a cut. `shift` keeps the incoming screen in place while the bar cross-fades.
+        animation: 'shift',
+        // The scene behind each tab, so the transition never exposes the platform's default
+        // white frame in dark mode.
+        sceneStyle: { backgroundColor: schemeBackground[scheme] },
         // The forms in the tabs need the whole screen while the keyboard is up.
         tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: brandColors.primary,
@@ -62,7 +69,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Nearby',
+          title: t('nav.nearby'),
           tabBarIcon: tabIcon('navigate', 'navigate-outline'),
         }}
       />
@@ -70,7 +77,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: 'Favorites',
+          title: t('nav.favorites'),
           tabBarIcon: tabIcon('heart', 'heart-outline'),
         }}
       />
@@ -78,13 +85,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: 'Add spot',
+          title: t('nav.addSpot'),
           // The Add tab keeps its slot in the bar but renders as a filled primary circle, so it
           // reads as the app's main action without floating away from the other destinations.
           // A location pin rather than a plus: the action adds a place, and the label says so.
           tabBarButton: ({ accessibilityState, onLongPress, onPress, style }) => (
             <Pressable
-              accessibilityLabel="Add a spot"
+              accessibilityLabel={t('nav.addSpotLabel')}
               accessibilityRole="button"
               accessibilityState={accessibilityState}
               onLongPress={onLongPress}
@@ -108,7 +115,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('nav.profile'),
           tabBarIcon: tabIcon('person', 'person-outline'),
         }}
       />

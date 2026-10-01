@@ -3,10 +3,12 @@ import { Linking, Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import {
   ConditionBadge,
   EquipmentList,
+  FavoriteButton,
   IconButton,
   ImageCarousel,
   PrimaryButton,
@@ -18,13 +20,7 @@ import {
   VerificationBadge,
 } from '@/components';
 import type { EquipmentListItem } from '@/components';
-import {
-  brandColors,
-  iconSizeValues,
-  schemeTextPrimary,
-  schemeTextSecondary,
-  statusColors,
-} from '@/constants/design-tokens';
+import { brandColors, iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
@@ -36,6 +32,7 @@ import { SpotStatusNotice } from '@/features/spots/SpotStatusNotice';
 import type { Spot } from '@/features/spots/types';
 import { useSpots } from '@/features/spots/useSpots';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { formatMonthDayYear } from '@/utils/dates';
 
 /** Turns a spot's equipment into the tiles the list renders, icons included where one exists. */
@@ -80,17 +77,15 @@ function SpotReviews({ spot }: { spot: Spot }) {
 
   return (
     <View className="mt-space-32 gap-space-16">
-      <SectionHeader accent title="Reviews" />
+      <SectionHeader accent title={t('reviews.title')} />
 
       {hasReviews ? null : (
-        <Text className="text-bodySmall text-text-secondary">
-          No reviews yet. Be the first to train here and leave one.
-        </Text>
+        <Text className="text-bodySmall text-text-secondary">{t('reviews.empty')}</Text>
       )}
 
       <SecondaryButton
         fullWidth
-        label={ownReview === undefined ? 'Write a review' : 'Edit your review'}
+        label={ownReview === undefined ? t('reviews.write') : t('reviews.edit')}
         leftIcon={
           <Ionicons
             color={brandColors.primary}
@@ -102,15 +97,20 @@ function SpotReviews({ spot }: { spot: Spot }) {
       />
 
       {ownReview === undefined ? null : (
-        <View className="gap-space-8">
-          <Text className="font-semibold text-bodySmall text-text-secondary">Your review</Text>
+        <Animated.View
+          className="gap-space-8"
+          entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
+        >
+          <Text className="font-semibold text-bodySmall text-text-secondary">
+            {t('reviews.yourReview')}
+          </Text>
           <ReviewCard
             authorName={ownReview.authorName}
             dateLabel={formatMonthDayYear(ownReview.date)}
             rating={ownReview.rating}
             text={ownReview.text}
           />
-        </View>
+        </Animated.View>
       )}
 
       {otherReviews.length === 0 ? null : (
@@ -175,7 +175,7 @@ export default function SpotScreen() {
     >
       <View className="flex-row items-center justify-between p-space-12">
         <IconButton
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
           icon={
             <Ionicons
               color={schemeTextPrimary[scheme]}
@@ -189,7 +189,7 @@ export default function SpotScreen() {
 
         {canEdit ? (
           <IconButton
-            accessibilityLabel="Edit spot"
+            accessibilityLabel={t('spot.edit')}
             icon={
               <Ionicons
                 color={schemeTextPrimary[scheme]}
@@ -210,16 +210,10 @@ export default function SpotScreen() {
           <View className="flex-row items-center justify-between gap-space-12">
             <Text className="flex-1 font-bold text-h1 text-text-primary">{spot.name}</Text>
 
-            <IconButton
-              accessibilityLabel={saved ? 'Remove from favorites' : 'Add to favorites'}
-              icon={
-                <Ionicons
-                  color={saved ? statusColors.bad : schemeTextSecondary[scheme]}
-                  name={saved ? 'heart' : 'heart-outline'}
-                  size={iconSizeValues.sm}
-                />
-              }
+            <FavoriteButton
+              isFavorite={saved}
               onPress={() => toggleFavorite(spot.id)}
+              size="md"
               variant="surface"
             />
           </View>
@@ -239,7 +233,7 @@ export default function SpotScreen() {
         ) : null}
 
         <View className="mt-space-24 gap-space-12">
-          <SectionHeader accent title="Equipment" />
+          <SectionHeader accent title={t('spot.equipment')} />
           <EquipmentList items={equipmentItemsFor(spot)} />
         </View>
 
@@ -247,19 +241,19 @@ export default function SpotScreen() {
           <SectionHeader
             accent
             action={<ConditionBadge condition={spot.condition} />}
-            title="Condition"
+            title={t('condition.title')}
           />
         </View>
 
         <View className="mt-space-32 gap-space-8">
-          <SectionHeader accent title="Description" />
+          <SectionHeader accent title={t('spot.description')} />
           <Text className="text-body text-text-secondary">{spot.description}</Text>
         </View>
 
         <View className="mt-space-32">
           <PrimaryButton
             fullWidth
-            label="Navigate"
+            label={t('spot.navigate')}
             leftIcon={
               <Ionicons
                 color={brandColors.onPrimary}

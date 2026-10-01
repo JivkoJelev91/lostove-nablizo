@@ -7,10 +7,11 @@ import { Card, DangerButton, Divider, ScreenShell, SectionHeader } from '@/compo
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useProfile } from '@/features/profile/useProfile';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 type SettingsRowData = {
   label: string;
-  /** What the setting currently is, e.g. `Follows system`. Omitted when there is nothing to state. */
+  /** What the setting currently is, e.g. `Следва системата`. Omitted when there is nothing to state. */
   value?: string;
   /** Set only for a row that leads somewhere; the row then earns its chevron. */
   onPress?: () => void;
@@ -89,41 +90,49 @@ export default function SettingsScreen() {
 
   const groups: readonly SettingsGroupData[] = [
     {
-      title: 'Account',
+      title: t('settings.account'),
       rows: [
         {
-          label: 'Profile',
+          label: t('settings.profile'),
           onPress: () => router.navigate('/(tabs)/profile'),
           value: `@${username}`,
         },
-        { label: 'Email' },
-        { label: 'Security' },
+        { label: t('settings.email') },
+        { label: t('settings.security') },
       ],
     },
     {
-      title: 'Preferences',
+      title: t('settings.preferences'),
       rows: [
-        { label: 'Notifications', value: 'On' },
+        { label: t('settings.notifications'), value: t('settings.on') },
         // Matches the permission app.json declares: location while using the app.
-        { label: 'Location', value: 'While using the app' },
-        { label: 'Appearance', value: 'Follows system' },
+        { label: t('settings.location'), value: t('settings.locationWhileUsing') },
+        { label: t('settings.appearance'), value: t('settings.followsSystem') },
       ],
     },
     {
-      title: 'About',
-      rows: [{ label: 'Privacy Policy' }, { label: 'Terms' }, { label: 'About the App' }],
+      title: t('settings.about'),
+      rows: [
+        { label: t('settings.privacy') },
+        { label: t('settings.terms') },
+        { label: t('settings.aboutApp') },
+      ],
     },
   ];
 
   return (
-    <ScreenShell description="Account, preferences and app information" scroll title="Settings">
+    <ScreenShell description={t('settings.description')} scroll title={t('settings.title')}>
       {groups.map((group) => (
         <SettingsGroup key={group.title} {...group} />
       ))}
 
       {/* There is no session to end until Clerk owns authentication, so signing out lands on the
           sign-in screen, which is where a signed-out athlete belongs. */}
-      <DangerButton fullWidth label="Log Out" onPress={() => router.replace('/auth/sign-in')} />
+      <DangerButton
+        fullWidth
+        label={t('settings.logOut')}
+        onPress={() => router.replace('/auth/sign-in')}
+      />
 
       {version !== undefined ? (
         <Text className="text-center text-caption text-text-muted">{`v${version}`}</Text>

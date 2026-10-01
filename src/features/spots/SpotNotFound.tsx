@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { EmptyState, GhostButton, ScreenShell } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 export type SpotNotFoundProps = {
   /** Overrides for a route that knows why it has nothing to render, e.g. a closed spot's edit. */
@@ -19,12 +20,10 @@ export function SpotNotFound({ title, description }: SpotNotFoundProps) {
   const scheme = useScheme();
 
   return (
-    <ScreenShell padded={false} title={title ?? 'Spot not found'} variant="stack">
+    <ScreenShell padded={false} title={title ?? t('spot.notFoundTitle')} variant="stack">
       <EmptyState
-        action={<GhostButton label="Back to spots" onPress={() => router.replace('/')} />}
-        description={
-          description ?? 'The spot you are looking for may have been removed, or the link is wrong.'
-        }
+        action={<GhostButton label={t('spot.backToSpots')} onPress={() => router.replace('/')} />}
+        description={description ?? t('spot.notFoundDescription')}
         icon={
           <Ionicons
             color={schemeTextMuted[scheme]}
@@ -32,7 +31,7 @@ export function SpotNotFound({ title, description }: SpotNotFoundProps) {
             size={iconSizeValues.md}
           />
         }
-        title={title ?? 'Spot not found'}
+        title={title ?? t('spot.notFoundTitle')}
       />
     </ScreenShell>
   );

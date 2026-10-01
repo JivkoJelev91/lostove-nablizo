@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { IconButton } from '@/components/IconButton';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type ModalProps = {
@@ -44,7 +45,7 @@ export function Modal({
     >
       <View className="flex-1 items-center justify-center px-screen-px">
         <Pressable
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
           accessibilityRole="button"
           className="absolute inset-0 bg-scrim"
           onPress={dismissOnBackdropPress ? onClose : undefined}
@@ -73,7 +74,7 @@ export function Modal({
             </View>
 
             <IconButton
-              accessibilityLabel="Close"
+              accessibilityLabel={t('common.close')}
               icon={
                 <Ionicons color={schemeTextPrimary[scheme]} name="close" size={iconSizeValues.md} />
               }

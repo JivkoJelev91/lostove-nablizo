@@ -4,6 +4,9 @@ export type { AvatarProps, AvatarSize } from './Avatar';
 export { BottomSheet } from './BottomSheet';
 export type { BottomSheetProps } from './BottomSheet';
 
+export { BrandLogo } from './BrandLogo';
+export type { BrandLogoProps } from './BrandLogo';
+
 export { Button, DangerButton, GhostButton, PrimaryButton, SecondaryButton } from './Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 
@@ -27,6 +30,9 @@ export type { DividerProps } from './Divider';
 
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
+
+export { FavoriteButton } from './FavoriteButton';
+export type { FavoriteButtonProps } from './FavoriteButton';
 
 export {
   DipBarsIcon,

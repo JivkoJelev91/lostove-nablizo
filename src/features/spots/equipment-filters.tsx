@@ -5,6 +5,7 @@ import { FilterChip } from '@/components';
 import type { EquipmentIconProps } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { EQUIPMENT_ICONS } from '@/features/spots/equipment-icons';
+import { equipmentLabel } from '@/i18n/equipment';
 
 export type EquipmentFilter = {
   /** Matches the equipment names used by `Spot.equipment`. */
@@ -49,7 +50,7 @@ export type EquipmentFilterChipProps = {
 export function EquipmentFilterChip({ filter, selected, onToggle }: EquipmentFilterChipProps) {
   return (
     <FilterChip
-      label={filter.name}
+      label={equipmentLabel(filter.name)}
       leftIcon={<EquipmentFilterIcon filter={filter} />}
       onPress={() => onToggle(filter.name)}
       selected={selected}

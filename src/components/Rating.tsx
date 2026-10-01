@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
+import { formatDecimal, reviewCountLabel, t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type RatingSize = 'sm' | 'md' | 'lg';
@@ -60,7 +61,13 @@ export function Rating({
   const filled = Math.round(Math.min(Math.max(value, 0), max));
   const label =
     accessibilityLabel ??
-    `Rated ${value} out of ${max}${count !== undefined ? `, ${count} reviews` : ''}`;
+    (count === undefined
+      ? t('rating.label', { value: formatDecimal(value), max })
+      : t('rating.labelWithCount', {
+          value: formatDecimal(value),
+          max,
+          count: reviewCountLabel(count),
+        }));
 
   if (variant === 'summary') {
     return (
@@ -73,13 +80,13 @@ export function Rating({
 
         {showValue ? (
           <Text className={cn('font-semibold text-text-primary', SUMMARY_TEXT_CLASS[size])}>
-            {value.toFixed(1)}
+            {formatDecimal(value)}
           </Text>
         ) : null}
 
         {count !== undefined ? (
           <Text className={cn('text-text-secondary', SUMMARY_TEXT_CLASS[size])}>
-            {`${showValue ? '· ' : ''}${count} ${count === 1 ? 'review' : 'reviews'}`}
+            {`${showValue ? '· ' : ''}${reviewCountLabel(count)}`}
           </Text>
         ) : null}
       </View>
@@ -106,7 +113,7 @@ export function Rating({
       {showValue ? (
         <Text
           className={cn('font-semibold text-text-primary', VALUE_TEXT_CLASS[size])}
-        >{`${value.toFixed(1)}`}</Text>
+        >{`${formatDecimal(value)}`}</Text>
       ) : null}
 
       {count !== undefined ? (

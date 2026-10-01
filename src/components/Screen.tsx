@@ -5,6 +5,7 @@ import type { Edge } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type ScreenProps = {
@@ -45,7 +46,7 @@ export function Screen({
   return (
     <SafeAreaView className={cn('flex-1 bg-bg-main', className)} edges={edges}>
       {loading ? (
-        <LoadingSpinner className="flex-1" label="Loading" />
+        <LoadingSpinner className="flex-1" label={t('common.loading')} />
       ) : scroll ? (
         <ScrollView
           automaticallyAdjustKeyboardInsets

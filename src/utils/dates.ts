@@ -7,22 +7,22 @@ export function daysAgo(days: number): Date {
 }
 
 const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'януари',
+  'февруари',
+  'март',
+  'април',
+  'май',
+  'юни',
+  'юли',
+  'август',
+  'септември',
+  'октомври',
+  'ноември',
+  'декември',
 ] as const;
 
-/** Formats a date the way the designs write one, e.g. `May 12, 2024`. */
+/** Formats a date the way Bulgarian writes one, e.g. `12 май 2024 г.`. */
 export function formatMonthDayYear(date: Date): string {
   const month = MONTH_NAMES[date.getMonth()] ?? '';
-  return `${month} ${date.getDate()}, ${date.getFullYear()}`;
+  return `${date.getDate()} ${month} ${date.getFullYear()} г.`;
 }

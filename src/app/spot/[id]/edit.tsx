@@ -4,6 +4,7 @@ import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
 import { useSpots } from '@/features/spots/useSpots';
 import { EditSpotForm } from '@/features/spot-editor/EditSpotForm';
+import { t } from '@/i18n';
 
 export default function EditSpotScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,10 +19,7 @@ export default function EditSpotScreen() {
 
   if (spot.status === 'closed') {
     return (
-      <SpotNotFound
-        description="This spot is closed, so it can no longer be edited."
-        title="Spot closed"
-      />
+      <SpotNotFound description={t('spot.closedEditDescription')} title={t('spot.closedTitle')} />
     );
   }
 

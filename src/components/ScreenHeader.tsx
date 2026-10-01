@@ -8,6 +8,7 @@ import { IconButton } from '@/components/IconButton';
 import { SectionHeader } from '@/components/SectionHeader';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type ScreenHeaderProps = {
@@ -39,7 +40,7 @@ export function ScreenHeader({
     <View className={cn('flex-row items-center gap-space-8', className)}>
       {back ? (
         <IconButton
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
           icon={
             <Ionicons
               color={schemeTextPrimary[scheme]}

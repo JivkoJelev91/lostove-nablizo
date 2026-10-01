@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 
 export type ProfileStatsProps = {
   spots: number;
@@ -26,7 +27,7 @@ function Stat({
   return (
     <View
       accessible
-      accessibilityLabel={`${value} ${label.toLowerCase()}`}
+      accessibilityLabel={`${value} ${label}`}
       className="flex-1 items-center gap-space-2"
     >
       <Ionicons color={schemeTextMuted[scheme]} name={icon} size={iconSizeValues.sm} />
@@ -48,11 +49,11 @@ export function ProfileStats({ spots, reviews, favorites }: ProfileStatsProps) {
   return (
     <Card gap="none" padding="md">
       <View className="flex-row items-center">
-        <Stat icon="location-outline" label="Spots" value={spots} />
+        <Stat icon="location-outline" label={t('profile.stats.spots')} value={spots} />
         <View accessible={false} className="w-px self-stretch bg-border" />
-        <Stat icon="star-outline" label="Reviews" value={reviews} />
+        <Stat icon="star-outline" label={t('profile.stats.reviews')} value={reviews} />
         <View accessible={false} className="w-px self-stretch bg-border" />
-        <Stat icon="heart-outline" label="Favorites" value={favorites} />
+        <Stat icon="heart-outline" label={t('profile.stats.favorites')} value={favorites} />
       </View>
     </Card>
   );

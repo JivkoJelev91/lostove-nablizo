@@ -9,6 +9,7 @@ import { useFavorites } from '@/features/favorites/useFavorites';
 import { coverImage } from '@/features/spots/spot-photos';
 import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 /**
@@ -39,7 +40,11 @@ export default function FavoritesScreen() {
   );
 
   return (
-    <ScreenShell description="Your saved spots" title="Favorites" variant="tab">
+    <ScreenShell
+      description={t('favorites.description')}
+      title={t('favorites.title')}
+      variant="tab"
+    >
       <FlatList
         className="flex-1"
         contentContainerClassName={cn(
@@ -50,9 +55,11 @@ export default function FavoritesScreen() {
         keyExtractor={(spot) => spot.id}
         ListEmptyComponent={
           <EmptyState
-            action={<PrimaryButton label="Explore spots" onPress={() => router.navigate('/')} />}
+            action={
+              <PrimaryButton label={t('favorites.explore')} onPress={() => router.navigate('/')} />
+            }
             className="flex-1 justify-center"
-            description="Save places you want to visit later."
+            description={t('favorites.emptyDescription')}
             icon={
               <Ionicons
                 color={schemeTextMuted[scheme]}
@@ -61,7 +68,7 @@ export default function FavoritesScreen() {
               />
             }
             padded={false}
-            title="No saved spots yet"
+            title={t('favorites.emptyTitle')}
           />
         }
         renderItem={renderSpot}

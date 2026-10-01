@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { router } from 'expo-router';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import { ReviewCard } from '@/components';
 import { useSpots } from '@/features/spots/useSpots';
@@ -13,7 +14,7 @@ export type ProfileReviewCardProps = {
 
 /**
  * One of the athlete's reviews, titled with the spot it is about and linking back to it, so a
- * review is never a dead end on the profile.
+ * review is never a dead end on the profile. It fades in on mount, matching the spot rows.
  */
 export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
   const { spotById } = useSpots();
@@ -24,12 +25,14 @@ export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
   }, [review.spotId]);
 
   return (
-    <ReviewCard
-      dateLabel={formatMonthDayYear(review.date)}
-      onPress={spot === undefined ? undefined : openSpot}
-      rating={review.rating}
-      spotName={spot?.name}
-      text={review.text}
-    />
+    <Animated.View entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}>
+      <ReviewCard
+        dateLabel={formatMonthDayYear(review.date)}
+        onPress={spot === undefined ? undefined : openSpot}
+        rating={review.rating}
+        spotName={spot?.name}
+        text={review.text}
+      />
+    </Animated.View>
   );
 }

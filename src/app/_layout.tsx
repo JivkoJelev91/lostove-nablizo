@@ -1,4 +1,5 @@
 import '../../global.css';
+import { useEffect } from 'react';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -8,6 +9,7 @@ import {
 import * as Font from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useColorScheme } from 'nativewind';
 
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
@@ -28,6 +30,13 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+
+  // The native window behind the navigators, so the frames a screen transition exposes show
+  // the app's background instead of the platform's white. Without this, pushing a route in
+  // dark mode flashes light. Android-only; the catch keeps it quiet elsewhere.
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(schemeBackground[scheme]).catch(() => {});
+  }, [scheme]);
 
   return (
     <>

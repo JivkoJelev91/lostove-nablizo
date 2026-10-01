@@ -7,6 +7,7 @@ import { IconButton } from '@/components/IconButton';
 import { Skeleton } from '@/components/Skeleton';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type PhotoCardProps = {
@@ -30,7 +31,7 @@ export function PhotoCard({
   className,
 }: PhotoCardProps) {
   const scheme = useScheme();
-  const label = accessibilityLabel ?? 'Photo';
+  const label = accessibilityLabel ?? t('common.photo');
 
   return (
     <View className={cn('aspect-square overflow-hidden rounded-lg bg-bg-surface', className)}>
@@ -51,7 +52,7 @@ export function PhotoCard({
       {onRemove !== undefined && !loading ? (
         <View className="absolute right-space-4 top-space-4">
           <IconButton
-            accessibilityLabel="Remove photo"
+            accessibilityLabel={t('common.removePhoto')}
             icon={
               <Ionicons color={schemeTextPrimary[scheme]} name="close" size={iconSizeValues.sm} />
             }

@@ -5,6 +5,7 @@ import {
   SPOT_DESCRIPTION_MAX_LENGTH,
   SPOT_NAME_MAX_LENGTH,
 } from '@/features/spot-editor/validation';
+import { t } from '@/i18n';
 
 export type AddSpotDetailsStepProps = {
   name: string;
@@ -24,23 +25,23 @@ export function AddSpotDetailsStep({
 }: AddSpotDetailsStepProps) {
   return (
     <StepScrollView>
-      <SectionHeader title="Tell us about this spot" titleSize="h1" />
+      <SectionHeader title={t('details.title')} titleSize="h1" />
 
       <TextInput
         errorText={errors.name}
-        label="Name"
+        label={t('details.name')}
         maxLength={SPOT_NAME_MAX_LENGTH}
         onChangeText={onChangeName}
-        placeholder="e.g. Trakia Fitness Park"
+        placeholder={t('details.namePlaceholder')}
         value={name}
       />
 
       <TextArea
         errorText={errors.description}
-        label="Description"
+        label={t('details.description')}
         maxLength={SPOT_DESCRIPTION_MAX_LENGTH}
         onChangeText={onChangeDescription}
-        placeholder="Outdoor fitness area with pull-up bars, dip bars and rings..."
+        placeholder={t('details.descriptionPlaceholder')}
         showCount
         value={description}
       />

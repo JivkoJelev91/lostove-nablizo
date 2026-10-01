@@ -2,6 +2,7 @@ import type { Spot } from '@/features/spots/types';
 import { isEquipmentName } from '@/features/spots/equipment-icons';
 import type { EquipmentName } from '@/features/spots/equipment-icons';
 import type { EquipmentDraftItem } from '@/features/spot-editor/types';
+import { equipmentLabel } from '@/i18n/equipment';
 
 /** The most of one piece of equipment a draft can claim. */
 export const MAX_EQUIPMENT_QUANTITY = 10;
@@ -74,7 +75,7 @@ export function equipmentDraftsEqual(
   });
 }
 
-/** Writes the equipment list the way the review step shows it, e.g. `Pull-up ×2 · Dips ×1`. */
+/** Writes the equipment list the way the review step shows it, e.g. `Набиране ×2 · Успоредка ×1`. */
 export function formatEquipmentSummary(items: readonly EquipmentDraftItem[]): string {
-  return items.map((item) => `${item.name} ×${item.quantity}`).join(' · ');
+  return items.map((item) => `${equipmentLabel(item.name)} ×${item.quantity}`).join(' · ');
 }

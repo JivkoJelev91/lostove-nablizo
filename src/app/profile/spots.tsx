@@ -9,6 +9,7 @@ import { ProfileSpotCard } from '@/features/profile/ProfileSpotCard';
 import { useProfile } from '@/features/profile/useProfile';
 import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 /**
@@ -28,7 +29,7 @@ export default function ProfileSpotsScreen() {
   );
 
   return (
-    <ScreenShell description="Everything you added, with its review state" title="Your spots">
+    <ScreenShell description={t('profile.allSpotsDescription')} title={t('profile.allSpotsTitle')}>
       <FlatList
         className="flex-1"
         contentContainerClassName={cn(
@@ -40,10 +41,13 @@ export default function ProfileSpotsScreen() {
         ListEmptyComponent={
           <EmptyState
             action={
-              <PrimaryButton label="Add a spot" onPress={() => router.navigate('/(tabs)/add')} />
+              <PrimaryButton
+                label={t('profile.allSpotsAdd')}
+                onPress={() => router.navigate('/(tabs)/add')}
+              />
             }
             className="flex-1 justify-center"
-            description="Share a place you train so others can find it."
+            description={t('profile.allSpotsEmptyDescription')}
             icon={
               <Ionicons
                 color={schemeTextMuted[scheme]}
@@ -52,7 +56,7 @@ export default function ProfileSpotsScreen() {
               />
             }
             padded={false}
-            title="No spots yet"
+            title={t('profile.allSpotsEmptyTitle')}
           />
         }
         renderItem={renderSpot}

@@ -2,27 +2,33 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { GhostButton, PrimaryButton, ScreenShell, TextInput } from '@/components';
+import { t } from '@/i18n';
 
 export default function SignUpScreen() {
   return (
-    <ScreenShell description="Join the Street Fit community" scroll title="Sign up">
+    <ScreenShell description={t('auth.signUpDescription')} scroll title={t('auth.signUpTitle')}>
       <View className="gap-space-12">
-        <TextInput autoCapitalize="words" label="Name" placeholder="Alex Petrov" />
+        <TextInput
+          autoCapitalize="words"
+          label={t('auth.name')}
+          placeholder={t('auth.namePlaceholder')}
+        />
         <TextInput
           autoCapitalize="none"
           keyboardType="email-address"
-          label="Email"
-          placeholder="you@example.com"
+          label={t('auth.email')}
+          placeholder={t('auth.emailPlaceholder')}
         />
-        <TextInput label="Password" placeholder="At least 8 characters" secureTextEntry />
+        <TextInput
+          label={t('auth.password')}
+          placeholder={t('auth.newPasswordPlaceholder')}
+          secureTextEntry
+        />
       </View>
 
       <View className="gap-space-8">
-        <PrimaryButton label="Create account" onPress={() => {}} />
-        <GhostButton
-          label="I already have an account"
-          onPress={() => router.push('/auth/sign-in')}
-        />
+        <PrimaryButton label={t('auth.createAccount')} onPress={() => {}} />
+        <GhostButton label={t('auth.haveAccount')} onPress={() => router.push('/auth/sign-in')} />
       </View>
     </ScreenShell>
   );

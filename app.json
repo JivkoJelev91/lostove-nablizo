@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Street Fitness",
+    "name": "Лостове Наблизо",
     "slug": "street-fitnes",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -29,13 +29,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF"
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "backgroundColor": "#0B0B0F"
+          }
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Street Fitness uses your location to place the spot you add where you are standing."
+          "locationWhenInUsePermission": "„Лостове Наблизо“ използва локацията ти, за да постави добавеното от теб място там, където стоиш."
         }
       ]
     ],

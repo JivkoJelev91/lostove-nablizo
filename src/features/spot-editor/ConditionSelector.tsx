@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import type { EquipmentCondition } from '@/components';
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 export type ConditionSelectorProps = {
@@ -12,9 +13,9 @@ export type ConditionSelectorProps = {
 const CONDITION_ORDER: readonly EquipmentCondition[] = ['good', 'worn', 'damaged'];
 
 const CONDITION_LABEL: Record<EquipmentCondition, string> = {
-  good: 'Good',
-  worn: 'Worn',
-  damaged: 'Damaged',
+  good: t('condition.good'),
+  worn: t('condition.worn'),
+  damaged: t('condition.damaged'),
 };
 
 const SELECTED_CONTAINER_CLASS: Record<EquipmentCondition, string> = {

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { BottomSheet, PrimaryButton, RatingInput, TextArea } from '@/components';
 import type { SpotReview } from '@/features/spots/types';
+import { t } from '@/i18n';
 
 /** The most characters a review comment accepts. The comment itself is optional. */
 export const REVIEW_TEXT_MAX_LENGTH = 300;
@@ -41,31 +42,31 @@ export function AddReviewSheet({
   return (
     <BottomSheet
       onClose={onClose}
-      title={editing ? 'Edit your review' : 'Write a review'}
+      title={editing ? t('reviews.sheetEditTitle') : t('reviews.sheetWriteTitle')}
       visible={visible}
     >
       <View className="gap-space-8">
         <Text className="text-bodySmall text-text-secondary">{spotName}</Text>
-        <Text className="font-medium text-body text-text-primary">Your rating</Text>
+        <Text className="font-medium text-body text-text-primary">{t('reviews.yourRating')}</Text>
         <RatingInput onChange={setRating} value={rating} />
 
         {rating === 0 ? (
-          <Text className="text-caption text-text-muted">Tap a star to rate this spot.</Text>
+          <Text className="text-caption text-text-muted">{t('reviews.tapStar')}</Text>
         ) : null}
       </View>
 
       <TextArea
-        label="Review (optional)"
+        label={t('reviews.textLabel')}
         maxLength={REVIEW_TEXT_MAX_LENGTH}
         onChangeText={setText}
-        placeholder="How were the bars, the surface, the crowd?"
+        placeholder={t('reviews.textPlaceholder')}
         value={text}
       />
 
       <PrimaryButton
         disabled={rating === 0}
         fullWidth
-        label={editing ? 'Save changes' : 'Post review'}
+        label={editing ? t('reviews.save') : t('reviews.post')}
         onPress={() => onSubmit(rating, text.trim())}
       />
     </BottomSheet>

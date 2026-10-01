@@ -1,0 +1,31 @@
+/** The spot page, its reviews, and the shared photo/carousel wording. */
+export const SPOT = {
+  'spot.equipment': 'Уреди',
+  'spot.description': 'Описание',
+  'spot.navigate': 'Навигация',
+  'spot.edit': 'Редактирай мястото',
+  'spot.notFoundTitle': 'Мястото не е намерено',
+  'spot.notFoundDescription':
+    'Мястото, което търсиш, може да е премахнато или връзката да е грешна.',
+  'spot.backToSpots': 'Обратно към местата',
+  'spot.closedTitle': 'Мястото е затворено',
+  'spot.closedEditDescription': 'Това място е затворено и вече не може да се редактира.',
+  'spot.addFavorite': 'Добави в любими',
+  'spot.removeFavorite': 'Премахни от любими',
+  'spot.photoOf': '{subject}, снимка {index} от {total}',
+  'spot.photoSubject': 'Място',
+
+  'reviews.title': 'Отзиви',
+  'reviews.empty': 'Още няма отзиви. Бъди първият, който тренира тук, и остави отзив.',
+  'reviews.write': 'Напиши отзив',
+  'reviews.edit': 'Редактирай отзива си',
+  'reviews.yourReview': 'Твоят отзив',
+  'reviews.sheetWriteTitle': 'Напиши отзив',
+  'reviews.sheetEditTitle': 'Редактирай отзива си',
+  'reviews.yourRating': 'Твоята оценка',
+  'reviews.tapStar': 'Докосни звезда, за да оцениш мястото.',
+  'reviews.textLabel': 'Отзив (незадължително)',
+  'reviews.textPlaceholder': 'Как бяха лостовете, настилката, хората?',
+  'reviews.save': 'Запази',
+  'reviews.post': 'Публикувай',
+} satisfies Record<string, string>;

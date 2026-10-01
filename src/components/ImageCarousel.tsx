@@ -2,11 +2,54 @@ import { useState } from 'react';
 import { FlatList, Image, Text, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
+
+type CarouselSlideProps = {
+  source: ImageSourcePropType;
+  label: string;
+  heightClassName: string;
+  width: number;
+};
+
+/** True for a photo that has to be fetched, which is the only kind with a load worth hiding. */
+function isRemote(source: ImageSourcePropType): boolean {
+  return typeof source === 'object' && source !== null && 'uri' in source;
+}
+
+/** One frame: a bundled asset paints immediately, a fetched one fades in when it arrives. */
+function CarouselSlide({ source, label, heightClassName, width }: CarouselSlideProps) {
+  const opacity = useSharedValue(isRemote(source) ? 0 : 1);
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  // The frame is sized by a plain view so the height token applies on a device; the animated
+  // view inside it only carries the fade. An animated component never takes `className`.
+  return (
+    <View className={cn('bg-bg-surface', heightClassName)} style={{ width }}>
+      <Animated.View style={[animatedStyle, { flex: 1 }]}>
+        <Image
+          accessibilityLabel={label}
+          className="h-full w-full"
+          onLoad={() => {
+            opacity.set(withTiming(1, { duration: 180, reduceMotion: ReduceMotion.System }));
+          }}
+          source={source}
+        />
+      </Animated.View>
+    </View>
+  );
+}
 
 export type ImageCarouselProps = {
   images: readonly ImageSourcePropType[];
-  /** Describes the subject; each slide gets `photo n of m` appended. */
+  /** Describes the subject; each slide gets `снимка n от m` appended. */
   accessibilityLabel?: string;
   /** Height token shared by every slide, e.g. `h-spot-hero`. */
   heightClassName?: string;
@@ -50,7 +93,7 @@ export function ImageCarousel({
     setIndex(Math.min(Math.max(next, 0), images.length - 1));
   };
 
-  const subject = accessibilityLabel ?? 'Spot';
+  const subject = accessibilityLabel ?? t('spot.photoSubject');
 
   return (
     <View className={cn('relative w-full', className)}>
@@ -66,11 +109,15 @@ export function ImageCarousel({
         onMomentumScrollEnd={handleMomentumEnd}
         pagingEnabled
         renderItem={({ item, index: itemIndex }) => (
-          <Image
-            accessibilityLabel={`${subject} photo ${itemIndex + 1} of ${images.length}`}
-            className={cn('bg-bg-surface', heightClassName)}
+          <CarouselSlide
+            heightClassName={heightClassName}
+            label={t('spot.photoOf', {
+              subject,
+              index: itemIndex + 1,
+              total: images.length,
+            })}
             source={item}
-            style={{ width }}
+            width={width}
           />
         )}
         showsHorizontalScrollIndicator={false}
