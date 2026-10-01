@@ -3,6 +3,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 import type { EquipmentCondition } from '@/components';
 import type { Spot } from '@/features/spots/types';
+import { useSpots } from '@/features/spots/useSpots';
 import {
   equipmentDraftFromSpot,
   equipmentDraftsEqual,
@@ -26,9 +27,11 @@ const SAVE_DELAY_MS = 1100;
  *
  * A dirty form asks before it discards, whichever way the screen is left: the header back
  * button and Cancel call {@link requestClose}, and Android's back button is intercepted by
- * {@link useUnsavedChangesGuard}. Saving is simulated until the data layer exists.
+ * {@link useUnsavedChangesGuard}. A save writes to the spots store — which sends the spot back
+ * to review — and then behaves like a pending request for a moment before the confirmation.
  */
 export function useEditSpotDraft(spot: Spot) {
+  const { updateSpot } = useSpots();
   const initialEquipment = useMemo(() => equipmentDraftFromSpot(spot), [spot]);
   const [name, setName] = useState(spot.name);
   const [description, setDescription] = useState(spot.description);
@@ -116,9 +119,23 @@ export function useEditSpotDraft(spot: Spot) {
       return;
     }
 
+    // The store puts the spot back under review, so an approved spot stops showing facts a
+    // moderator has not seen. Trimming here keeps the form's state equal to what was stored.
+    const trimmedName = name.trim();
+    const trimmedDescription = description.trim();
+
+    setName(trimmedName);
+    setDescription(trimmedDescription);
+    updateSpot(spot.id, {
+      name: trimmedName,
+      description: trimmedDescription,
+      equipment,
+      condition,
+      images: photos,
+    });
     setErrors({});
     setSaving(true);
-  }, [description, equipment, name, photos]);
+  }, [condition, description, equipment, name, photos, spot.id, updateSpot]);
 
   const handleSavedDone = useCallback(() => {
     setSavedVisible(false);

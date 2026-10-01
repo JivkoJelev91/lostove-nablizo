@@ -26,13 +26,15 @@ import {
   statusColors,
 } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
 import { useReviews } from '@/features/reviews/useReviews';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
-import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { spotDirectionsUrl } from '@/features/spots/spot-links';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
+import { SpotStatusNotice } from '@/features/spots/SpotStatusNotice';
 import type { Spot } from '@/features/spots/types';
+import { useSpots } from '@/features/spots/useSpots';
 import { useScheme } from '@/hooks/useScheme';
 import { formatMonthDayYear } from '@/utils/dates';
 
@@ -144,16 +146,21 @@ export default function SpotScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { summaryFor } = useReviews();
+  const { spotById } = useSpots();
   const scheme = useScheme();
 
-  const spot = MOCK_SPOTS.find((candidate) => candidate.id === id);
+  const spot = spotById(id);
+  const isOwner = spot !== undefined && spot.ownerId === CURRENT_USER_ID;
 
-  if (spot === undefined) {
+  // A spot that is not approved is only visible to the athlete who submitted it; everyone
+  // else gets the same answer as for a removed spot.
+  if (spot === undefined || (spot.status !== 'approved' && !isOwner)) {
     return <SpotNotFound />;
   }
 
   const summary = summaryFor(spot);
   const saved = isFavorite(spot.id);
+  const canEdit = isOwner && spot.status !== 'closed';
 
   const openDirections = () => {
     void Linking.openURL(spotDirectionsUrl(spot));
@@ -180,18 +187,20 @@ export default function SpotScreen() {
           variant="surface"
         />
 
-        <IconButton
-          accessibilityLabel="Edit spot"
-          icon={
-            <Ionicons
-              color={schemeTextPrimary[scheme]}
-              name="create-outline"
-              size={iconSizeValues.md}
-            />
-          }
-          onPress={() => router.push({ pathname: '/spot/[id]/edit', params: { id: spot.id } })}
-          variant="surface"
-        />
+        {canEdit ? (
+          <IconButton
+            accessibilityLabel="Edit spot"
+            icon={
+              <Ionicons
+                color={schemeTextPrimary[scheme]}
+                name="create-outline"
+                size={iconSizeValues.md}
+              />
+            }
+            onPress={() => router.push({ pathname: '/spot/[id]/edit', params: { id: spot.id } })}
+            variant="surface"
+          />
+        ) : null}
       </View>
 
       <ImageCarousel accessibilityLabel={spot.name} images={spot.images} />
@@ -215,10 +224,19 @@ export default function SpotScreen() {
             />
           </View>
 
-          <Rating count={summary.count} value={summary.average} variant="summary" />
+          {/* A spot still waiting for its first review has no rating to state. */}
+          {summary.count === 0 ? null : (
+            <Rating count={summary.count} value={summary.average} variant="summary" />
+          )}
 
-          <VerificationBadge verifiedAt={spot.verifiedAt} />
+          {spot.verifiedAt === undefined ? null : (
+            <VerificationBadge verifiedAt={spot.verifiedAt} />
+          )}
         </View>
+
+        {isOwner && spot.status !== 'approved' ? (
+          <SpotStatusNotice className="mt-space-16" status={spot.status} />
+        ) : null}
 
         <View className="mt-space-24 gap-space-12">
           <SectionHeader accent title="Equipment" />
@@ -253,7 +271,9 @@ export default function SpotScreen() {
           />
         </View>
 
-        <SpotReviews spot={spot} />
+        {/* Reviews belong to a spot the public can see; while one waits for approval there is
+            nobody to read them, so the page ends at the description and navigation instead. */}
+        {spot.status === 'approved' ? <SpotReviews spot={spot} /> : null}
       </View>
     </Screen>
   );

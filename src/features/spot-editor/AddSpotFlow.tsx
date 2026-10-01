@@ -17,12 +17,13 @@ export function AddSpotFlow() {
     changeEquipment,
     changeName,
     changePhotos,
+    createdSpot,
     draft,
     errors,
     handleBack,
     handleContinue,
-    handleDone,
     handleSubmit,
+    handleViewSpot,
     isLastStep,
     reset,
     step,
@@ -30,8 +31,14 @@ export function AddSpotFlow() {
     submitting,
   } = useAddSpotFlow();
 
-  if (submitted) {
-    return <AddSpotSuccess onAddAnother={reset} onDone={handleDone} />;
+  if (submitted && createdSpot !== null) {
+    return (
+      <AddSpotSuccess
+        onAddAnother={reset}
+        onViewSpot={handleViewSpot}
+        spotName={createdSpot.name}
+      />
+    );
   }
 
   return (

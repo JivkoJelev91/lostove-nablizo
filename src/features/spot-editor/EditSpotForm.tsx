@@ -14,6 +14,7 @@ import {
   TextInput,
 } from '@/components';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
+import { SpotStatusNotice } from '@/features/spots/SpotStatusNotice';
 import type { Spot } from '@/features/spots/types';
 import { ConditionSelector } from '@/features/spot-editor/ConditionSelector';
 import { EquipmentQuantityGrid } from '@/features/spot-editor/EquipmentQuantityGrid';
@@ -90,9 +91,9 @@ function EditSpotDialogs({
 
       <Modal
         actions={<PrimaryButton label="Done" onPress={onSavedDone} />}
-        description="Your changes to this spot are saved."
+        description="Your edits are pending review and will show on the spot once approved."
         onClose={onSavedDone}
-        title="Changes saved"
+        title="Changes submitted"
         visible={savedVisible}
       />
     </>
@@ -132,6 +133,8 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
     <>
       <ScreenShell header={false} scroll>
         <EditSpotHeader onCancel={requestClose} />
+
+        <SpotStatusNotice context="editing" status={spot.status} />
 
         {cover === undefined ? null : (
           <Image

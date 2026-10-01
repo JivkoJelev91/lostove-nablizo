@@ -78,9 +78,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: 'Add',
+          title: 'Add spot',
           // The Add tab keeps its slot in the bar but renders as a filled primary circle, so it
           // reads as the app's main action without floating away from the other destinations.
+          // A location pin rather than a plus: the action adds a place, and the label says so.
           tabBarButton: ({ accessibilityState, onLongPress, onPress, style }) => (
             <Pressable
               accessibilityLabel="Add a spot"
@@ -92,7 +93,11 @@ export default function TabsLayout() {
             >
               <View className="flex-1 items-center justify-center">
                 <View className="h-12 w-12 items-center justify-center rounded-pill bg-primary">
-                  <Ionicons color={brandColors.onPrimary} name="add" size={bottomNav.iconSize} />
+                  <Ionicons
+                    color={brandColors.onPrimary}
+                    name="location"
+                    size={bottomNav.iconSize}
+                  />
                 </View>
               </View>
             </Pressable>
