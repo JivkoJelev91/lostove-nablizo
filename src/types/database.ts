@@ -318,7 +318,11 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      current_profile_id: { Args: never; Returns: string };
+      recompute_spot_rating: {
+        Args: { target_spot_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
