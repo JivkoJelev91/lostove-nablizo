@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Circle, G, Line, Svg } from 'react-native-svg';
+import { Circle, G, Line, Path, Svg } from 'react-native-svg';
 
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { t } from '@/i18n';
@@ -11,32 +11,28 @@ export type BrandLogoProps = {
 };
 
 /**
- * The mark's glyph: a bar with a figure hanging from it, knees tucked.
+ * The mark: an athlete pulling up on a bar, drawn in a single stroke weight.
  *
- * Drawn here rather than reused from the equipment icons, because the brand mark is not an
- * equipment label. It has to read as somebody doing a pull-up at twenty points, which the
- * equipment chip's empty frame deliberately does not.
+ * The bar runs past both hands, the head sits above it, the elbows hang below and out, one leg
+ * tucks and the other drops, so the pose still reads as a pull-up at twenty-four points. Built
+ * from two mirrored paths around a bar and a head rather than one continuous line, because a
+ * single path cannot turn at the shoulders without showing the join.
  */
-function PullUpFigure({ color, size }: { color: string; size: number }) {
+function PullUpMark({ color, size }: { color: string; size: number }) {
   return (
     <Svg fill="none" height={size} viewBox="0 0 24 24" width={size}>
       <G stroke={color} strokeLinecap="round" strokeLinejoin="round">
-        <Line strokeWidth={2} x1={3} x2={21} y1={3} y2={3} />
-        <Line strokeWidth={1.9} x1={10.4} x2={10} y1={9.8} y2={3.1} />
-        <Line strokeWidth={1.9} x1={13.6} x2={14} y1={9.8} y2={3.1} />
-        <Line strokeWidth={1.9} x1={12} x2={12} y1={9.8} y2={14.4} />
-        <Line strokeWidth={1.9} x1={12} x2={8.9} y1={14.4} y2={17} />
-        <Line strokeWidth={1.9} x1={8.9} x2={11.7} y1={17} y2={20.4} />
-        <Line strokeWidth={1.9} x1={12} x2={15.1} y1={14.4} y2={17} />
-        <Line strokeWidth={1.9} x1={15.1} x2={12.3} y1={17} y2={20.4} />
-        <Circle cx={12} cy={7.7} r={1.85} strokeWidth={1.9} />
+        <Line strokeWidth={1.9} x1={2.4} x2={21.6} y1={5} y2={5} />
+        <Circle cx={12} cy={3.4} r={1.7} strokeWidth={1.7} />
+        <Path d="M15.2 5L17.3 8.5L13.6 7.1L12.7 14.6L14.1 17.9L13.3 20.9" strokeWidth={1.7} />
+        <Path d="M8.8 5L6.7 8.5L10.4 7.1L11.3 14.6L9.3 16.5L11.9 18.4" strokeWidth={1.7} />
       </G>
     </Svg>
   );
 }
 
 /**
- * The app's mark: the pull-up figure in the lime circle with the name beside it.
+ * The app's mark: the athlete in the lime circle with the name beside it.
  *
  * A plain view, no animation and no size variants — the brand is part of the Home header, not an
  * event. An opening animation that covered the first screen only got in the way of it, so the
@@ -46,7 +42,7 @@ export function BrandLogo({ className }: BrandLogoProps) {
   return (
     <View className={cn('flex-row items-center gap-space-8', className)}>
       <View className="h-icon-lg w-icon-lg items-center justify-center rounded-pill bg-primary">
-        <PullUpFigure color={brandColors.onPrimary} size={iconSizeValues.sm} />
+        <PullUpMark color={brandColors.onPrimary} size={iconSizeValues.md} />
       </View>
 
       <Text className="font-bold text-h3 text-text-primary">{t('common.appName')}</Text>
