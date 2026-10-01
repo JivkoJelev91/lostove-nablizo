@@ -1,7 +1,7 @@
 import { createContext, useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { CURRENT_REVIEWER_NAME } from '@/features/reviews/current-reviewer';
+import { CURRENT_USER_NAME } from '@/features/profile/current-user';
 import { MOCK_REVIEWS } from '@/features/spots/mock-reviews';
 import type { Spot, SpotReview } from '@/features/spots/types';
 
@@ -41,7 +41,7 @@ const byNewestFirst = (first: SpotReview, second: SpotReview) =>
  */
 function seededOwnRating(spotId: string): number | undefined {
   return MOCK_REVIEWS.find(
-    (review) => review.spotId === spotId && review.authorName === CURRENT_REVIEWER_NAME,
+    (review) => review.spotId === spotId && review.authorName === CURRENT_USER_NAME,
   )?.rating;
 }
 
@@ -57,15 +57,14 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
   const [reviews, setReviews] = useState<readonly SpotReview[]>(MOCK_REVIEWS);
 
   const ownReviews = useMemo(
-    () =>
-      reviews.filter((review) => review.authorName === CURRENT_REVIEWER_NAME).sort(byNewestFirst),
+    () => reviews.filter((review) => review.authorName === CURRENT_USER_NAME).sort(byNewestFirst),
     [reviews],
   );
 
   const ownReviewFor = useCallback(
     (spotId: string) =>
       reviews
-        .filter((review) => review.spotId === spotId && review.authorName === CURRENT_REVIEWER_NAME)
+        .filter((review) => review.spotId === spotId && review.authorName === CURRENT_USER_NAME)
         .sort(byNewestFirst)[0],
     [reviews],
   );
@@ -73,7 +72,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
   const otherReviewsFor = useCallback(
     (spotId: string) =>
       reviews
-        .filter((review) => review.spotId === spotId && review.authorName !== CURRENT_REVIEWER_NAME)
+        .filter((review) => review.spotId === spotId && review.authorName !== CURRENT_USER_NAME)
         .sort(byNewestFirst),
     [reviews],
   );
@@ -108,12 +107,12 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
   const saveReview = useCallback((spotId: string, rating: number, text: string) => {
     setReviews((previous) => {
       const existing = previous.find(
-        (review) => review.spotId === spotId && review.authorName === CURRENT_REVIEWER_NAME,
+        (review) => review.spotId === spotId && review.authorName === CURRENT_USER_NAME,
       );
       const next: SpotReview = {
         id: existing?.id ?? `review-${spotId}-own`,
         spotId,
-        authorName: CURRENT_REVIEWER_NAME,
+        authorName: CURRENT_USER_NAME,
         rating,
         text,
         date: new Date(),

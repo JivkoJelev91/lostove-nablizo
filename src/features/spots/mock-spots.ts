@@ -1,3 +1,4 @@
+import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import {
   SPOT_PHOTO,
   SPOT_PHOTO_MONKEY_BARS,
@@ -13,6 +14,10 @@ import { daysAgo } from '@/utils/dates';
  *
  * A few spots carry more than one frame so the spot page's gallery has something to page
  * through; the single-frame spots keep the plain hero image.
+ *
+ * The seeds exercise every moderation state the frontend supports: most spots are approved,
+ * and three are owned by the mock athlete in `under_review`, `rejected` and `closed` so the
+ * profile has each state to show. Only `approved` spots reach the public discovery screens.
  */
 export const MOCK_SPOTS: readonly Spot[] = [
   {
@@ -34,6 +39,8 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(4),
     distanceKm: 0.8,
     images: [SPOT_PHOTO, SPOT_PHOTO_PULL_UP, SPOT_PHOTO_RINGS],
+    status: 'approved',
+    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'south-park-calisthenics',
@@ -51,6 +58,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(14),
     distanceKm: 2.1,
     images: [SPOT_PHOTO_PULL_UP, SPOT_PHOTO],
+    status: 'approved',
   },
   {
     id: 'borisova-gradina-bars',
@@ -70,6 +78,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(45),
     distanceKm: 3.6,
     images: [SPOT_PHOTO_MONKEY_BARS, SPOT_PHOTO_RINGS, SPOT_PHOTO],
+    status: 'approved',
   },
   {
     id: 'vitosha-view-park',
@@ -84,6 +93,8 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(8),
     distanceKm: 4.9,
     images: [SPOT_PHOTO_RINGS],
+    status: 'approved',
+    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'studentski-grad-gym',
@@ -101,6 +112,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(120),
     distanceKm: 6.2,
     images: [SPOT_PHOTO, SPOT_PHOTO_MONKEY_BARS],
+    status: 'approved',
   },
   {
     id: 'north-park-corner',
@@ -119,5 +131,52 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(2),
     distanceKm: 1.4,
     images: [SPOT_PHOTO],
+    status: 'approved',
+  },
+  {
+    id: 'slatina-lights-corner',
+    name: 'Slatina Lights Corner',
+    coordinate: { latitude: 42.6786, longitude: 23.363 },
+    rating: 0,
+    reviewCount: 0,
+    equipment: [{ name: 'Pull-up', quantity: 2 }, { name: 'Dips' }],
+    condition: 'good',
+    description:
+      'A small fitness corner between the blocks in Slatina with two pull-up bars and a dip station. Lit after dark, but the ground stays muddy for a day after rain.',
+    distanceKm: 4.2,
+    images: [SPOT_PHOTO_PULL_UP],
+    status: 'under_review',
+    ownerId: CURRENT_USER_ID,
+  },
+  {
+    id: 'mladost-bars',
+    name: 'Mladost Bars',
+    coordinate: { latitude: 42.6485, longitude: 23.3785 },
+    rating: 0,
+    reviewCount: 0,
+    equipment: [{ name: 'Pull-up' }, { name: 'Ladder' }],
+    condition: 'good',
+    description:
+      'Pull-up bars and a ladder wall next to the sports hall in Mladost. The paint is fresh and the bars are solid.',
+    distanceKm: 6.8,
+    images: [SPOT_PHOTO],
+    status: 'rejected',
+    ownerId: CURRENT_USER_ID,
+  },
+  {
+    id: 'zaimov-park-bars',
+    name: 'Zaimov Park Bars',
+    coordinate: { latitude: 42.6907, longitude: 23.336 },
+    rating: 3.8,
+    reviewCount: 14,
+    equipment: [{ name: 'Pull-up', quantity: 2 }, { name: 'Rings' }],
+    condition: 'worn',
+    description:
+      'A classic set of bars in Zaimov Park, closed while the park is renovated. The equipment was worn before the works began.',
+    verifiedAt: daysAgo(300),
+    distanceKm: 2.4,
+    images: [SPOT_PHOTO_RINGS],
+    status: 'closed',
+    ownerId: CURRENT_USER_ID,
   },
 ];

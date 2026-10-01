@@ -13,6 +13,7 @@ import { useColorScheme } from 'nativewind';
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
 import { ReviewsProvider } from '@/features/reviews/ReviewsProvider';
+import { SpotsProvider } from '@/features/spots/SpotsProvider';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -31,19 +32,23 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style={schemeStatusBarStyle[scheme]} />
-      {/* Above both navigators, so a heart tapped on a pushed spot page and the Favorites tab
-          read the same saved spots, and a review written on a spot page shows on the Profile
-          tab's list of contributions. */}
-      <FavoritesProvider>
-        <ReviewsProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: schemeBackground[scheme] },
-            }}
-          />
-        </ReviewsProvider>
-      </FavoritesProvider>
+      {/* Above the navigator, so a heart tapped on a pushed spot page and the Favorites tab read
+          the same saved spots, a review written on a spot page shows on the Profile tab's list of
+          contributions, and a spot submitted in the Add tab is the same waiting-for-review spot
+          the profile lists. Spots sit outermost because favourites and reviews resolve against
+          them. */}
+      <SpotsProvider>
+        <FavoritesProvider>
+          <ReviewsProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: schemeBackground[scheme] },
+              }}
+            />
+          </ReviewsProvider>
+        </FavoritesProvider>
+      </SpotsProvider>
     </>
   );
 }

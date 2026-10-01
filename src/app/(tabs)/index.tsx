@@ -10,12 +10,12 @@ import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
 import { formatDistanceAway } from '@/features/spots/format-distance';
-import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { coverImage } from '@/features/spots/spot-photos';
 import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
+import { useSpots } from '@/features/spots/useSpots';
 
 function SpotCardSeparator() {
   return <View className="h-space-16" />;
@@ -27,7 +27,9 @@ function SpotCardSeparator() {
  * It sits on the first tab, which lists spots by distance rather than on a map.
  */
 export default function HomeScreen() {
-  const { selectedNames, toggle, clear, filtered } = useSpotFilters(MOCK_SPOTS);
+  // Only approved spots are public; one waiting for review is reachable from the profile instead.
+  const { approvedSpots } = useSpots();
+  const { selectedNames, toggle, clear, filtered } = useSpotFilters(approvedSpots);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

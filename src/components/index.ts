@@ -98,6 +98,9 @@ export type { SkeletonProps } from './Skeleton';
 export { SpotCard } from './SpotCard';
 export type { SpotCardProps, SpotCardVariant, SpotEquipment } from './SpotCard';
 
+export { SpotStatusBadge, SPOT_STATUS_LABEL } from './SpotStatusBadge';
+export type { SpotStatus, SpotStatusBadgeProps } from './SpotStatusBadge';
+
 export { VerificationBadge, describeVerification } from './VerificationBadge';
 export type {
   VerifiedAt,
