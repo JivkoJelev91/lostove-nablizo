@@ -27,11 +27,20 @@ export type ButtonProps = {
   testID?: string;
 };
 
+/**
+ * Every variant carries a `shadow-*`, an `opacity-*` and an `active:*` class, including the
+ * no-op `shadow-none`/`opacity-100`, and the disabled treatment matches those categories.
+ *
+ * This is deliberate: NativeWind's native runtime swaps a Pressable's underlying component when
+ * its class set gains or loses one of those utilities after the first render, and the remount
+ * surfaces as a spurious "Couldn't find a navigation context" crash. Keeping the categories
+ * present from the first render avoids the swap. See nativewind/nativewind#1466.
+ */
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: 'bg-primary active:bg-primary-pressed shadow-button',
-  secondary: 'border border-primary bg-transparent active:bg-bg-surface',
-  ghost: 'bg-transparent active:bg-bg-surface',
-  danger: 'bg-status-bad active:opacity-80 shadow-button',
+  primary: 'bg-primary opacity-100 active:bg-primary-pressed shadow-button',
+  secondary: 'border border-primary bg-transparent opacity-100 active:bg-bg-surface shadow-none',
+  ghost: 'bg-transparent opacity-100 active:bg-bg-surface shadow-none',
+  danger: 'bg-status-bad opacity-100 active:opacity-80 shadow-button',
 };
 
 const VARIANT_TEXT_CLASS: Record<ButtonVariant, string> = {
@@ -86,7 +95,9 @@ export function Button({
       className={cn(
         'flex-row items-center justify-center gap-space-8 rounded-pill',
         SIZE_CLASS[size],
-        inactive ? 'border border-border bg-bg-surface opacity-60' : VARIANT_CLASS[variant],
+        inactive
+          ? 'border border-border bg-bg-surface opacity-60 shadow-none active:bg-bg-surface'
+          : VARIANT_CLASS[variant],
         fullWidth && 'w-full',
         className,
       )}

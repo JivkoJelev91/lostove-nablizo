@@ -55,7 +55,11 @@ export function FilterChip({
       accessibilityState={{ selected, disabled }}
       className={cn(
         'h-chip-control flex-row items-center gap-space-4 rounded-pill border bg-bg-surface px-space-12',
-        selected ? 'border-primary shadow-glow' : 'border-border active:bg-bg-main',
+        // Both branches keep a shadow and an active class, for the NativeWind remount reason
+        // spelled out in `Button`.
+        selected
+          ? 'border-primary shadow-glow active:bg-bg-surface'
+          : 'border-border shadow-none active:bg-bg-main',
         disabled && 'opacity-50',
         className,
       )}

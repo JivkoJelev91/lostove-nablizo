@@ -21,11 +21,12 @@ export type IconButtonProps = {
   testID?: string;
 };
 
+/** Kept class-stable like `Button`, for the NativeWind remount reason documented there. */
 const VARIANT_CLASS: Record<IconButtonVariant, string> = {
-  primary: 'bg-primary active:bg-primary-pressed',
-  surface: 'bg-bg-surface active:bg-bg-main',
-  ghost: 'bg-transparent active:bg-bg-surface',
-  danger: 'bg-transparent active:bg-status-bad-soft',
+  primary: 'bg-primary opacity-100 active:bg-primary-pressed',
+  surface: 'bg-bg-surface opacity-100 active:bg-bg-main',
+  ghost: 'bg-transparent opacity-100 active:bg-bg-surface',
+  danger: 'bg-transparent opacity-100 active:bg-status-bad-soft',
 };
 
 const VARIANT_SPINNER_COLOR: Record<IconButtonVariant, string> = {
@@ -66,7 +67,7 @@ export function IconButton({
       className={cn(
         'items-center justify-center rounded-pill',
         SIZE_CLASS[size],
-        inactive ? 'opacity-50' : VARIANT_CLASS[variant],
+        inactive ? 'opacity-50 active:bg-bg-surface' : VARIANT_CLASS[variant],
         className,
       )}
       disabled={inactive}
