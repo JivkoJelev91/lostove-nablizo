@@ -5,8 +5,8 @@ import { daysAgo } from '@/utils/dates';
  * Mock reviews so every spot page has something to read. The dates are relative to now so the
  * wording never drifts; the authors and the text are invented.
  *
- * `Александър Иванов` is the mock athlete on the Profile tab, so their reviews are written under that
- * name here. One athlete, one name, wherever the review appears.
+ * The authors are invented and unrelated to whoever is signed in, so a seeded review is never
+ * mistaken for the athlete's own.
  */
 export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
@@ -28,7 +28,7 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
     id: 'review-trakia-3',
     spotId: 'trakia-fitness-park',
-    authorName: 'Александър Иванов',
+    authorName: 'Николай Стоев',
     rating: 4,
     text: 'Здрави лостове и добра настилка, макар че халките имат нужда от нови каишки. Все още е обичайната ми спирка сутрин.',
     date: daysAgo(9),
@@ -36,7 +36,7 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
     id: 'review-borisova-3',
     spotId: 'borisova-gradina-bars',
-    authorName: 'Александър Иванов',
+    authorName: 'Радостина Ангелова',
     rating: 5,
     text: 'Любимото ми място за работа с халки. Идвай рано в събота и неделя, ако искаш халките само за теб.',
     date: daysAgo(24),
@@ -84,7 +84,7 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
   {
     id: 'review-vitosha-2',
     spotId: 'vitosha-view-park',
-    authorName: 'Александър Иванов',
+    authorName: 'Красимир Донев',
     rating: 4,
     text: 'Скромно оборудване, но всичко работи. Носи си креда през лятото — лостът се хлъзга.',
     date: daysAgo(52),

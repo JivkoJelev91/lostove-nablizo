@@ -13,6 +13,7 @@ import * as SystemUI from 'expo-system-ui';
 import { useColorScheme } from 'nativewind';
 
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
+import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
 import { ReviewsProvider } from '@/features/reviews/ReviewsProvider';
 import { SpotsProvider } from '@/features/spots/SpotsProvider';
@@ -45,19 +46,21 @@ export default function RootLayout() {
           the same saved spots, a review written on a spot page shows on the Profile tab's list of
           contributions, and a spot submitted in the Add tab is the same waiting-for-review spot
           the profile lists. Spots sit outermost because favourites and reviews resolve against
-          them. */}
-      <SpotsProvider>
-        <FavoritesProvider>
-          <ReviewsProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: schemeBackground[scheme] },
-              }}
-            />
-          </ReviewsProvider>
-        </FavoritesProvider>
-      </SpotsProvider>
+          them. The session wraps everything because it is who the app is acting as. */}
+      <SessionProvider>
+        <SpotsProvider>
+          <FavoritesProvider>
+            <ReviewsProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: schemeBackground[scheme] },
+                }}
+              />
+            </ReviewsProvider>
+          </FavoritesProvider>
+        </SpotsProvider>
+      </SessionProvider>
     </>
   );
 }

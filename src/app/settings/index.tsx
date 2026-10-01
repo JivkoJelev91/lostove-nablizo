@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -5,9 +6,12 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Card, DangerButton, Divider, ScreenShell, SectionHeader } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
+import { isAuthFailure, signOut } from '@/features/auth/auth-api';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useProfile } from '@/features/profile/useProfile';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
+import type { TranslationKey } from '@/i18n';
 
 type SettingsRowData = {
   label: string;
@@ -86,7 +90,26 @@ function SettingsGroup({ title, rows }: SettingsGroupData) {
 
 export default function SettingsScreen() {
   const { username } = useProfile();
+  const { user } = useCurrentUser();
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutProblem, setSignOutProblem] = useState<TranslationKey | null>(null);
   const version = Constants.expoConfig?.version;
+
+  const email = user?.email ?? undefined;
+
+  const logOut = async () => {
+    setSignOutProblem(null);
+    setSigningOut(true);
+
+    try {
+      await signOut();
+      router.replace('/auth');
+    } catch (failure: unknown) {
+      setSignOutProblem(isAuthFailure(failure) ? failure.key : 'auth.error.generic');
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   const groups: readonly SettingsGroupData[] = [
     {
@@ -95,10 +118,9 @@ export default function SettingsScreen() {
         {
           label: t('settings.profile'),
           onPress: () => router.navigate('/(tabs)/profile'),
-          value: `@${username}`,
+          value: username === '' ? undefined : `@${username}`,
         },
-        { label: t('settings.email') },
-        { label: t('settings.security') },
+        { label: t('settings.email'), value: email },
       ],
     },
     {
@@ -126,13 +148,20 @@ export default function SettingsScreen() {
         <SettingsGroup key={group.title} {...group} />
       ))}
 
-      {/* There is no session to end until Clerk owns authentication, so signing out lands on the
-          sign-in screen, which is where a signed-out athlete belongs. */}
+      {/* Ends the Supabase Auth session, which is what the rest of the app reads to decide who is
+          using it. The screen it lands on is the signed-out home of the account screens. */}
       <DangerButton
         fullWidth
         label={t('settings.logOut')}
-        onPress={() => router.replace('/auth/sign-in')}
+        loading={signingOut}
+        onPress={() => {
+          void logOut();
+        }}
       />
+
+      {signOutProblem !== null ? (
+        <Text className="text-bodySmall text-status-bad">{t(signOutProblem)}</Text>
+      ) : null}
 
       {version !== undefined ? (
         <Text className="text-center text-caption text-text-muted">{`v${version}`}</Text>

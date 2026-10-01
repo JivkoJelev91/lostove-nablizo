@@ -1,7 +1,7 @@
 import { createContext, useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { CURRENT_USER_ID } from '@/features/profile/current-user';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { distanceKmBetween } from '@/features/spots/distance';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { MOCK_USER_COORDINATE } from '@/features/spots/mock-location';
@@ -34,15 +34,22 @@ const roundToTenth = (value: number): number => Math.round(value * 10) / 10;
  * who may edit. Discovery screens read {@link SpotsValue.approvedSpots} and never see a spot
  * that moderation has not cleared; the profile reads {@link SpotsValue.ownedSpots} so the
  * athlete always sees what happened to their own submissions.
+ *
+ * The owner is the signed-in account, not a constant. Signed out there is no athlete, so nothing
+ * is owned and a submitted spot carries no owner — which is the honest mock of a database whose
+ * `created_by` comes from `auth.uid()`.
  */
 export function SpotsProvider({ children }: { children: ReactNode }) {
   const [spots, setSpots] = useState<readonly Spot[]>(MOCK_SPOTS);
+  const { user } = useCurrentUser();
+
+  const ownerId = user?.id ?? null;
 
   const approvedSpots = useMemo(() => spots.filter((spot) => spot.status === 'approved'), [spots]);
 
   const ownedSpots = useMemo(
-    () => spots.filter((spot) => spot.ownerId === CURRENT_USER_ID),
-    [spots],
+    () => (ownerId === null ? [] : spots.filter((spot) => spot.ownerId === ownerId)),
+    [ownerId, spots],
   );
 
   const spotById = useCallback(
@@ -50,26 +57,29 @@ export function SpotsProvider({ children }: { children: ReactNode }) {
     [spots],
   );
 
-  const addSpot = useCallback((submission: SpotSubmission): Spot => {
-    const spot: Spot = {
-      id: `submitted-${Date.now()}`,
-      name: submission.name.trim(),
-      coordinate: submission.coordinate,
-      rating: 0,
-      reviewCount: 0,
-      equipment: submission.equipment,
-      condition: 'good',
-      description: submission.description.trim(),
-      distanceKm: roundToTenth(distanceKmBetween(MOCK_USER_COORDINATE, submission.coordinate)),
-      images: submission.images,
-      status: 'under_review',
-      ownerId: CURRENT_USER_ID,
-    };
+  const addSpot = useCallback(
+    (submission: SpotSubmission): Spot => {
+      const spot: Spot = {
+        id: `submitted-${Date.now()}`,
+        name: submission.name.trim(),
+        coordinate: submission.coordinate,
+        rating: 0,
+        reviewCount: 0,
+        equipment: submission.equipment,
+        condition: 'good',
+        description: submission.description.trim(),
+        distanceKm: roundToTenth(distanceKmBetween(MOCK_USER_COORDINATE, submission.coordinate)),
+        images: submission.images,
+        status: 'under_review',
+        ...(ownerId === null ? {} : { ownerId }),
+      };
 
-    setSpots((previous) => [spot, ...previous]);
+      setSpots((previous) => [spot, ...previous]);
 
-    return spot;
-  }, []);
+      return spot;
+    },
+    [ownerId],
+  );
 
   const updateSpot = useCallback((spotId: string, edits: SpotEdits) => {
     setSpots((previous) =>

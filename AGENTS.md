@@ -21,7 +21,7 @@ pnpm exec expo install <package>      # ALWAYS use instead of pnpm add — resol
 pnpm start                            # start the dev server
 pnpm lint                             # lint
 pnpm typecheck                        # typecheck
-pnpm doctor                           # diagnose dependency and config issues
+pnpm run doctor                      # expo-doctor: diagnose dependency and config issues (bare `pnpm doctor` runs pnpm's own command, not this script)
 pnpm exec expo install --fix          # fix incompatible package versions
 ```
 
@@ -38,7 +38,11 @@ it finds, so two lockfiles make build behaviour unpredictable.
 
 ## Building with EAS
 
-EAS builds, signs and submits the app in the cloud (`eas build`, `eas submit`) and ships over-the-air updates (`eas update`) with no local Xcode or Android Studio. Nothing in this project uses EAS yet — Expo Go runs everything, including on a device — so the CLI is not installed. To add it, install `eas-cli` as a devDependency and run its binary, which is named `eas`: `pnpm add -D eas-cli` then `pnpm exec eas <command>`.
+EAS builds, signs and submits the app in the cloud (`eas build`, `eas submit`) and ships over-the-air updates (`eas update`) with no local Xcode or Android Studio. Nothing in this project uses EAS yet — Expo Go runs everything, including on a device — so there is no `eas.json` and the CLI is not a dependency: `expo-doctor` fails a project that pins it, and its server API moves faster than a lockfile does. Run it at latest through pnpm when the first store build is needed — `pnpx eas-cli@latest <command>` — and add `eas.json` with the profiles that build requires.
+
+A build becomes necessary when a library with native code is added: Expo Go only carries its bundled modules, so that library would need `expo-dev-client` plus a development build (`pnpx eas-cli@latest build --profile development --platform android`, or `pnpm exec expo run:android` with a local SDK).
+
+Build-time configuration does **not** come from `.env`, which is gitignored and never uploaded. The `EXPO_PUBLIC_*` values belong in EAS environment variables (`pnpx eas-cli@latest env:set`) for a store build; a build without them compiles and then dies at launch with `EnvValidationError`.
 Docs: https://docs.expo.dev/eas/index.md
 
 ## Supabase

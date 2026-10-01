@@ -4,22 +4,19 @@ import { Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { GhostButton, PrimaryButton, ScreenShell, TextInput } from '@/components';
-import { isAuthFailure, signUp } from '@/features/auth/auth-api';
-import { validateEmail, validateName, validateNewPassword } from '@/features/auth/validation';
+import { isAuthFailure, signIn } from '@/features/auth/auth-api';
+import { validateEmail, validatePasswordEntry } from '@/features/auth/validation';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
 
-export default function SignUpScreen() {
-  const [name, setName] = useState('');
+export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [problem, setProblem] = useState<TranslationKey | null>(null);
-  const [checkEmail, setCheckEmail] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    const firstProblem =
-      validateName(name) ?? validateEmail(email) ?? validateNewPassword(password);
+    const firstProblem = validateEmail(email) ?? validatePasswordEntry(password);
 
     if (firstProblem !== null) {
       setProblem(firstProblem);
@@ -27,19 +24,11 @@ export default function SignUpScreen() {
     }
 
     setProblem(null);
-    setCheckEmail(false);
     setBusy(true);
 
     try {
-      const { signedIn } = await signUp({ email, fullName: name, password });
-
-      if (signedIn) {
-        router.replace('/');
-      } else {
-        // Only reachable if the project starts requiring a confirmed email again: the account
-        // exists but has no session yet, and telling the athlete that is the whole next step.
-        setCheckEmail(true);
-      }
+      await signIn(email, password);
+      router.replace('/');
     } catch (failure: unknown) {
       setProblem(isAuthFailure(failure) ? failure.key : 'auth.error.generic');
     } finally {
@@ -48,15 +37,8 @@ export default function SignUpScreen() {
   };
 
   return (
-    <ScreenShell description={t('auth.signUpDescription')} scroll title={t('auth.signUpTitle')}>
+    <ScreenShell description={t('auth.signInDescription')} scroll title={t('auth.signInTitle')}>
       <View className="gap-space-12">
-        <TextInput
-          autoCapitalize="words"
-          label={t('auth.name')}
-          onChangeText={setName}
-          placeholder={t('auth.namePlaceholder')}
-          value={name}
-        />
         <TextInput
           autoCapitalize="none"
           keyboardType="email-address"
@@ -68,7 +50,7 @@ export default function SignUpScreen() {
         <TextInput
           label={t('auth.password')}
           onChangeText={setPassword}
-          placeholder={t('auth.newPasswordPlaceholder')}
+          placeholder={t('auth.passwordPlaceholder')}
           secureTextEntry
           value={password}
         />
@@ -80,18 +62,16 @@ export default function SignUpScreen() {
 
       <View className="gap-space-8">
         <PrimaryButton
-          label={t('auth.createAccount')}
+          label={t('auth.signIn')}
           loading={busy}
           onPress={() => {
             void submit();
           }}
         />
-
-        {checkEmail ? (
-          <Text className="text-bodySmall text-status-good">{t('auth.checkEmail')}</Text>
-        ) : null}
-
-        <GhostButton label={t('auth.haveAccount')} onPress={() => router.push('/auth')} />
+        <GhostButton
+          label={t('auth.createAccountLink')}
+          onPress={() => router.push('/auth/sign-up')}
+        />
       </View>
     </ScreenShell>
   );

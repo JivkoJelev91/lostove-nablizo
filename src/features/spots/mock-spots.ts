@@ -1,4 +1,3 @@
-import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import {
   SPOT_PHOTO,
   SPOT_PHOTO_MONKEY_BARS,
@@ -40,7 +39,6 @@ export const MOCK_SPOTS: readonly Spot[] = [
     distanceKm: 0.8,
     images: [SPOT_PHOTO, SPOT_PHOTO_PULL_UP, SPOT_PHOTO_RINGS],
     status: 'approved',
-    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'south-park-calisthenics',
@@ -94,7 +92,6 @@ export const MOCK_SPOTS: readonly Spot[] = [
     distanceKm: 4.9,
     images: [SPOT_PHOTO_RINGS],
     status: 'approved',
-    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'studentski-grad-gym',
@@ -146,7 +143,6 @@ export const MOCK_SPOTS: readonly Spot[] = [
     distanceKm: 4.2,
     images: [SPOT_PHOTO_PULL_UP],
     status: 'under_review',
-    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'mladost-bars',
@@ -161,7 +157,6 @@ export const MOCK_SPOTS: readonly Spot[] = [
     distanceKm: 6.8,
     images: [SPOT_PHOTO],
     status: 'rejected',
-    ownerId: CURRENT_USER_ID,
   },
   {
     id: 'zaimov-park-bars',
@@ -177,6 +172,5 @@ export const MOCK_SPOTS: readonly Spot[] = [
     distanceKm: 2.4,
     images: [SPOT_PHOTO_RINGS],
     status: 'closed',
-    ownerId: CURRENT_USER_ID,
   },
 ];

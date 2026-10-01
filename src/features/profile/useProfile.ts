@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { MOCK_PROFILE } from '@/features/profile/mock-profile';
+import { displayNameFromUser, usernameFromUser } from '@/features/auth/identity';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useReviews } from '@/features/reviews/useReviews';
 import { useSpots } from '@/features/spots/useSpots';
 import type { SpotStatus } from '@/components';
@@ -19,14 +20,17 @@ const STATUS_ORDER: Record<SpotStatus, number> = {
 /**
  * The athlete behind the profile, with the spots they added and the reviews they wrote.
  *
- * The profile is a list of contributions, so the lists are resolved from the shared stores
- * rather than written twice here: a spot the athlete added is the same object the feed or the
- * spot page would render, whatever its review state, and their reviews come from the reviews
- * store, so a write on a spot page shows up here too. Counts on the screen are taken from
- * these lists, which keeps a stat from contradicting the list under it.
+ * There is no built-in athlete: the identity is the signed-in account's — the name given at
+ * sign-up, then the handle from the profile row — and with nobody signed in every field is empty
+ * rather than borrowed from a stand-in. The screens decide what an empty name looks like; this
+ * hook only reports what is true.
+ *
+ * The contributions come from the shared stores, so a spot the athlete adds is the same object
+ * the feed or the spot page would render and their reviews are the ones written under their name.
+ * Until the stores read Supabase, that means the lists hold what this session has produced.
  */
 export function useProfile() {
-  const { displayName, username } = MOCK_PROFILE;
+  const { profile, user } = useCurrentUser();
   const { ownReviews } = useReviews();
   const { ownedSpots } = useSpots();
 
@@ -40,5 +44,9 @@ export function useProfile() {
     [ownedSpots],
   );
 
-  return { displayName, reviews: ownReviews, spots, username };
+  const signedIn = user !== null;
+  const displayName = signedIn ? (displayNameFromUser(user) ?? profile?.username ?? '') : '';
+  const username = signedIn ? (profile?.username ?? usernameFromUser(user) ?? '') : '';
+
+  return { displayName, reviews: ownReviews, signedIn, spots, username };
 }

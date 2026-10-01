@@ -39,18 +39,19 @@ begin
 end;
 $$;
 
--- One row per person who has used the app. `clerk_user_id` is the external identity from
--- Clerk, so it is what the sign-up sync matches on and it is unique; `id` is this app's own
--- key, and it is what everything else in the schema refers to.
+-- One row per person who has used the app. `id` is the Supabase Auth user id rather than a key
+-- generated here, so an account and its profile share one identity: every other table points at
+-- `profiles(id)`, which is that same `auth.users.id`, and there is no second id to keep in sync.
+-- `on delete cascade` is what makes deleting an account take its profile with it, and through the
+-- foreign keys below, everything that athlete contributed.
 create table public.profiles (
-  id uuid primary key default gen_random_uuid(),
-  clerk_user_id text not null unique,
+  id uuid primary key references auth.users (id) on delete cascade,
   username text not null,
   avatar_url text,
   created_at timestamptz not null default now()
 );
 
-comment on table public.profiles is 'One row per app user, keyed by their Clerk user id.';
+comment on table public.profiles is 'One row per app user, keyed by the Supabase Auth user id.';
 
 -- A place to train. `rating_average` and `rating_count` are a cached aggregate over
 -- `reviews`; they are maintained by a trigger, never written by the client.
@@ -167,7 +168,8 @@ comment on table public.reports is 'User reports against a spot, for moderation.
 -- needed to keep joins and `on delete cascade` from scanning the whole table. Where a
 -- primary key already covers the column it is not repeated:
 --
---   profiles.clerk_user_id   unique constraint already indexes it
+--   profiles.id              primary key, so the profile lookup and the foreign keys that point
+--                            at it are already covered
 --   spot_equipment.spot_id   leading column of the composite primary key
 --   favorites.user_id        leading column of the composite primary key
 create index spots_created_by_idx on public.spots (created_by);

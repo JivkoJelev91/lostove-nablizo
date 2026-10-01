@@ -17,41 +17,19 @@
 -- Who is the caller
 -- ---------------------------------------------------------------------------
 --
--- Clerk is the identity provider and the schema keys off `profiles.clerk_user_id`, so the
--- principal is resolved by matching the token's `sub` claim against that column. Deliberately
--- NOT `auth.uid()`: `auth.uid()` casts `sub` to uuid, and a Clerk id is text like `user_2abc`,
--- so it would raise or resolve to null on every real Clerk request. This is the single most
--- likely way to get all of this silently wrong, and it fails safe (deny) rather than open, but it
--- would look like "the app cannot write anything" rather than like a security bug.
+-- Supabase Auth is the identity provider, and `profiles.id` is its `auth.users.id`, so the
+-- principal is simply `auth.uid()`: the subject of the caller's JWT, which is exactly the id
+-- every table below refers to. There is no mapping step and no helper function, because there is
+-- nothing to map — a row's `user_id` *is* the caller's auth id.
 --
 -- Every policy wraps the call in `(select ...)` so the planner evaluates it once per query as an
--- InitPlan instead of once per row. RLS predicates are otherwise re-evaluated per row, and this
--- one is an index lookup against `profiles.clerk_user_id`.
-create or replace function public.current_profile_id()
-returns uuid
-language sql
-stable
-security invoker
-set search_path = public, pg_temp
-as $$
-  select p.id
-  from public.profiles p
-  where p.clerk_user_id = auth.jwt() ->> 'sub';
-$$;
-
-comment on function public.current_profile_id() is
-  'The caller''s profiles.id, resolved from the Clerk `sub` claim. Null when the caller has no profile row yet.';
-
--- SECURITY INVOKER on purpose. The function needs nothing the caller does not already have: the
--- select below runs under the `profiles` select policy written further down, which shows a caller
--- only their own row, so it resolves for exactly the people it should. Making it definer to dodge
--- a permission error would hand every role a way to read any profile id, which is the opposite of
--- the point.
+-- InitPlan instead of once per row, which is what Supabase recommends for `auth.uid()`.
 --
--- It returns null rather than raising when a signed-in caller has no profile row. That is
--- deliberate: raising would surface as a confusing error inside an unrelated insert, whereas null
--- makes every policy below evaluate false and the operation fails with the standard, honest
--- "new row violates row-level security policy". Verified by test.
+-- What that means for a caller with no profile row yet: `auth.uid()` still resolves, because it
+-- reads the token rather than `profiles`. A signed-in athlete whose profile sync has not landed
+-- yet therefore passes the ownership comparison but fails the policies that require a profile row
+-- to exist (the foreign keys do the rest), rather than being locked out of everything. The
+-- trigger in the sync migration is what guarantees the row is there.
 
 -- ---------------------------------------------------------------------------
 -- existing trigger helper
@@ -98,7 +76,7 @@ revoke insert, update, delete on public.reports from anon, authenticated;
 grant insert (name, latitude, longitude, description, created_by) on public.spots to authenticated;
 grant update (name, description, latitude, longitude) on public.spots to authenticated;
 
-grant insert (clerk_user_id, username, avatar_url) on public.profiles to authenticated;
+grant insert (id, username, avatar_url) on public.profiles to authenticated;
 grant update (username, avatar_url) on public.profiles to authenticated;
 
 grant insert (spot_id, user_id, storage_path, width, height, size) on public.photos to authenticated;
@@ -130,35 +108,29 @@ grant insert (spot_id, user_id, reason, description) on public.reports to authen
 -- profiles
 -- ---------------------------------------------------------------------------
 --
--- Own row only. `clerk_user_id` is an external identifier for a real Clerk account, so it is not
--- something to hand to anonymous callers; the public projection further down is what the app
--- reads when it needs to show who wrote something.
---
--- These three compare `clerk_user_id` to the claim directly instead of going through
--- current_profile_id(). That is not a style preference, it is the only correct option: the helper
--- resolves a profile id by reading this same table, so a policy on `profiles` that calls it re-enters
--- its own policy and Postgres aborts with "stack depth limit exceeded" (54001). Every other table's
--- policies can use the helper safely, because reading `profiles` from them does not recurse.
---
--- Comparing the column directly is also one lookup cheaper, and it does not depend on the helper
--- existing or on how it resolves NULL for a caller with no profile yet.
+-- Own row only. A profile is private to its owner: the columns here are an identity, not
+-- something to publish, and the app resolves an author's name through the spot and review rows it
+-- already gates. These policies compare `id` to `auth.uid()` directly rather than going through a
+-- helper, which is both one lookup cheaper and immune to the recursion a table-reading helper
+-- would cause on this very table.
 create policy "callers can read their own profile"
   on public.profiles for select
   to authenticated
-  using (clerk_user_id = auth.jwt() ->> 'sub');
+  using (id = (select auth.uid()));
 
--- The profile sync needs to be able to create the row. Pinning `clerk_user_id` to the token's own
--- subject is what stops a caller from creating a profile that claims to be somebody else.
+-- The sign-up trigger creates the row, so this policy is for the repair path: an athlete whose
+-- account exists but whose profile insert failed can create it from the app. Pinning `id` to the
+-- caller's own id is what stops a caller from creating a profile that claims to be somebody else.
 create policy "callers can create their own profile"
   on public.profiles for insert
   to authenticated
-  with check (clerk_user_id = auth.jwt() ->> 'sub');
+  with check (id = (select auth.uid()));
 
 create policy "callers can update their own profile"
   on public.profiles for update
   to authenticated
-  using (clerk_user_id = auth.jwt() ->> 'sub')
-  with check (clerk_user_id = auth.jwt() ->> 'sub');
+  using (id = (select auth.uid()))
+  with check (id = (select auth.uid()));
 
 -- NOTE: a public view of author identity (username, avatar) was tried here and removed. Reviews and
 -- photos are publicly readable, so something has to resolve an author name for anonymous callers,
@@ -183,14 +155,14 @@ create policy "approved spots are public, and callers see their own submissions"
   to anon, authenticated
   using (
     status = 'approved'
-    or created_by = (select public.current_profile_id())
+    or created_by = (select auth.uid())
   );
 
 create policy "authenticated callers can submit spots"
   on public.spots for insert
   to authenticated
   with check (
-    created_by = (select public.current_profile_id())
+    created_by = (select auth.uid())
     and status = 'pending'
     and source = 'user'
     and osm_id is null
@@ -204,8 +176,8 @@ create policy "authenticated callers can submit spots"
 create policy "owners can edit their own spots"
   on public.spots for update
   to authenticated
-  using (created_by = (select public.current_profile_id()))
-  with check (created_by = (select public.current_profile_id()));
+  using (created_by = (select auth.uid()))
+  with check (created_by = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- equipment (reference data)
@@ -232,7 +204,7 @@ create policy "spot equipment is public for approved spots, and for your own"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and (s.status = 'approved' or s.created_by = (select public.current_profile_id()))
+        and (s.status = 'approved' or s.created_by = (select auth.uid()))
     )
   );
 
@@ -245,7 +217,7 @@ create policy "owners can add equipment to their own spots"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and s.created_by = (select public.current_profile_id())
+        and s.created_by = (select auth.uid())
     )
   );
 
@@ -256,14 +228,14 @@ create policy "owners can edit equipment on their own spots"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and s.created_by = (select public.current_profile_id())
+        and s.created_by = (select auth.uid())
     )
   )
   with check (
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and s.created_by = (select public.current_profile_id())
+        and s.created_by = (select auth.uid())
     )
   );
 
@@ -274,7 +246,7 @@ create policy "owners can remove equipment from their own spots"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and s.created_by = (select public.current_profile_id())
+        and s.created_by = (select auth.uid())
     )
   );
 
@@ -293,7 +265,7 @@ create policy "photos are public for approved spots, and for your own"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and (s.status = 'approved' or s.created_by = (select public.current_profile_id()))
+        and (s.status = 'approved' or s.created_by = (select auth.uid()))
     )
   );
 
@@ -301,18 +273,18 @@ create policy "callers can add photos to approved spots, or their own"
   on public.photos for insert
   to authenticated
   with check (
-    user_id = (select public.current_profile_id())
+    user_id = (select auth.uid())
     and exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and (s.status = 'approved' or s.created_by = (select public.current_profile_id()))
+        and (s.status = 'approved' or s.created_by = (select auth.uid()))
     )
   );
 
 create policy "callers can delete their own photos"
   on public.photos for delete
   to authenticated
-  using (user_id = (select public.current_profile_id()));
+  using (user_id = (select auth.uid()));
 
 -- No update policy: a photo's storage path and dimensions describe an immutable object. Editing it
 -- in place is a delete plus an insert.
@@ -330,7 +302,7 @@ create policy "reviews are public for approved spots, and for your own"
     exists (
       select 1 from public.spots s
       where s.id = spot_id
-        and (s.status = 'approved' or s.created_by = (select public.current_profile_id()))
+        and (s.status = 'approved' or s.created_by = (select auth.uid()))
     )
   );
 
@@ -341,7 +313,7 @@ create policy "callers can review approved spots"
   on public.reviews for insert
   to authenticated
   with check (
-    user_id = (select public.current_profile_id())
+    user_id = (select auth.uid())
     and exists (
       select 1 from public.spots s
       where s.id = spot_id
@@ -355,13 +327,13 @@ create policy "callers can review approved spots"
 create policy "authors can edit their own reviews"
   on public.reviews for update
   to authenticated
-  using (user_id = (select public.current_profile_id()))
-  with check (user_id = (select public.current_profile_id()));
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 
 create policy "authors can delete their own reviews"
   on public.reviews for delete
   to authenticated
-  using (user_id = (select public.current_profile_id()));
+  using (user_id = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- favorites
@@ -372,17 +344,17 @@ create policy "authors can delete their own reviews"
 create policy "callers can read their own favorites"
   on public.favorites for select
   to authenticated
-  using ((select public.current_profile_id()) = user_id);
+  using ((select auth.uid()) = user_id);
 
 create policy "callers can save spots for themselves"
   on public.favorites for insert
   to authenticated
-  with check ((select public.current_profile_id()) = user_id);
+  with check ((select auth.uid()) = user_id);
 
 create policy "callers can remove their own favorites"
   on public.favorites for delete
   to authenticated
-  using ((select public.current_profile_id()) = user_id);
+  using ((select auth.uid()) = user_id);
 
 -- No update policy, on purpose. A favourite is a pure (user, spot) membership row: changing it is
 -- expressed as delete + insert, so there is no "edit someone else's favourite" to guard against.
@@ -396,12 +368,12 @@ create policy "callers can remove their own favorites"
 create policy "callers can read their own reports"
   on public.reports for select
   to authenticated
-  using ((select public.current_profile_id()) = user_id);
+  using ((select auth.uid()) = user_id);
 
 create policy "callers can report spots"
   on public.reports for insert
   to authenticated
-  with check ((select public.current_profile_id()) = user_id);
+  with check ((select auth.uid()) = user_id);
 
 -- No update or delete policy: a report's lifecycle belongs to moderation, and the reporter has no
 -- reason to retract it into a state the moderation queue cannot interpret.

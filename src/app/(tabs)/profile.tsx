@@ -41,7 +41,7 @@ type ProfileRow =
  */
 export default function ProfileScreen() {
   const scheme = useScheme();
-  const { displayName, reviews, spots, username } = useProfile();
+  const { displayName, reviews, signedIn, spots, username } = useProfile();
   const { spots: favoriteSpots } = useFavorites();
 
   const shareProfile = useCallback(() => {
@@ -155,7 +155,8 @@ export default function ProfileScreen() {
             <ProfileHeader
               displayName={displayName}
               onShare={shareProfile}
-              onSignIn={() => router.push('/auth/sign-in')}
+              onSignIn={() => router.push('/auth')}
+              signedIn={signedIn}
               username={username}
             />
 

@@ -11,12 +11,30 @@
  * missing or malformed project URL or key fails immediately with an actionable message
  * rather than as an opaque network error on the first query.
  *
+ * Supabase Auth is the identity provider, so the client owns the session: `persistSession`
+ * writes it to storage and `autoRefreshToken` keeps the access token fresh. The store is
+ * AsyncStorage rather than a keychain because a session is larger than the 2 KB SecureStore warns
+ * about on Android, and the refresh token has to survive a restart or the athlete is signed out
+ * every time the app is opened; `auth-storage.ts` is what keeps that store from breaking the web
+ * prerender. Refresh is not left running on its own: `SessionProvider` starts and stops it with the
+ * app's foreground state, which is what Supabase's React Native guide asks for, so a backgrounded
+ * app is not waking up to refresh a token nobody is using.
+ *
+ * There is no redirect to detect: sign-in is a request and a response, not a trip through a
+ * browser, so `detectSessionInUrl` is off and no callback URL is needed anywhere.
+ *
+ * `detectSessionInUrl` stays off. There is no browser URL holding an OAuth code in a native
+ * app, and leaving it on costs a pointless parse on every launch.
+ *
  * @example
  * const { data, error } = await supabase.from('spots').select('id, name');
  */
 
+import 'react-native-url-polyfill/auto';
+
 import { createClient } from '@supabase/supabase-js';
 
+import { authStorage } from './auth-storage';
 import { env } from './env';
 
 import type { Database } from '@/types/database';
@@ -31,15 +49,9 @@ export type { Tables, TablesInsert, TablesUpdate, Enums, CompositeTypes } from '
  */
 export const supabase = createClient<Database>(env.supabase.url, env.supabase.publishableKey, {
   auth: {
-    // Clerk is the identity provider (see `[auth.third_party.clerk]` in supabase/config.toml),
-    // so the Clerk JWT travels on each request as an Authorization header rather than as a
-    // Supabase Auth session. Turning the session machinery off keeps the client from reaching
-    // for storage that does not exist here, and avoids the "no storage adapter" warning.
-    //
-    // Revisit this when Clerk lands: if sign-in flows move to Supabase Auth, these three
-    // become `true` and `storage` needs an adapter (`expo-sqlite/localStorage/install`).
-    persistSession: false,
-    autoRefreshToken: false,
+    storage: authStorage,
+    persistSession: true,
+    autoRefreshToken: true,
     detectSessionInUrl: false,
   },
 });

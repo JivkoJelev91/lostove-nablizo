@@ -30,10 +30,6 @@ export type Env = {
     url: string;
     publishableKey: string;
   };
-  /** Clerk identity provider. The publishable key is public by design. `null` when not configured. */
-  clerk: {
-    publishableKey: string | null;
-  };
   /** Error monitoring. `dsn` is `null` when monitoring is not configured. */
   sentry: {
     dsn: string | null;
@@ -65,7 +61,6 @@ export class EnvValidationError extends Error {
 }
 
 const HTTP_URL = /^https?:\/\/[^\s/?#]+[^\s]*$/;
-const CLERK_KEY = /^pk_(test|live)_[A-Za-z0-9_-]+$/;
 const SENTRY_DSN = /^https:\/\/[^\s@]+@[^\s/]+\/\d+$/;
 const TRUTHY = new Set(['true', '1', 'yes', 'on']);
 const FALSY = new Set(['false', '0', 'no', 'off', '']);
@@ -157,15 +152,6 @@ function parseEnv(): Env {
     'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
     process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );
-  const clerkPublishableKey = optional(
-    issues,
-    'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY',
-    process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    (value) =>
-      CLERK_KEY.test(value)
-        ? undefined
-        : `must be a Clerk publishable key starting with "pk_test_" or "pk_live_", received "${value}".`,
-  );
   const sentryDsn = optional(
     issues,
     'EXPO_PUBLIC_SENTRY_DSN',
@@ -194,7 +180,6 @@ function parseEnv(): Env {
 
   return {
     supabase: { url: supabaseUrl, publishableKey: supabasePublishableKey },
-    clerk: { publishableKey: clerkPublishableKey },
     sentry: { dsn: sentryDsn },
     analytics: { enabled: analyticsEnabled, debug: analyticsDebug },
   };

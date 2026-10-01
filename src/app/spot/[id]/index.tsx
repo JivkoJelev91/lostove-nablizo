@@ -21,8 +21,8 @@ import {
 } from '@/components';
 import type { EquipmentListItem } from '@/components';
 import { brandColors, iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useFavorites } from '@/features/favorites/useFavorites';
-import { CURRENT_USER_ID } from '@/features/profile/current-user';
 import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
 import { useReviews } from '@/features/reviews/useReviews';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
@@ -147,10 +147,11 @@ export default function SpotScreen() {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { summaryFor } = useReviews();
   const { spotById } = useSpots();
+  const { user } = useCurrentUser();
   const scheme = useScheme();
 
   const spot = spotById(id);
-  const isOwner = spot !== undefined && spot.ownerId === CURRENT_USER_ID;
+  const isOwner = spot !== undefined && spot.ownerId !== undefined && spot.ownerId === user?.id;
 
   // A spot that is not approved is only visible to the athlete who submitted it; everyone
   // else gets the same answer as for a removed spot.
