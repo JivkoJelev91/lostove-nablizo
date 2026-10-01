@@ -12,11 +12,20 @@ export type EquipmentFilter = {
   Icon: ComponentType<EquipmentIconProps>;
 };
 
-/** The equipment the discovery screens can filter by, each drawn with the chips' own icon. */
+/**
+ * The equipment the discovery screens can filter by, each drawn with the chips' own icon.
+ *
+ * One entry per {@link EquipmentName}, so adding a piece to the equipment vocabulary adds its
+ * chip here too instead of leaving a filter the editor offers but discovery cannot use.
+ */
 export const EQUIPMENT_FILTERS: readonly EquipmentFilter[] = [
   { name: 'Pull-up', Icon: EQUIPMENT_ICONS['Pull-up'] },
   { name: 'Rings', Icon: EQUIPMENT_ICONS.Rings },
   { name: 'Dips', Icon: EQUIPMENT_ICONS.Dips },
+  { name: 'Monkey bars', Icon: EQUIPMENT_ICONS['Monkey bars'] },
+  { name: 'Ladder', Icon: EQUIPMENT_ICONS.Ladder },
+  { name: 'Sit-up bench', Icon: EQUIPMENT_ICONS['Sit-up bench'] },
+  { name: 'Push-up bars', Icon: EQUIPMENT_ICONS['Push-up bars'] },
 ];
 
 export type EquipmentFilterIconProps = {
