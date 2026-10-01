@@ -1,0 +1,73 @@
+import { useState } from 'react';
+import { Text, View } from 'react-native';
+
+import { BottomSheet, PrimaryButton, RatingInput, TextArea } from '@/components';
+import type { SpotReview } from '@/features/spots/types';
+
+/** The most characters a review comment accepts. The comment itself is optional. */
+export const REVIEW_TEXT_MAX_LENGTH = 300;
+
+export type AddReviewSheetProps = {
+  visible: boolean;
+  spotName: string;
+  /** This athlete's stored review, when the sheet is editing rather than writing a first one. */
+  existing?: SpotReview;
+  onClose: () => void;
+  onSubmit: (rating: number, text: string) => void;
+};
+
+/**
+ * The sheet that writes or edits the signed-in athlete's review.
+ *
+ * One review per athlete per spot is a database rule, so this is deliberately an upsert form:
+ * when a review by this athlete already exists the sheet opens on it and saves over it rather
+ * than adding a second. The rating is required, the comment is not.
+ *
+ * The draft lives here from the moment the sheet mounts, so the caller remounts it (via `key`)
+ * each time it opens — that way a cancelled draft never survives into the next opening, without
+ * syncing state through an effect.
+ */
+export function AddReviewSheet({
+  visible,
+  spotName,
+  existing,
+  onClose,
+  onSubmit,
+}: AddReviewSheetProps) {
+  const editing = existing !== undefined;
+  const [rating, setRating] = useState(existing?.rating ?? 0);
+  const [text, setText] = useState(existing?.text ?? '');
+
+  return (
+    <BottomSheet
+      onClose={onClose}
+      title={editing ? 'Edit your review' : 'Write a review'}
+      visible={visible}
+    >
+      <View className="gap-space-8">
+        <Text className="text-bodySmall text-text-secondary">{spotName}</Text>
+        <Text className="font-medium text-body text-text-primary">Your rating</Text>
+        <RatingInput onChange={setRating} value={rating} />
+
+        {rating === 0 ? (
+          <Text className="text-caption text-text-muted">Tap a star to rate this spot.</Text>
+        ) : null}
+      </View>
+
+      <TextArea
+        label="Review (optional)"
+        maxLength={REVIEW_TEXT_MAX_LENGTH}
+        onChangeText={setText}
+        placeholder="How were the bars, the surface, the crowd?"
+        value={text}
+      />
+
+      <PrimaryButton
+        disabled={rating === 0}
+        fullWidth
+        label={editing ? 'Save changes' : 'Post review'}
+        onPress={() => onSubmit(rating, text.trim())}
+      />
+    </BottomSheet>
+  );
+}

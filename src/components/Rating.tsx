@@ -27,7 +27,8 @@ export type RatingProps = {
   className?: string;
 };
 
-const STAR_SIZE: Record<RatingSize, number> = {
+/** Star size per rating size, shared with the interactive input so the two line up. */
+export const RATING_STAR_SIZES: Record<RatingSize, number> = {
   sm: iconSizeValues.xs,
   md: iconSizeValues.sm,
   lg: iconSizeValues.md,
@@ -68,7 +69,7 @@ export function Rating({
         accessibilityRole="text"
         className={cn('flex-row items-center gap-space-4', className)}
       >
-        <Ionicons color={brandColors.primary} name="star" size={STAR_SIZE[size]} />
+        <Ionicons color={brandColors.primary} name="star" size={RATING_STAR_SIZES[size]} />
 
         {showValue ? (
           <Text className={cn('font-semibold text-text-primary', SUMMARY_TEXT_CLASS[size])}>
@@ -97,7 +98,7 @@ export function Rating({
             color={brandColors.primary}
             key={index}
             name={index < filled ? 'star' : 'star-outline'}
-            size={STAR_SIZE[size]}
+            size={RATING_STAR_SIZES[size]}
           />
         ))}
       </View>

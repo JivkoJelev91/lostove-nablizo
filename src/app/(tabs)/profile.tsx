@@ -19,6 +19,7 @@ import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { ProfileStats } from '@/features/profile/ProfileStats';
 import { useProfile } from '@/features/profile/useProfile';
+import { coverImage } from '@/features/spots/spot-photos';
 import type { Spot, SpotReview } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
 import { formatMonthDayYear } from '@/utils/dates';
@@ -80,7 +81,7 @@ export default function ProfileScreen() {
         return (
           <SpotCard
             equipment={item.spot.equipment}
-            imageUri={item.spot.image}
+            imageUri={coverImage(item.spot)}
             name={item.spot.name}
             onPress={() => openSpot(item.spot)}
             rating={item.spot.rating}

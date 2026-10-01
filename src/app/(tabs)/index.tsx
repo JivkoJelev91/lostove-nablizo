@@ -11,6 +11,7 @@ import { useFavorites } from '@/features/favorites/useFavorites';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
 import { formatDistanceAway } from '@/features/spots/format-distance';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
+import { coverImage } from '@/features/spots/spot-photos';
 import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
@@ -55,7 +56,7 @@ export default function HomeScreen() {
         <SpotCard
           distanceLabel={formatDistanceAway(item.distanceKm)}
           equipment={item.equipment}
-          imageUri={item.image}
+          imageUri={coverImage(item)}
           isFavorite={isFavorite(item.id)}
           name={item.name}
           onPress={() => openSpot(item)}

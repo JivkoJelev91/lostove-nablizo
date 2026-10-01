@@ -39,7 +39,7 @@ export function ReviewCard({
 
       <Rating showValue={false} size="sm" value={rating} />
 
-      <Text className="text-body text-text-primary">{text}</Text>
+      {text.length > 0 ? <Text className="text-body text-text-primary">{text}</Text> : null}
 
       <Text className="text-caption text-text-muted">{dateLabel}</Text>
     </Card>

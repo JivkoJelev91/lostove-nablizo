@@ -2,8 +2,8 @@ import type { AddSpotStep, SpotDraft, SpotDraftErrors } from '@/features/spot-ed
 
 export const SPOT_NAME_MIN_LENGTH = 3;
 export const SPOT_NAME_MAX_LENGTH = 60;
-export const SPOT_DESCRIPTION_MIN_LENGTH = 20;
-export const SPOT_DESCRIPTION_MAX_LENGTH = 300;
+export const SPOT_DESCRIPTION_MIN_LENGTH = 10;
+export const SPOT_DESCRIPTION_MAX_LENGTH = 200;
 
 /** The message a name field shows, or undefined when the name is usable. */
 export function validateName(name: string): string | undefined {

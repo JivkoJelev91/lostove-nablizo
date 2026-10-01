@@ -12,6 +12,7 @@ import { useColorScheme } from 'nativewind';
 
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
+import { ReviewsProvider } from '@/features/reviews/ReviewsProvider';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -31,14 +32,17 @@ export default function RootLayout() {
     <>
       <StatusBar style={schemeStatusBarStyle[scheme]} />
       {/* Above both navigators, so a heart tapped on a pushed spot page and the Favorites tab
-          read the same saved spots. */}
+          read the same saved spots, and a review written on a spot page shows on the Profile
+          tab's list of contributions. */}
       <FavoritesProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: schemeBackground[scheme] },
-          }}
-        />
+        <ReviewsProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: schemeBackground[scheme] },
+            }}
+          />
+        </ReviewsProvider>
       </FavoritesProvider>
     </>
   );

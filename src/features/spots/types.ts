@@ -31,8 +31,8 @@ export type Spot = {
   verifiedAt: Date;
   /** Straight-line distance from the mock user position, for the "Around you" ordering. */
   distanceKm: number;
-  /** A bundled photo used until spots carry Supabase Storage paths. */
-  image: ImageSourcePropType;
+  /** The spot's gallery, cover first. One bundled stand-in per frame until Storage provides real uploads. */
+  images: readonly ImageSourcePropType[];
 };
 
 /** One athlete's review of a spot, as the spot page lists it. */

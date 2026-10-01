@@ -88,3 +88,30 @@ export function LadderIcon(props: EquipmentIconProps) {
     </EquipmentGlyph>
   );
 }
+
+/** A sit-up bench: a flat pad rising into an incline, with the foot roller at the high end. */
+export function SitUpBenchIcon(props: EquipmentIconProps) {
+  return (
+    <EquipmentGlyph {...props}>
+      <Line strokeWidth={2} x1={3.5} x2={15} y1={16.5} y2={16.5} />
+      <Line strokeWidth={2} x1={15} x2={20} y1={16.5} y2={11} />
+      <Line strokeWidth={2} x1={5.5} x2={5.5} y1={16.5} y2={21.5} />
+      <Line strokeWidth={2} x1={13} x2={13} y1={16.5} y2={21.5} />
+      <Circle cx={20} cy={8.5} r={1.9} strokeWidth={2} />
+    </EquipmentGlyph>
+  );
+}
+
+/** Push-up bars: two low parallel handles set a shoulder-width apart. */
+export function PushUpBarsIcon(props: EquipmentIconProps) {
+  return (
+    <EquipmentGlyph {...props}>
+      <Line strokeWidth={2} x1={4} x2={4} y1={20} y2={12.5} />
+      <Line strokeWidth={2} x1={8} x2={8} y1={20} y2={12.5} />
+      <Line strokeWidth={2} x1={4} x2={8} y1={12.5} y2={12.5} />
+      <Line strokeWidth={2} x1={16} x2={16} y1={20} y2={12.5} />
+      <Line strokeWidth={2} x1={20} x2={20} y1={20} y2={12.5} />
+      <Line strokeWidth={2} x1={16} x2={20} y1={12.5} y2={12.5} />
+    </EquipmentGlyph>
+  );
+}

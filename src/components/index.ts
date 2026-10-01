@@ -33,7 +33,9 @@ export {
   LadderIcon,
   MonkeyBarsIcon,
   PullUpBarIcon,
+  PushUpBarsIcon,
   RingsIcon,
+  SitUpBenchIcon,
 } from './EquipmentIcons';
 export type { EquipmentIconProps } from './EquipmentIcons';
 
@@ -50,6 +52,9 @@ export type { ErrorStateProps } from './ErrorState';
 
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonSize, IconButtonVariant } from './IconButton';
+
+export { ImageCarousel } from './ImageCarousel';
+export type { ImageCarouselProps } from './ImageCarousel';
 
 export { SearchInput, TextArea, TextInput } from './Input';
 export type { SearchInputProps, TextAreaProps, TextInputProps } from './Input';
@@ -68,6 +73,9 @@ export type { PhotoGridItem, PhotoGridProps } from './PhotoGrid';
 
 export { Rating } from './Rating';
 export type { RatingProps, RatingSize, RatingVariant } from './Rating';
+
+export { RatingInput } from './RatingInput';
+export type { RatingInputProps } from './RatingInput';
 
 export { ReviewCard } from './ReviewCard';
 export type { ReviewCardProps } from './ReviewCard';

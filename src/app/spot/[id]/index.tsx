@@ -1,4 +1,5 @@
-import { Image, Linking, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Linking, Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -7,10 +8,12 @@ import {
   ConditionBadge,
   EquipmentList,
   IconButton,
+  ImageCarousel,
   PrimaryButton,
   Rating,
   ReviewCard,
   Screen,
+  SecondaryButton,
   SectionHeader,
   VerificationBadge,
 } from '@/components';
@@ -23,12 +26,13 @@ import {
   statusColors,
 } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
+import { useReviews } from '@/features/reviews/useReviews';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
-import { MOCK_REVIEWS } from '@/features/spots/mock-reviews';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
 import { spotDirectionsUrl } from '@/features/spots/spot-links';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
-import type { Spot, SpotReview } from '@/features/spots/types';
+import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
 import { formatMonthDayYear } from '@/utils/dates';
 
@@ -48,37 +52,90 @@ function equipmentItemsFor(spot: Spot): EquipmentListItem[] {
   });
 }
 
-type SpotReviewsProps = {
-  rating: number;
-  reviews: readonly SpotReview[];
-};
+/**
+ * The reviews section: the athlete's own review first, then everyone else's, with the one action
+ * that writes or edits it.
+ *
+ * The athlete's review is deliberately separated from the rest rather than left to read as one
+ * voice among many: it is the only one they can change, and the spot page has to make their own
+ * rating tellable apart from the spot's average.
+ */
+function SpotReviews({ spot }: { spot: Spot }) {
+  const { otherReviewsFor, ownReviewFor, reviewsFor, saveReview } = useReviews();
+  const [sheetVisible, setSheetVisible] = useState(false);
+  // Bumped on every open, so the sheet remounts and starts from the stored review rather than
+  // from whatever was typed and then cancelled last time.
+  const [sheetSession, setSheetSession] = useState(0);
 
-function SpotReviews({ rating, reviews }: SpotReviewsProps) {
+  const ownReview = ownReviewFor(spot.id);
+  const otherReviews = otherReviewsFor(spot.id);
+  const hasReviews = reviewsFor(spot.id).length > 0;
+
+  const openSheet = () => {
+    setSheetSession((session) => session + 1);
+    setSheetVisible(true);
+  };
+
   return (
     <View className="mt-space-32 gap-space-16">
       <SectionHeader accent title="Reviews" />
 
-      {reviews.length === 0 ? (
+      {hasReviews ? null : (
         <Text className="text-bodySmall text-text-secondary">
           No reviews yet. Be the first to train here and leave one.
         </Text>
-      ) : (
-        <>
-          <Rating size="lg" value={rating} />
-
-          <View className="gap-list-gap">
-            {reviews.map((review) => (
-              <ReviewCard
-                authorName={review.authorName}
-                dateLabel={formatMonthDayYear(review.date)}
-                key={review.id}
-                rating={review.rating}
-                text={review.text}
-              />
-            ))}
-          </View>
-        </>
       )}
+
+      <SecondaryButton
+        fullWidth
+        label={ownReview === undefined ? 'Write a review' : 'Edit your review'}
+        leftIcon={
+          <Ionicons
+            color={brandColors.primary}
+            name={ownReview === undefined ? 'star-outline' : 'create-outline'}
+            size={iconSizeValues.sm}
+          />
+        }
+        onPress={openSheet}
+      />
+
+      {ownReview === undefined ? null : (
+        <View className="gap-space-8">
+          <Text className="font-semibold text-bodySmall text-text-secondary">Your review</Text>
+          <ReviewCard
+            authorName={ownReview.authorName}
+            dateLabel={formatMonthDayYear(ownReview.date)}
+            rating={ownReview.rating}
+            text={ownReview.text}
+          />
+        </View>
+      )}
+
+      {otherReviews.length === 0 ? null : (
+        <View className="gap-list-gap">
+          {otherReviews.map((review) => (
+            <ReviewCard
+              authorName={review.authorName}
+              dateLabel={formatMonthDayYear(review.date)}
+              key={review.id}
+              rating={review.rating}
+              text={review.text}
+            />
+          ))}
+        </View>
+      )}
+
+      <AddReviewSheet
+        existing={ownReview}
+        key={sheetSession}
+        onClose={() => setSheetVisible(false)}
+        onSubmit={(rating, text) => {
+          saveReview(spot.id, rating, text);
+          setSheetVisible(false);
+        }}
+        spotName={spot.name}
+        visible={sheetVisible}
+      />
     </View>
   );
 }
@@ -86,6 +143,7 @@ function SpotReviews({ rating, reviews }: SpotReviewsProps) {
 export default function SpotScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
+  const { summaryFor } = useReviews();
   const scheme = useScheme();
 
   const spot = MOCK_SPOTS.find((candidate) => candidate.id === id);
@@ -94,7 +152,7 @@ export default function SpotScreen() {
     return <SpotNotFound />;
   }
 
-  const reviews = MOCK_REVIEWS.filter((review) => review.spotId === spot.id);
+  const summary = summaryFor(spot);
   const saved = isFavorite(spot.id);
 
   const openDirections = () => {
@@ -136,11 +194,7 @@ export default function SpotScreen() {
         />
       </View>
 
-      <Image
-        accessibilityLabel={spot.name}
-        className="h-spot-hero w-full bg-bg-surface"
-        source={spot.image}
-      />
+      <ImageCarousel accessibilityLabel={spot.name} images={spot.images} />
 
       <View className="px-screen-px pt-space-16">
         <View className="gap-space-8">
@@ -161,7 +215,7 @@ export default function SpotScreen() {
             />
           </View>
 
-          <Rating count={spot.reviewCount} value={spot.rating} variant="summary" />
+          <Rating count={summary.count} value={summary.average} variant="summary" />
 
           <VerificationBadge verifiedAt={spot.verifiedAt} />
         </View>
@@ -199,7 +253,7 @@ export default function SpotScreen() {
           />
         </View>
 
-        <SpotReviews rating={spot.rating} reviews={reviews} />
+        <SpotReviews spot={spot} />
       </View>
     </Screen>
   );

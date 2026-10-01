@@ -6,6 +6,7 @@ import type { ListRenderItemInfo } from 'react-native';
 import { EmptyState, PrimaryButton, ScreenShell, SpotCard } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { coverImage } from '@/features/spots/spot-photos';
 import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
 import { cn } from '@/utils/cn';
@@ -25,7 +26,7 @@ export default function FavoritesScreen() {
   const renderSpot = ({ item }: ListRenderItemInfo<Spot>) => (
     <SpotCard
       equipment={item.equipment}
-      imageUri={item.image}
+      imageUri={coverImage(item)}
       isFavorite={isFavorite(item.id)}
       name={item.name}
       onPress={() => openSpot(item)}

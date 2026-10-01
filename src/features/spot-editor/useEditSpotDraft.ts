@@ -34,19 +34,22 @@ export function useEditSpotDraft(spot: Spot) {
   const [description, setDescription] = useState(spot.description);
   const [equipment, setEquipment] = useState<readonly EquipmentDraftItem[]>(initialEquipment);
   const [condition, setCondition] = useState<EquipmentCondition>(spot.condition);
-  const [photos, setPhotos] = useState<readonly ImageSourcePropType[]>([spot.image]);
+  const [photos, setPhotos] = useState<readonly ImageSourcePropType[]>(spot.images);
   const [errors, setErrors] = useState<SpotDraftErrors>({});
   const [saving, setSaving] = useState(false);
   const [savedVisible, setSavedVisible] = useState(false);
   const [discardVisible, setDiscardVisible] = useState(false);
+
+  const photosUnchanged =
+    photos.length === spot.images.length &&
+    photos.every((photo, index) => photo === spot.images[index]);
 
   const isDirty =
     name !== spot.name ||
     description !== spot.description ||
     condition !== spot.condition ||
     !equipmentDraftsEqual(equipment, initialEquipment) ||
-    photos.length !== 1 ||
-    photos[0] !== spot.image;
+    !photosUnchanged;
 
   const showDiscard = useCallback(() => setDiscardVisible(true), []);
   const leave = useUnsavedChangesGuard(isDirty, showDiscard);

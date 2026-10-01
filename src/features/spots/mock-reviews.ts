@@ -5,8 +5,8 @@ import { daysAgo } from '@/utils/dates';
  * Mock reviews so every spot page has something to read. The dates are relative to now so the
  * wording never drifts; the authors and the text are invented.
  *
- * `Alex Ivanov` is the mock athlete on the Profile tab, so the reviews named in `mock-profile`
- * are written by them here. One athlete, one name, wherever the review appears.
+ * `Alex Ivanov` is the mock athlete on the Profile tab, so their reviews are written under that
+ * name here. One athlete, one name, wherever the review appears.
  */
 export const MOCK_REVIEWS: readonly SpotReview[] = [
   {

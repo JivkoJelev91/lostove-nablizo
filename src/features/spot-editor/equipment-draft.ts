@@ -18,6 +18,8 @@ export const EQUIPMENT_CATALOGUE: readonly EquipmentName[] = [
   'Rings',
   'Monkey bars',
   'Ladder',
+  'Sit-up bench',
+  'Push-up bars',
 ];
 
 /** Adds a piece at one, or removes it when it was already picked. */
