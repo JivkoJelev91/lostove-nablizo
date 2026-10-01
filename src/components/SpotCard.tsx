@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/Card';
 import { IconButton } from '@/components/IconButton';
 import { Rating } from '@/components/Rating';
+import { SpotStatusBadge } from '@/components/SpotStatusBadge';
+import type { SpotStatus } from '@/components/SpotStatusBadge';
 import { VerificationBadge } from '@/components/VerificationBadge';
 import type { VerifiedAt } from '@/components/VerificationBadge';
 import { iconSizeValues, schemeTextSecondary, statusColors } from '@/constants/design-tokens';
@@ -32,6 +34,11 @@ export type SpotCardProps = {
   distanceLabel?: string;
   imageUri?: ImageSourcePropType;
   isFavorite?: boolean;
+  /**
+   * The spot's moderation state, for the owner's own lists. Public surfaces never pass it,
+   * because only approved spots reach them.
+   */
+  status?: SpotStatus;
   onPress?: () => void;
   onToggleFavorite?: () => void;
   variant?: SpotCardVariant;
@@ -74,6 +81,7 @@ type SpotBodyProps = {
   verifiedAt?: VerifiedAt;
   distanceLabel?: string;
   isFavorite: boolean;
+  status?: SpotStatus;
   onToggleFavorite?: () => void;
 };
 
@@ -85,6 +93,7 @@ function SpotBody({
   verifiedAt,
   distanceLabel,
   isFavorite,
+  status,
   onToggleFavorite,
 }: SpotBodyProps) {
   const scheme = useScheme();
@@ -104,6 +113,8 @@ function SpotBody({
       {rating !== undefined ? (
         <Rating count={reviewCount} size="sm" value={rating} variant="summary" />
       ) : null}
+
+      {status !== undefined ? <SpotStatusBadge status={status} /> : null}
 
       {equipmentText.length > 0 ? (
         <Text className="text-bodySmall text-text-secondary" numberOfLines={2}>
@@ -138,6 +149,7 @@ type CompactSpotCardProps = {
   equipmentText: string;
   imageUri?: ImageSourcePropType;
   isFavorite: boolean;
+  status?: SpotStatus;
   onToggleFavorite?: () => void;
   onPress?: () => void;
   accessibilityLabel?: string;
@@ -151,6 +163,7 @@ function CompactSpotCard({
   equipmentText,
   imageUri,
   isFavorite,
+  status,
   onToggleFavorite,
   onPress,
   accessibilityLabel,
@@ -181,6 +194,7 @@ function CompactSpotCard({
           {rating !== undefined ? (
             <Rating count={reviewCount} size="sm" value={rating} variant="summary" />
           ) : null}
+          {status !== undefined ? <SpotStatusBadge status={status} /> : null}
           {equipmentText.length > 0 ? (
             <Text className="text-bodySmall text-text-secondary" numberOfLines={1}>
               {equipmentText}
@@ -209,6 +223,7 @@ export function SpotCard({
   distanceLabel,
   imageUri,
   isFavorite = false,
+  status,
   onPress,
   onToggleFavorite,
   variant = 'list',
@@ -230,6 +245,7 @@ export function SpotCard({
         onToggleFavorite={onToggleFavorite}
         rating={rating}
         reviewCount={reviewCount}
+        status={status}
       />
     );
   }
@@ -259,6 +275,7 @@ export function SpotCard({
         onToggleFavorite={onToggleFavorite}
         rating={rating}
         reviewCount={reviewCount}
+        status={status}
         verifiedAt={verifiedAt}
       />
     </Card>

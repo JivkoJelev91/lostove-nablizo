@@ -34,6 +34,14 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
     date: daysAgo(9),
   },
   {
+    id: 'review-borisova-3',
+    spotId: 'borisova-gradina-bars',
+    authorName: 'Alex Ivanov',
+    rating: 5,
+    text: 'My go-to spot for ring work. Come early on weekends if you want the rings to yourself.',
+    date: daysAgo(24),
+  },
+  {
     id: 'review-south-park-1',
     spotId: 'south-park-calisthenics',
     authorName: 'Elena Stoyanova',
