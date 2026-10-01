@@ -14,3 +14,7 @@ pnpm-workspace.yaml
 .opencode/
 assets/
 street-fitnes-planning.txt
+
+# generated Supabase CLI state (credentials, project-ref, pooler url). Gitignored by
+# supabase/.gitignore, but prettier does not read nested .gitignore files.
+supabase/.temp/

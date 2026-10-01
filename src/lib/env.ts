@@ -20,19 +20,19 @@
  * @example
  * import { env } from '@/lib/env';
  *
- * const client = createClient(env.supabase.url, env.supabase.anonKey);
+ * const client = createClient(env.supabase.url, env.supabase.publishableKey);
  */
 
 /** Validated, ready-to-use application configuration. */
 export type Env = {
-  /** Supabase project. The anon/publishable key is public by design; data is protected by RLS. */
+  /** Supabase project. The publishable key is public by design; data is protected by RLS. */
   supabase: {
     url: string;
-    anonKey: string;
-  };
-  /** Clerk identity provider. The publishable key is public by design. */
-  clerk: {
     publishableKey: string;
+  };
+  /** Clerk identity provider. The publishable key is public by design. `null` when not configured. */
+  clerk: {
+    publishableKey: string | null;
   };
   /** Error monitoring. `dsn` is `null` when monitoring is not configured. */
   sentry: {
@@ -152,12 +152,12 @@ function parseEnv(): Env {
         ? undefined
         : `must be an http(s) URL such as "https://<project-ref>.supabase.co", received "${value}".`,
   );
-  const supabaseAnonKey = required(
+  const supabasePublishableKey = required(
     issues,
-    'EXPO_PUBLIC_SUPABASE_ANON_KEY',
-    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+    'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );
-  const clerkPublishableKey = required(
+  const clerkPublishableKey = optional(
     issues,
     'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY',
     process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
@@ -188,17 +188,12 @@ function parseEnv(): Env {
     false,
   );
 
-  if (
-    issues.length > 0 ||
-    supabaseUrl === null ||
-    supabaseAnonKey === null ||
-    clerkPublishableKey === null
-  ) {
+  if (issues.length > 0 || supabaseUrl === null || supabasePublishableKey === null) {
     throw new EnvValidationError(issues);
   }
 
   return {
-    supabase: { url: supabaseUrl, anonKey: supabaseAnonKey },
+    supabase: { url: supabaseUrl, publishableKey: supabasePublishableKey },
     clerk: { publishableKey: clerkPublishableKey },
     sentry: { dsn: sentryDsn },
     analytics: { enabled: analyticsEnabled, debug: analyticsDebug },

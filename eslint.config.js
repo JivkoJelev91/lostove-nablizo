@@ -46,4 +46,12 @@ module.exports = [
       ],
     },
   },
+  {
+    // Generated from the database schema by `pnpm db:types`. One column per table means the
+    // file grows with the schema, and house style does not apply to machine-written output.
+    files: ['src/types/database.ts'],
+    rules: {
+      'max-lines': 'off',
+    },
+  },
 ];
