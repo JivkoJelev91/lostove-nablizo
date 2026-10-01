@@ -45,6 +45,10 @@ yarn-error.*
 street-fitnes-planning.*
 README.draft.md
 
+# private developer notes — kept local, not shared with collaborators
+DEVELOPMENT.md
+future-upgrades.md
+
 # This project uses pnpm. EAS picks the package manager from whichever lockfile it finds,
 # so an npm lockfile must not be present or builds become unpredictable.
 package-lock.json
