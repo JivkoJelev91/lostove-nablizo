@@ -184,6 +184,7 @@ export function toSpot(row: SpotWithRelations): Spot {
     id: row.id,
     name: row.name,
     coordinate,
+    city: row.city ?? null,
     rating: row.rating_average,
     reviewCount: row.rating_count,
     equipment: toEquipment(row.spot_equipment),

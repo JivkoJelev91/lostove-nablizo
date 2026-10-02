@@ -15,6 +15,7 @@ const SPOT_COLUMNS = `
   name,
   latitude,
   longitude,
+  city,
   description,
   rating_average,
   rating_count,

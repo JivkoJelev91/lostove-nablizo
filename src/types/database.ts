@@ -256,6 +256,7 @@ export type Database = {
       };
       spots: {
         Row: {
+          city: string | null;
           created_at: string;
           created_by: string | null;
           description: string | null;
@@ -272,6 +273,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          city?: string | null;
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
@@ -288,6 +290,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          city?: string | null;
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
@@ -329,6 +332,7 @@ export type Database = {
           p_radius_m: number;
         };
         Returns: {
+          city: string | null;
           created_by: string | null;
           description: string | null;
           distance_m: number;
@@ -346,6 +350,26 @@ export type Database = {
       recompute_spot_rating: {
         Args: { target_spot_id: string };
         Returns: undefined;
+      };
+      search_spots: {
+        Args: {
+          p_query: string;
+          p_limit?: number;
+        };
+        Returns: {
+          city: string | null;
+          created_by: string | null;
+          description: string | null;
+          id: string;
+          latitude: number;
+          longitude: number;
+          name: string;
+          photos: Json;
+          rating_average: number;
+          rating_count: number;
+          spot_equipment: Json;
+          status: string;
+        }[];
       };
     };
     Enums: {

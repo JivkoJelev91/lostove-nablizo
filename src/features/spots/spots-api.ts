@@ -103,6 +103,24 @@ export async function getSpotById(spotId: string): Promise<Spot | null> {
   return data === null ? null : toSpot(data as SpotWithRelations);
 }
 
+/** The shortest term the database will search on; a shorter one matches nothing. */
+export const SEARCH_MIN_QUERY_LENGTH = 2;
+
+/**
+ * Approved spots whose name or description contains `query`, best match first.
+ *
+ * The work is the database's: `search_spots` runs a trigram-indexed substring match and returns
+ * the same card shape `nearby_spots` does, so a result needs no second request. The client never
+ * downloads the directory to filter it — that is what the function replaces.
+ */
+export async function searchSpots(query: string): Promise<Spot[]> {
+  const { data, error } = await supabase.rpc('search_spots', { p_query: query.trim() });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => toSpot(row as unknown as SpotWithRelations));
+}
+
 /**
  * Records a submission as waiting for review and returns the stored spot.
  *

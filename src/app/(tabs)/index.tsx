@@ -25,11 +25,47 @@ import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
-import { NEARBY_RADIUS_M, useFeedSpotsQuery } from '@/features/spots/useSpotsQuery';
+import {
+  NEARBY_RADIUS_M,
+  useFeedSpotsQuery,
+  useSearchSpotsQuery,
+} from '@/features/spots/useSpotsQuery';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { t } from '@/i18n';
+
+/** How long typing must pause before a search is sent, so each keystroke is not its own request. */
+const SEARCH_DEBOUNCE_MS = 300;
 
 function SpotCardSeparator() {
   return <View className="h-space-16" />;
+}
+
+type FeedSpotCardProps = {
+  spot: Spot;
+  isFavorite: boolean;
+  onOpen: (spot: Spot) => void;
+  onToggleFavorite: (spot: Spot) => void;
+};
+
+/** One feed row, kept out of the screen so the list and its actions read apart from the layout. */
+function FeedSpotCard({ spot, isFavorite, onOpen, onToggleFavorite }: FeedSpotCardProps) {
+  return (
+    <View className="px-screen-px">
+      <SpotCard
+        distanceLabel={formatDistanceAway(spot.distanceMeters)}
+        equipment={spot.equipment}
+        imageUri={coverImage(spot)}
+        isFavorite={isFavorite}
+        name={spot.name}
+        onPress={() => onOpen(spot)}
+        onToggleFavorite={() => onToggleFavorite(spot)}
+        rating={spot.rating}
+        reviewCount={spot.reviewCount}
+        variant="list"
+        verifiedAt={spot.verifiedAt}
+      />
+    </View>
+  );
 }
 
 type FeedEmptyStateProps = {
@@ -131,6 +167,8 @@ export default function HomeScreen() {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
+  const search = useSearchSpotsQuery(debouncedSearch);
 
   // The rows arrive nearest-first from the function. The sort is what orders the fallback list,
   // where no position means no distances, and it keeps a spot without one at the end rather than
@@ -152,21 +190,12 @@ export default function HomeScreen() {
 
   const renderSpot = useCallback(
     ({ item }: ListRenderItemInfo<Spot>) => (
-      <View className="px-screen-px">
-        <SpotCard
-          distanceLabel={formatDistanceAway(item.distanceMeters)}
-          equipment={item.equipment}
-          imageUri={coverImage(item)}
-          isFavorite={isFavorite(item.id)}
-          name={item.name}
-          onPress={() => openSpot(item)}
-          onToggleFavorite={() => toggleFavorite(item)}
-          rating={item.rating}
-          reviewCount={item.reviewCount}
-          variant="list"
-          verifiedAt={item.verifiedAt}
-        />
-      </View>
+      <FeedSpotCard
+        isFavorite={isFavorite(item.id)}
+        onOpen={openSpot}
+        onToggleFavorite={toggleFavorite}
+        spot={item}
+      />
     ),
     [isFavorite, openSpot, toggleFavorite],
   );
@@ -234,11 +263,13 @@ export default function HomeScreen() {
       </ScreenShell>
 
       <SpotSearchSheet
+        browseSpots={sortedSpots}
         onChangeQuery={setSearchQuery}
         onClose={closeSearch}
         onSelect={openSpot}
         query={searchQuery}
-        spots={sortedSpots}
+        results={search.data ?? []}
+        searching={search.isFetching}
         visible={searchVisible}
       />
     </>

@@ -97,6 +97,8 @@ export type SpotImport = {
   longitude: number;
   /** The OSM `description` when it has one, otherwise null. Never invented. */
   description: string | null;
+  /** The OSM `addr:city` when it has one, otherwise null. Never inferred from coordinates. */
+  city: string | null;
   source: 'osm';
   status: 'approved';
   /** Catalogue names, deduped. OSM values with no mapping are reported, never guessed into this. */

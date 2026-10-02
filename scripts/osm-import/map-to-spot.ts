@@ -14,6 +14,8 @@ import type { OsmCandidate, SpotImport } from './types.ts';
  *   that lands in a moderation queue nobody is working would leave the app as empty as before.
  * - `description` is OSM's when it has one. It is not in the prompt's field list, but it is real
  *   data on a nullable column, and dropping it would lose the only free text OSM offers.
+ * - `city` is OSM's `addr:city` when present. It is not inferred: coordinates near a town are not
+ *   a statement about the town, and a wrong city is worse than an empty one.
  * - Equipment is mapped only where the `fitness_station=*` value is one this app can draw. Every
  *   other value is reported as unmapped and dropped, because guessing that `exercise_bike` means
  *   something in a catalogue of seven pieces of street equipment would put a fact in the database
@@ -101,6 +103,9 @@ export function mapCandidate(candidate: OsmCandidate): MappingResult {
   }
 
   const description = candidate.tags.description?.trim();
+  const city = candidate.tags['addr:city']?.trim();
+  const hasText = (value: string | undefined): value is string =>
+    value !== undefined && value.length > 0;
 
   return {
     record: {
@@ -109,7 +114,8 @@ export function mapCandidate(candidate: OsmCandidate): MappingResult {
       name: candidate.name,
       latitude: candidate.latitude,
       longitude: candidate.longitude,
-      description: description === undefined || description.length === 0 ? null : description,
+      description: hasText(description) ? description : null,
+      city: hasText(city) ? city : null,
       source: 'osm',
       status: 'approved',
       equipment: [...equipment],

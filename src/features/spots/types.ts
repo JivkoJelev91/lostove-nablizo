@@ -22,6 +22,8 @@ export type Spot = {
   id: string;
   name: string;
   coordinate: Coordinate;
+  /** The city or town the spot is in, when the source stated one; null otherwise. */
+  city: string | null;
   rating: number;
   reviewCount: number;
   equipment: readonly SpotEquipment[];

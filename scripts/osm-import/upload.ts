@@ -170,6 +170,7 @@ function toSpotRow(record: SpotImport) {
   // `condition` and `quantity` on the equipment rows are absent too, for the same reason — OSM
   // does not record them and the columns' own defaults are the honest values.
   return {
+    city: record.city,
     description: record.description,
     latitude: record.latitude,
     longitude: record.longitude,

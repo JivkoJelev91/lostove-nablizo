@@ -14,6 +14,8 @@ export const queryKeys = {
     detail: (spotId: string) => [...queryKeys.spots.details(), spotId] as const,
     /** The signed-in athlete's own spots, keyed by who owns them. */
     owned: (userId: string) => [...queryKeys.spots.all, 'owned', userId] as const,
+    /** One database search, keyed by the term so each term is cached as its own answer. */
+    search: (query: string) => [...queryKeys.spots.all, 'search', query] as const,
   },
   favorites: {
     all: ['favorites'] as const,

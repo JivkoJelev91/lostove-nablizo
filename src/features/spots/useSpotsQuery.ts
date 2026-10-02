@@ -8,6 +8,8 @@ import {
   getSpotById,
   getSpots,
   reportSpot,
+  searchSpots,
+  SEARCH_MIN_QUERY_LENGTH,
   updateSpot,
 } from '@/features/spots/spots-api';
 import type { ReportSpotInput } from '@/features/spots/spots-api';
@@ -99,6 +101,29 @@ export function useOwnedSpotsQuery(userId: string | null) {
     queryKey: spotsQueryKeys.owned(userId ?? ''),
     queryFn: () => getOwnedSpots(userId ?? ''),
     enabled: userId !== null,
+  });
+}
+
+/** How long a search answer is served without asking the database again. */
+const SEARCH_STALE_TIME_MS = 30_000;
+
+/**
+ * One database search over the directory, or a disabled query while the term is too short.
+ *
+ * Disabled rather than sent-and-ignored: the function itself answers a one-character term with
+ * nothing, so a request for it is a round trip that can only return an empty list. The previous
+ * term's results stay on screen while the next one loads, so the list does not flash empty
+ * between keystrokes.
+ */
+export function useSearchSpotsQuery(query: string) {
+  const trimmed = query.trim();
+
+  return useQuery({
+    queryKey: spotsQueryKeys.search(trimmed),
+    queryFn: () => searchSpots(trimmed),
+    enabled: trimmed.length >= SEARCH_MIN_QUERY_LENGTH,
+    placeholderData: (previous) => previous,
+    staleTime: SEARCH_STALE_TIME_MS,
   });
 }
 
