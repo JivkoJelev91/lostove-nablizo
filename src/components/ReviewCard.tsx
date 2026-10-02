@@ -73,9 +73,11 @@ export function ReviewCard({
 
       <Rating showValue={false} size="sm" value={rating} />
 
-      {text.length > 0 ? <Text className="text-body text-text-primary">{text}</Text> : null}
+      {text.length > 0 ? (
+        <Text className="font-regular text-body text-text-primary">{text}</Text>
+      ) : null}
 
-      <Text className="text-caption text-text-muted">{dateLabel}</Text>
+      <Text className="font-medium text-caption text-text-muted">{dateLabel}</Text>
     </Card>
   );
 }

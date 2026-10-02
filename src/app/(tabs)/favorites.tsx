@@ -92,7 +92,7 @@ export default function FavoritesScreen() {
       <FlatList
         className="flex-1"
         contentContainerClassName={cn(
-          'gap-space-16 pb-section-gap-lg',
+          'gap-list-gap pb-section-gap-lg',
           spots.length === 0 && !loading && !error && 'grow',
         )}
         data={error ? [] : spots}

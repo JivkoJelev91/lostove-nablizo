@@ -70,7 +70,7 @@ function ProfileRowItem({ item, onOpenSpot }: ProfileRowItemProps) {
 
     return (
       <View className="gap-space-12">
-        <Text className="text-bodySmall text-text-secondary">{item.text}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{item.text}</Text>
         {action === undefined ? null : (
           <GhostButton
             className="self-start"

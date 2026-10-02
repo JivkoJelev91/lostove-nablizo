@@ -33,7 +33,7 @@ export function ErrorState({
       className={className}
       description={description}
       icon={
-        <Ionicons color={statusColors.bad} name="alert-circle-outline" size={iconSizeValues.md} />
+        <Ionicons color={statusColors.bad} name="alert-circle-outline" size={iconSizeValues.lg} />
       }
       title={title}
     />

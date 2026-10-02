@@ -52,12 +52,12 @@ export function ConditionSelector({ value, onChange, className }: ConditionSelec
               'flex-1 flex-row items-center justify-center gap-space-8 rounded-lg border p-space-12',
               selected
                 ? SELECTED_CONTAINER_CLASS[condition]
-                : 'border-border bg-surface-card active:bg-bg-surface',
+                : 'border-border bg-bg-surface active:bg-bg-main',
             )}
             key={condition}
             onPress={() => onChange(condition)}
           >
-            <View className={cn('h-2 w-2 rounded-pill', DOT_CLASS[condition])} />
+            <View className={cn('h-space-8 w-space-8 rounded-pill', DOT_CLASS[condition])} />
 
             <Text
               className={cn(

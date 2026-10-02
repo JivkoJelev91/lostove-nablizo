@@ -29,7 +29,7 @@ export function LoadingSpinner({ size = 'md', label, className }: LoadingSpinner
     >
       <ActivityIndicator color={brandColors.primary} size={INDICATOR_SIZE[size]} />
       {label !== undefined ? (
-        <Text className="text-bodySmall text-text-secondary">{label}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{label}</Text>
       ) : null}
     </View>
   );

@@ -43,7 +43,10 @@ export function ConditionBadge({ condition, className }: ConditionBadgeProps) {
         className,
       )}
     >
-      <View accessible={false} className={cn('h-2 w-2 rounded-pill', DOT_CLASS[condition])} />
+      <View
+        accessible={false}
+        className={cn('h-space-8 w-space-8 rounded-pill', DOT_CLASS[condition])}
+      />
 
       <Text className={cn('font-medium text-bodySmall', TEXT_CLASS[condition])} numberOfLines={1}>
         {LABEL[condition]}

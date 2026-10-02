@@ -73,7 +73,9 @@ export function AddSpotFlow() {
 
         <View className="gap-space-8 px-screen-px pb-space-16 pt-space-12">
           {submitError === undefined ? null : (
-            <Text className="text-caption text-status-bad">{t('submit.addFailed')}</Text>
+            <Text className="font-medium text-caption text-status-bad">
+              {t('submit.addFailed')}
+            </Text>
           )}
 
           {isLastStep ? (

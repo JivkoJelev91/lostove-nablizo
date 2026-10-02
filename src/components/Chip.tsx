@@ -101,7 +101,7 @@ export function EquipmentChip({
   className,
 }: EquipmentChipProps) {
   const containerClass = cn(
-    'h-chip-control flex-row items-center gap-space-8 rounded-md border bg-bg-surface px-space-12',
+    'h-chip-control flex-row items-center gap-space-8 rounded-pill border bg-bg-surface px-space-12',
     selected ? 'border-primary' : 'border-border',
     disabled && 'opacity-50',
     className,

@@ -63,7 +63,7 @@ export default function SignInScreen() {
         />
 
         {problem !== null ? (
-          <Text className="text-bodySmall text-status-bad">{t(problem)}</Text>
+          <Text className="font-regular text-bodySmall text-status-bad">{t(problem)}</Text>
         ) : null}
       </View>
 

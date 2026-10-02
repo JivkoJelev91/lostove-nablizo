@@ -44,7 +44,9 @@ export function EmptyState({
       <View className="gap-space-4">
         <Text className="text-center font-semibold text-h3 text-text-primary">{title}</Text>
         {description !== undefined ? (
-          <Text className="text-center text-bodySmall text-text-secondary">{description}</Text>
+          <Text className="text-center font-regular text-bodySmall text-text-secondary">
+            {description}
+          </Text>
         ) : null}
       </View>
 

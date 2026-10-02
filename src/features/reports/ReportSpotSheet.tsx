@@ -57,7 +57,7 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
         <View className="items-center gap-space-12 py-space-16">
           <Ionicons color={brandColors.primary} name="checkmark-circle" size={iconSizeValues.lg} />
           <Text className="font-semibold text-h2 text-text-primary">{t('report.thanksTitle')}</Text>
-          <Text className="text-center text-bodySmall text-text-secondary">
+          <Text className="text-center font-regular text-bodySmall text-text-secondary">
             {t('report.thanksDescription')}
           </Text>
           <PrimaryButton fullWidth label={t('report.done')} onPress={onClose} />
@@ -75,7 +75,7 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
     >
       <View className="gap-space-4">
         <Text className="font-semibold text-h3 text-text-primary">{spotName}</Text>
-        <Text className="text-bodySmall text-text-secondary">{t('report.intro')}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{t('report.intro')}</Text>
       </View>
 
       <View className="gap-space-8">
@@ -103,7 +103,7 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
       />
 
       {report.isError ? (
-        <Text className="text-caption text-status-bad">{t('report.failed')}</Text>
+        <Text className="font-medium text-caption text-status-bad">{t('report.failed')}</Text>
       ) : null}
 
       <PrimaryButton

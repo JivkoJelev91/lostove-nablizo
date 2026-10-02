@@ -31,7 +31,7 @@ export default function ProfileReviewsScreen() {
       <FlatList
         className="flex-1"
         contentContainerClassName={cn(
-          'gap-space-16 pb-section-gap-lg',
+          'gap-list-gap pb-section-gap-lg',
           reviews.length === 0 && 'grow',
         )}
         data={loading || error ? [] : reviews}

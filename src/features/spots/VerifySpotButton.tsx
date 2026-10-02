@@ -43,7 +43,7 @@ export function VerifySpotButton({ spotId }: VerifySpotButtonProps) {
       />
 
       {verify.isError ? (
-        <Text className="text-caption text-status-bad">{t('spot.verifyFailed')}</Text>
+        <Text className="font-medium text-caption text-status-bad">{t('spot.verifyFailed')}</Text>
       ) : null}
     </View>
   );

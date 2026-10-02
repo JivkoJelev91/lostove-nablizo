@@ -61,7 +61,7 @@ export function EquipmentItem({
       </Text>
 
       {quantity !== undefined ? (
-        <Text className="text-caption text-text-secondary">{`×${quantity}`}</Text>
+        <Text className="font-medium text-caption text-text-muted">{`×${quantity}`}</Text>
       ) : null}
     </>
   );
@@ -71,7 +71,7 @@ export function EquipmentItem({
       <View
         accessible={false}
         className={cn(
-          'absolute right-space-4 top-space-4 h-2 w-2 rounded-pill',
+          'absolute right-space-4 top-space-4 h-space-8 w-space-8 rounded-pill',
           CONDITION_DOT_CLASS[condition],
         )}
       />

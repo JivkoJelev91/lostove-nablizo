@@ -102,7 +102,7 @@ function SpotBody({
       {status !== undefined ? <SpotStatusBadge status={status} /> : null}
 
       {equipmentText.length > 0 ? (
-        <Text className="text-bodySmall text-text-secondary" numberOfLines={2}>
+        <Text className="font-regular text-bodySmall text-text-secondary" numberOfLines={2}>
           {equipmentText}
         </Text>
       ) : null}
@@ -124,7 +124,7 @@ function SpotBody({
                   size={iconSizeValues.xs}
                 />
               </View>
-              <Text className="text-caption text-text-secondary">{distanceLabel}</Text>
+              <Text className="font-medium text-caption text-text-secondary">{distanceLabel}</Text>
             </View>
           ) : null}
         </View>
@@ -187,7 +187,7 @@ function CompactSpotCard({
           ) : null}
           {status !== undefined ? <SpotStatusBadge status={status} /> : null}
           {equipmentText.length > 0 ? (
-            <Text className="text-bodySmall text-text-secondary" numberOfLines={1}>
+            <Text className="font-regular text-bodySmall text-text-secondary" numberOfLines={1}>
               {equipmentText}
             </Text>
           ) : null}

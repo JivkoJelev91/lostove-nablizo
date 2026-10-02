@@ -38,10 +38,10 @@ function SettingsRow({ label, value, onPress }: SettingsRowData) {
 
   const content = (
     <View className="flex-row items-center justify-between gap-space-12 px-card-pad py-space-12">
-      <Text className="flex-1 text-body text-text-primary">{label}</Text>
+      <Text className="flex-1 font-regular text-body text-text-primary">{label}</Text>
 
       {value !== undefined ? (
-        <Text className="text-bodySmall text-text-secondary">{value}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{value}</Text>
       ) : null}
 
       {onPress !== undefined ? (
@@ -166,11 +166,11 @@ export default function SettingsScreen() {
       />
 
       {signOutProblem !== null ? (
-        <Text className="text-bodySmall text-status-bad">{t(signOutProblem)}</Text>
+        <Text className="font-regular text-bodySmall text-status-bad">{t(signOutProblem)}</Text>
       ) : null}
 
       {version !== undefined ? (
-        <Text className="text-center text-caption text-text-muted">{`v${version}`}</Text>
+        <Text className="text-center font-medium text-caption text-text-muted">{`v${version}`}</Text>
       ) : null}
     </ScreenShell>
   );

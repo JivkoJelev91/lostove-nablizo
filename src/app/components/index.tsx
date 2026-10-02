@@ -52,14 +52,16 @@ export default function ComponentsIndexScreen() {
             >
               <View className="flex-1 gap-space-2">
                 <Text className="font-semibold text-h3 text-text-primary">{group.title}</Text>
-                <Text className="text-bodySmall text-text-secondary">{group.blurb}</Text>
+                <Text className="font-regular text-bodySmall text-text-secondary">
+                  {group.blurb}
+                </Text>
               </View>
             </Card>
           ))}
         </View>
 
         <GalleryGroup title="Theme">
-          <Text className="text-bodySmall text-text-secondary">
+          <Text className="font-regular text-bodySmall text-text-secondary">
             Switch the device between light and dark mode: every colour here follows the system.
           </Text>
         </GalleryGroup>

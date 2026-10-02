@@ -195,7 +195,7 @@ export function EditSpotForm({ spot, moderating = false }: EditSpotFormProps) {
 
         <View className="gap-space-8">
           {saveError === undefined ? null : (
-            <Text className="text-caption text-status-bad">{t(saveError)}</Text>
+            <Text className="font-medium text-caption text-status-bad">{t(saveError)}</Text>
           )}
 
           <PrimaryButton

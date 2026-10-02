@@ -23,11 +23,11 @@ export function SpotsSearchBar({ onPress }: SpotsSearchBarProps) {
     <Pressable
       accessibilityLabel={t('search.title')}
       accessibilityRole="button"
-      className="h-search flex-row items-center gap-space-8 rounded-pill border border-border bg-surface-input px-space-16 active:bg-bg-surface"
+      className="h-search flex-row items-center gap-space-8 rounded-md border border-border bg-surface-input px-space-12 active:bg-bg-surface"
       onPress={onPress}
     >
       <Ionicons color={schemePlaceholderColor[scheme]} name="search" size={iconSizeValues.sm} />
-      <Text className="text-body text-text-muted">{t('search.placeholder')}</Text>
+      <Text className="font-regular text-body text-text-muted">{t('search.placeholder')}</Text>
     </Pressable>
   );
 }

@@ -64,7 +64,7 @@ export function LocationCapture({ coordinate, onCapture }: LocationCaptureProps)
       <View className="gap-space-8">
         <View className="flex-row items-start gap-space-8">
           <Ionicons color={statusColors.bad} name="alert-circle" size={iconSizeValues.sm} />
-          <Text className="flex-1 text-bodySmall text-text-secondary">{failure}</Text>
+          <Text className="flex-1 font-regular text-bodySmall text-text-secondary">{failure}</Text>
         </View>
 
         <SecondaryButton fullWidth label={t('common.tryAgain')} onPress={capture} />

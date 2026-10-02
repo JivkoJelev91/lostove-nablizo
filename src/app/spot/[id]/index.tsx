@@ -7,10 +7,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import {
   ConditionBadge,
   EquipmentList,
+  ErrorState,
   FavoriteButton,
   GhostButton,
   IconButton,
   ImageCarousel,
+  LoadingSpinner,
   PrimaryButton,
   Rating,
   Screen,
@@ -146,7 +148,7 @@ function SpotDetails({ spot }: { spot: Spot }) {
 
       <View className="mt-space-32 gap-space-8">
         <SectionHeader accent title={t('spot.description')} />
-        <Text className="text-body text-text-secondary">{spot.description}</Text>
+        <Text className="font-regular text-body text-text-secondary">{spot.description}</Text>
       </View>
 
       <View className="mt-space-32">
@@ -208,7 +210,7 @@ export default function SpotScreen() {
   if (isLoading) {
     return (
       <Screen edges={['top', 'bottom']} padded={false} scroll>
-        <Text className="p-space-24 text-body text-text-secondary">{t('common.loading')}</Text>
+        <LoadingSpinner className="flex-1 py-section-gap" />
       </Screen>
     );
   }
@@ -216,11 +218,7 @@ export default function SpotScreen() {
   if (isError) {
     return (
       <Screen edges={['top', 'bottom']} padded={false} scroll>
-        <View className="gap-space-12 p-space-24">
-          <Text className="text-body text-text-primary">{t('common.errorTitle')}</Text>
-          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
-          <GhostButton label={t('common.tryAgain')} onPress={() => refetch()} />
-        </View>
+        <ErrorState className="px-screen-px py-space-24" onRetry={() => void refetch()} />
       </Screen>
     );
   }

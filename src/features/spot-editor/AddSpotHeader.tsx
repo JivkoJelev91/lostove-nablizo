@@ -38,7 +38,7 @@ export function AddSpotHeader({ step, totalSteps = 5, onBack, className }: AddSp
 
         <Text className="flex-1 font-semibold text-h2 text-text-primary">{t('editor.title')}</Text>
 
-        <Text className="text-bodySmall text-text-secondary">{`${step} / ${totalSteps}`}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{`${step} / ${totalSteps}`}</Text>
       </View>
 
       <View
@@ -48,7 +48,10 @@ export function AddSpotHeader({ step, totalSteps = 5, onBack, className }: AddSp
       >
         {Array.from({ length: totalSteps }, (_, index) => (
           <View
-            className={cn('h-1 flex-1 rounded-pill', index < step ? 'bg-primary' : 'bg-border')}
+            className={cn(
+              'h-space-4 flex-1 rounded-pill',
+              index < step ? 'bg-primary' : 'bg-border',
+            )}
             key={index}
           />
         ))}

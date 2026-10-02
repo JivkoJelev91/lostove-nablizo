@@ -50,12 +50,12 @@ export function AddSpotSuccess({
             <SpotStatusBadge status="under_review" />
           </View>
 
-          <Text className="text-center text-bodySmall text-text-secondary">
+          <Text className="text-center font-regular text-bodySmall text-text-secondary">
             {t('success.message', { name: spotName })}
           </Text>
 
           {photoFailures > 0 ? (
-            <Text className="text-center text-caption text-status-bad">
+            <Text className="text-center font-medium text-caption text-status-bad">
               {t('submit.photoFailures')}
             </Text>
           ) : null}

@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { SecondaryButton } from '@/components';
+import { Card, SecondaryButton } from '@/components';
 import { brandColors, iconSizeValues, statusColors } from '@/constants/design-tokens';
 import type { UserLocation } from '@/features/location/useUserLocation';
 import { t } from '@/i18n';
@@ -39,7 +39,7 @@ export function LocationPrompt({ location }: LocationPromptProps) {
   }
 
   return (
-    <View className="gap-space-8 rounded-lg border border-border bg-bg-surface px-space-16 py-space-12">
+    <Card gap="md" variant="flat">
       <View className="flex-row items-center gap-space-8">
         <Ionicons
           color={granted ? statusColors.warning : brandColors.primary}
@@ -51,7 +51,7 @@ export function LocationPrompt({ location }: LocationPromptProps) {
         </Text>
       </View>
 
-      <Text className="text-bodySmall text-text-secondary">
+      <Text className="font-regular text-bodySmall text-text-secondary">
         {granted ? t('home.locationFailedDescription') : t('home.locationDescription')}
       </Text>
 
@@ -60,6 +60,6 @@ export function LocationPrompt({ location }: LocationPromptProps) {
         label={granted ? t('common.tryAgain') : t('home.locationEnable')}
         onPress={granted ? retry : request}
       />
-    </View>
+    </Card>
   );
 }

@@ -125,9 +125,9 @@ export function PhotoManager({ photos, onChange, errorText, className }: PhotoMa
       </View>
 
       {displayedError !== undefined ? (
-        <Text className="text-caption text-status-bad">{displayedError}</Text>
+        <Text className="font-medium text-caption text-status-bad">{displayedError}</Text>
       ) : (
-        <Text className="text-caption text-text-muted">
+        <Text className="font-medium text-caption text-text-muted">
           {t('photosStep.limit', { count: MAX_SPOT_PHOTOS })}
         </Text>
       )}

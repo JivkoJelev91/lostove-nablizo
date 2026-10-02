@@ -11,6 +11,7 @@ import {
   schemeBackground,
   schemeBorder,
   schemeTextMuted,
+  spacingValues,
   textStyles,
 } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
@@ -59,7 +60,7 @@ export default function TabsLayout() {
         // The bar adds the bottom inset itself, so the height token only covers the content.
         tabBarStyle: {
           height: bottomNav.height + insets.bottom,
-          paddingTop: 8,
+          paddingTop: spacingValues[8],
           backgroundColor: schemeBackground[scheme],
           borderTopColor: schemeBorder[scheme],
           borderTopWidth: 1,
@@ -99,7 +100,7 @@ export default function TabsLayout() {
               style={style}
             >
               <View className="flex-1 items-center justify-center">
-                <View className="h-12 w-12 items-center justify-center rounded-pill bg-primary">
+                <View className="h-control w-control items-center justify-center rounded-pill bg-primary">
                   <Ionicons
                     color={brandColors.onPrimary}
                     name="location"

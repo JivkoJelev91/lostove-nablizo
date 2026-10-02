@@ -74,14 +74,14 @@ export function SpotSearchSheet({
 
   const renderResult = useCallback(
     ({ item }: ListRenderItemInfo<Spot>) => (
-      <Card gap="md" onPress={() => onSelect(item)} padding="sm">
+      <Card gap="md" onPress={() => onSelect(item)}>
         <View className="gap-space-4">
           <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
             {item.name}
           </Text>
 
           {item.city === null ? null : (
-            <Text className="text-caption text-text-muted" numberOfLines={1}>
+            <Text className="font-medium text-caption text-text-muted" numberOfLines={1}>
               {item.city}
             </Text>
           )}
@@ -89,7 +89,7 @@ export function SpotSearchSheet({
 
         <View className="flex-row items-center justify-between gap-space-8">
           <Rating count={item.reviewCount} size="sm" value={item.rating} variant="summary" />
-          <Text className="shrink text-caption text-text-muted" numberOfLines={1}>
+          <Text className="shrink font-medium text-caption text-text-muted" numberOfLines={1}>
             {equipmentSummary(item)}
           </Text>
         </View>
@@ -113,6 +113,7 @@ export function SpotSearchSheet({
                 />
               }
               onPress={onClose}
+              variant="surface"
             />
 
             <View className="flex-1">

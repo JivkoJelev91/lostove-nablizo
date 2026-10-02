@@ -41,7 +41,7 @@ const PADDING_CLASS: Record<CardPadding, string> = {
 
 const GAP_CLASS: Record<CardGap, string> = {
   none: '',
-  sm: 'gap-space-4',
+  sm: 'gap-space-8',
   md: 'gap-card-gap',
   lg: 'gap-card-gap-lg',
 };

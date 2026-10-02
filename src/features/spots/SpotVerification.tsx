@@ -34,11 +34,13 @@ export function SpotVerification({ verifiedAt, source, confirmations }: SpotVeri
       <VerificationBadge verifiedAt={verifiedAt} />
 
       {source === undefined ? null : (
-        <Text className="text-caption text-text-secondary">{t(SOURCE_KEYS[source])}</Text>
+        <Text className="font-medium text-caption text-text-secondary">
+          {t(SOURCE_KEYS[source])}
+        </Text>
       )}
 
       {confirmations === undefined || confirmations === 0 ? null : (
-        <Text className="text-caption text-text-secondary">
+        <Text className="font-medium text-caption text-text-secondary">
           {confirmations === 1
             ? t('verification.confirmations.one')
             : t('verification.confirmations.few', { count: confirmations })}

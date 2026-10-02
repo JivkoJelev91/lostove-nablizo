@@ -6,7 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   BrandLogo,
   EmptyState,
+  ErrorState,
   GhostButton,
+  LoadingSpinner,
   PrimaryButton,
   SecondaryButton,
   SectionHeader,
@@ -22,7 +24,7 @@ import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 
 function SpotCardSeparator() {
-  return <View className="h-space-16" />;
+  return <View className="h-list-gap" />;
 }
 
 type FeedEmptyStateProps = {
@@ -57,21 +59,14 @@ function FeedEmptyState({
   onRetry,
   onSearchElsewhere,
 }: FeedEmptyStateProps) {
+  const scheme = useScheme();
+
   if (isLoading) {
-    return (
-      <EmptyState description={t('common.loading')} padded={false} title={t('home.aroundYou')} />
-    );
+    return <LoadingSpinner className="py-section-gap" />;
   }
 
   if (isError) {
-    return (
-      <EmptyState
-        action={<GhostButton label={t('common.tryAgain')} onPress={onRetry} />}
-        description={t('common.errorDescription')}
-        padded={false}
-        title={t('common.errorTitle')}
-      />
-    );
+    return <ErrorState onRetry={onRetry} />;
   }
 
   if (hasFilters) {
@@ -79,6 +74,13 @@ function FeedEmptyState({
       <EmptyState
         action={<GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />}
         description={t('home.noMatchDescription')}
+        icon={
+          <Ionicons
+            color={schemeTextMuted[scheme]}
+            name="options-outline"
+            size={iconSizeValues.lg}
+          />
+        }
         padded={false}
         title={t('home.noMatchTitle')}
       />
@@ -93,6 +95,13 @@ function FeedEmptyState({
       <EmptyState
         action={<GhostButton label={t('home.searchElsewhere')} onPress={onSearchElsewhere} />}
         description={t('home.nearbyEmptyDescription', { radius: NEARBY_RADIUS_M / 1000 })}
+        icon={
+          <Ionicons
+            color={schemeTextMuted[scheme]}
+            name="location-outline"
+            size={iconSizeValues.lg}
+          />
+        }
         padded={false}
         title={t('home.nearbyEmptyTitle')}
       />
@@ -103,6 +112,13 @@ function FeedEmptyState({
     <EmptyState
       action={<PrimaryButton label={t('nav.addSpotLabel')} onPress={onAddSpot} />}
       description={t('home.emptyDescription')}
+      icon={
+        <Ionicons
+          color={schemeTextMuted[scheme]}
+          name="location-outline"
+          size={iconSizeValues.lg}
+        />
+      }
       padded={false}
       title={t('home.emptyTitle')}
     />

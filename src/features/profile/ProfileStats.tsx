@@ -32,7 +32,7 @@ function Stat({
     >
       <Ionicons color={schemeTextMuted[scheme]} name={icon} size={iconSizeValues.sm} />
       <Text className="font-bold text-h1 text-text-primary">{value}</Text>
-      <Text className="text-caption text-text-secondary">{label}</Text>
+      <Text className="font-medium text-caption text-text-secondary">{label}</Text>
     </View>
   );
 }

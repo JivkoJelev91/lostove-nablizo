@@ -32,12 +32,12 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
 
       <View className="gap-space-4">
         <Text className="font-semibold text-h2 text-text-primary">{draft.name}</Text>
-        <Text className="text-bodySmall text-text-secondary">{draft.description}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{draft.description}</Text>
       </View>
 
       <View className="gap-space-8">
         <SectionHeader accent title={t('reviewStep.equipment')} />
-        <Text className="text-body text-text-primary">
+        <Text className="font-regular text-body text-text-primary">
           {formatEquipmentSummary(draft.equipment)}
         </Text>
       </View>
@@ -46,7 +46,7 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
         <SectionHeader accent title={t('reviewStep.location')} />
         <View className="flex-row items-center gap-space-8">
           <Ionicons color={brandColors.primary} name="location-outline" size={iconSizeValues.sm} />
-          <Text className="flex-1 text-body text-text-primary">
+          <Text className="flex-1 font-regular text-body text-text-primary">
             {draft.coordinate === null
               ? t('reviewStep.notCaptured')
               : describeLocality(draft.coordinate)}

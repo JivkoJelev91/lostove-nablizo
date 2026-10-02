@@ -107,10 +107,8 @@ function EquipmentTile({ name, item, onToggle, onQuantity }: EquipmentTileProps)
       accessibilityRole="button"
       accessibilityState={{ selected }}
       className={cn(
-        'gap-space-8 rounded-lg border p-card-pad',
-        selected
-          ? 'border-primary bg-bg-surface'
-          : 'border-border bg-surface-card active:bg-bg-surface',
+        'gap-space-8 rounded-md border p-card-pad',
+        selected ? 'border-primary bg-bg-surface' : 'border-border bg-bg-surface active:bg-bg-main',
       )}
       onPress={onToggle}
     >
@@ -125,7 +123,9 @@ function EquipmentTile({ name, item, onToggle, onQuantity }: EquipmentTileProps)
       </View>
 
       {item === undefined ? (
-        <Text className="text-caption text-text-muted">{t('equipmentStep.tapToAdd')}</Text>
+        <Text className="font-medium text-caption text-text-muted">
+          {t('equipmentStep.tapToAdd')}
+        </Text>
       ) : (
         <QuantityStepper name={name} onQuantity={onQuantity} quantity={item.quantity} />
       )}
@@ -177,7 +177,7 @@ export function EquipmentQuantityGrid({
       ))}
 
       {errorText !== undefined ? (
-        <Text className="text-caption text-status-bad">{errorText}</Text>
+        <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
       ) : null}
     </View>
   );

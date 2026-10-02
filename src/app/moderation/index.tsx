@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, RefreshControl, Text, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import {
@@ -12,10 +13,11 @@ import {
   GhostButton,
   LoadingSpinner,
   ScreenShell,
+  SecondaryButton,
   StatusChip,
 } from '@/components';
 import type { StatusTone } from '@/components';
-import { schemeTextMuted } from '@/constants/design-tokens';
+import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import type { ModerationReport, ReportStatus } from '@/features/moderation/moderation-api';
 import {
@@ -29,6 +31,7 @@ import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
 import { formatMonthDayYear } from '@/utils/dates';
+import { goBackOrHome } from '@/utils/navigation';
 
 const STATUS_TONES: Record<ReportStatus, StatusTone> = {
   open: 'warning',
@@ -76,10 +79,10 @@ function ReportCard({
           <Text className="font-semibold text-h3 text-text-primary" numberOfLines={2}>
             {report.spotName}
           </Text>
-          <Text className="text-bodySmall text-text-secondary">
+          <Text className="font-regular text-bodySmall text-text-secondary">
             {reportReasonLabel(report.reason)}
           </Text>
-          <Text className="text-caption text-text-muted">
+          <Text className="font-medium text-caption text-text-muted">
             {t('moderation.reporter', { name: report.reporterName })}
           </Text>
         </View>
@@ -88,10 +91,12 @@ function ReportCard({
       </View>
 
       {report.description.length === 0 ? null : (
-        <Text className="text-bodySmall text-text-primary">{report.description}</Text>
+        <Text className="font-regular text-bodySmall text-text-primary">{report.description}</Text>
       )}
 
-      <Text className="text-caption text-text-muted">{formatMonthDayYear(report.createdAt)}</Text>
+      <Text className="font-medium text-caption text-text-muted">
+        {formatMonthDayYear(report.createdAt)}
+      </Text>
 
       <View className="flex-row flex-wrap gap-space-8">
         <GhostButton label={t('moderation.openSpot')} onPress={onOpenSpot} size="sm" />
@@ -115,7 +120,7 @@ function ReportCard({
 
         {report.status === 'open' ? (
           <>
-            <GhostButton
+            <SecondaryButton
               label={t('moderation.resolve')}
               loading={resolving}
               onPress={onResolve}
@@ -151,6 +156,7 @@ export default function ModerationScreen() {
 }
 
 function ModeratorQueue() {
+  const scheme = useScheme();
   const moderator = useIsModeratorQuery();
 
   if (moderator.isLoading) {
@@ -191,7 +197,15 @@ function ModeratorQueue() {
       >
         <View className="flex-1 justify-center">
           <EmptyState
+            action={<GhostButton label={t('common.back')} onPress={goBackOrHome} />}
             description={t('moderation.noAccessDescription')}
+            icon={
+              <Ionicons
+                color={schemeTextMuted[scheme]}
+                name="lock-closed-outline"
+                size={iconSizeValues.lg}
+              />
+            }
             padded={false}
             title={t('moderation.noAccessTitle')}
           />
@@ -270,7 +284,7 @@ function ReportQueue() {
     >
       <FlatList
         className="flex-1"
-        contentContainerClassName="gap-space-16 pb-section-gap-lg"
+        contentContainerClassName="gap-list-gap pb-section-gap-lg"
         data={sorted}
         keyExtractor={(report) => report.id}
         ListEmptyComponent={
@@ -286,6 +300,13 @@ function ReportQueue() {
             <View className="flex-1 justify-center">
               <EmptyState
                 description={t('moderation.emptyDescription')}
+                icon={
+                  <Ionicons
+                    color={schemeTextMuted[scheme]}
+                    name="checkmark-circle-outline"
+                    size={iconSizeValues.lg}
+                  />
+                }
                 padded={false}
                 title={t('moderation.emptyTitle')}
               />
@@ -294,7 +315,9 @@ function ReportQueue() {
         }
         ListHeaderComponent={
           failed ? (
-            <Text className="text-bodySmall text-status-bad">{t('moderation.failed')}</Text>
+            <Text className="font-regular text-bodySmall text-status-bad">
+              {t('moderation.failed')}
+            </Text>
           ) : null
         }
         refreshControl={

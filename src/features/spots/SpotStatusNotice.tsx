@@ -1,10 +1,9 @@
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
-import { SpotStatusBadge } from '@/components';
+import { Card, SpotStatusBadge } from '@/components';
 import type { SpotStatus } from '@/components';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
-import { cn } from '@/utils/cn';
 
 export type SpotStatusNoticeProps = {
   status: SpotStatus;
@@ -48,14 +47,9 @@ export function SpotStatusNotice({
   }
 
   return (
-    <View
-      className={cn(
-        'gap-space-8 rounded-lg border border-border bg-surface-card p-card-pad',
-        className,
-      )}
-    >
+    <Card className={className} gap="md" variant="flat">
       <SpotStatusBadge status={status} />
-      <Text className="text-bodySmall text-text-secondary">{t(messageKey)}</Text>
-    </View>
+      <Text className="font-regular text-bodySmall text-text-secondary">{t(messageKey)}</Text>
+    </Card>
   );
 }

@@ -51,12 +51,12 @@ export function AddReviewSheet({
       visible={visible}
     >
       <View className="gap-space-8">
-        <Text className="text-bodySmall text-text-secondary">{spotName}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">{spotName}</Text>
         <Text className="font-medium text-body text-text-primary">{t('reviews.yourRating')}</Text>
         <RatingInput onChange={setRating} value={rating} />
 
         {rating === 0 ? (
-          <Text className="text-caption text-text-muted">{t('reviews.tapStar')}</Text>
+          <Text className="font-medium text-caption text-text-muted">{t('reviews.tapStar')}</Text>
         ) : null}
       </View>
 
@@ -69,7 +69,7 @@ export function AddReviewSheet({
       />
 
       {errorText === undefined ? null : (
-        <Text className="text-caption text-status-bad">{errorText}</Text>
+        <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
       )}
 
       <PrimaryButton

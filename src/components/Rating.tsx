@@ -86,7 +86,7 @@ export function Rating({
         ) : null}
 
         {count !== undefined ? (
-          <Text className={cn('text-text-secondary', SUMMARY_TEXT_CLASS[size])}>
+          <Text className={cn('font-regular text-text-secondary', SUMMARY_TEXT_CLASS[size])}>
             {`${showValue ? '· ' : ''}${reviewCountLabel(count)}`}
           </Text>
         ) : null}
@@ -119,7 +119,9 @@ export function Rating({
       ) : null}
 
       {count !== undefined ? (
-        <Text className="text-bodySmall text-text-secondary">{`(${count})`}</Text>
+        <Text
+          className={cn('font-regular text-text-secondary', VALUE_TEXT_CLASS[size])}
+        >{`(${count})`}</Text>
       ) : null}
     </View>
   );

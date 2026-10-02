@@ -51,7 +51,7 @@ export function BrandLogo({ className }: BrandLogoProps) {
         <PullUpMark color={brandColors.onPrimary} size={iconSizeValues.md} />
       </View>
 
-      <Text className="font-bold text-h3 text-text-primary">{t('common.appName')}</Text>
+      <Text className="font-bold text-h1 text-text-primary">{t('common.appName')}</Text>
     </View>
   );
 }

@@ -26,11 +26,13 @@ function FieldLabel({ children }: { children: ReactNode }) {
 
 function FieldMessage({ errorText, helperText }: { errorText?: string; helperText?: string }) {
   if (errorText !== undefined) {
-    return <Text className="mt-space-4 text-caption text-status-bad">{errorText}</Text>;
+    return <Text className="mt-space-4 font-medium text-caption text-status-bad">{errorText}</Text>;
   }
 
   if (helperText !== undefined) {
-    return <Text className="mt-space-4 text-caption text-text-muted">{helperText}</Text>;
+    return (
+      <Text className="mt-space-4 font-medium text-caption text-text-muted">{helperText}</Text>
+    );
   }
 
   return null;
@@ -296,7 +298,7 @@ export function TextArea({
       </InputShell>
 
       {showCount && maxLength !== undefined ? (
-        <Text className="mt-space-4 self-end text-caption text-text-muted">
+        <Text className="mt-space-4 self-end font-medium text-caption text-text-muted">
           {`${count}/${maxLength}`}
         </Text>
       ) : null}

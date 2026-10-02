@@ -74,7 +74,7 @@ export default function SignUpScreen() {
         />
 
         {problem !== null ? (
-          <Text className="text-bodySmall text-status-bad">{t(problem)}</Text>
+          <Text className="font-regular text-bodySmall text-status-bad">{t(problem)}</Text>
         ) : null}
       </View>
 
@@ -88,7 +88,9 @@ export default function SignUpScreen() {
         />
 
         {checkEmail ? (
-          <Text className="text-bodySmall text-status-good">{t('auth.checkEmail')}</Text>
+          <Text className="font-regular text-bodySmall text-status-good">
+            {t('auth.checkEmail')}
+          </Text>
         ) : null}
 
         <GhostButton label={t('auth.haveAccount')} onPress={() => router.push('/auth')} />

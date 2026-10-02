@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { Avatar, Card, GhostButton, IconButton } from '@/components';
+import { Avatar, Card, IconButton, PrimaryButton } from '@/components';
 import { iconSizeValues, schemeTextPrimary, schemeTextSecondary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
@@ -41,7 +41,7 @@ export function ProfileHeader({
       <View className="flex-row items-center gap-space-12">
         <Avatar name={name} size="lg" />
 
-        <View className="gap-space-6 flex-1">
+        <View className="flex-1 gap-space-8">
           <Text className="font-semibold text-h2 text-text-primary" numberOfLines={1}>
             {name}
           </Text>
@@ -49,7 +49,7 @@ export function ProfileHeader({
           {username === '' ? null : (
             <View className="flex-row items-center gap-space-4 self-start rounded-pill border border-border bg-bg-surface px-space-8 py-space-4">
               <Ionicons color={schemeTextSecondary[scheme]} name="at" size={iconSizeValues.xs} />
-              <Text className="text-caption text-text-secondary">{username}</Text>
+              <Text className="font-medium text-caption text-text-secondary">{username}</Text>
             </View>
           )}
         </View>
@@ -72,7 +72,7 @@ export function ProfileHeader({
         ) : null}
       </View>
 
-      {signedIn ? null : <GhostButton label={t('profile.signIn')} onPress={onSignIn} />}
+      {signedIn ? null : <PrimaryButton label={t('profile.signIn')} onPress={onSignIn} />}
     </Card>
   );
 }

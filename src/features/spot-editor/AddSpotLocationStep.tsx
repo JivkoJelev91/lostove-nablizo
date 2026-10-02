@@ -25,11 +25,11 @@ export function AddSpotLocationStep({
         <LocationCapture coordinate={coordinate} onCapture={onChangeCoordinate} />
 
         {errorText === undefined ? null : (
-          <Text className="text-caption text-status-bad">{errorText}</Text>
+          <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
         )}
       </View>
 
-      <Text className="text-bodySmall text-text-secondary">{t('location.hint')}</Text>
+      <Text className="font-regular text-bodySmall text-text-secondary">{t('location.hint')}</Text>
     </View>
   );
 }

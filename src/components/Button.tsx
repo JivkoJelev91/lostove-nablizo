@@ -65,7 +65,7 @@ const VARIANT_SPINNER_COLOR: Record<ButtonVariant, string> = {
 };
 
 const SIZE_CLASS: Record<ButtonSize, string> = {
-  sm: 'h-control-sm px-space-12',
+  sm: 'h-control-sm px-space-16',
   md: 'h-control px-space-16',
 };
 

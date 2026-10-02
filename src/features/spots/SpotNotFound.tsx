@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { EmptyState, GhostButton, ScreenShell } from '@/components';
+import { EmptyState, PrimaryButton, ScreenShell } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
@@ -22,13 +22,13 @@ export function SpotNotFound({ title, description }: SpotNotFoundProps) {
   return (
     <ScreenShell padded={false} title={title ?? t('spot.notFoundTitle')} variant="stack">
       <EmptyState
-        action={<GhostButton label={t('spot.backToSpots')} onPress={() => router.replace('/')} />}
+        action={<PrimaryButton label={t('spot.backToSpots')} onPress={() => router.replace('/')} />}
         description={description ?? t('spot.notFoundDescription')}
         icon={
           <Ionicons
             color={schemeTextMuted[scheme]}
             name="location-outline"
-            size={iconSizeValues.md}
+            size={iconSizeValues.lg}
           />
         }
         title={title ?? t('spot.notFoundTitle')}

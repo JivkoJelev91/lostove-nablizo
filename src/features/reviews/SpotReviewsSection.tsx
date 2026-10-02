@@ -6,7 +6,9 @@ import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import {
   DangerButton,
+  ErrorState,
   GhostButton,
+  LoadingSpinner,
   Modal,
   SecondaryButton,
   SectionHeader,
@@ -62,7 +64,7 @@ function OwnReviewBlock({ review, deleting, errorText, onDeletePress }: OwnRevie
       />
 
       {errorText === undefined ? null : (
-        <Text className="text-caption text-status-bad">{errorText}</Text>
+        <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
       )}
 
       <View className="flex-row">
@@ -199,14 +201,13 @@ export function SpotReviewsSection({
       <SectionHeader accent title={t('reviews.title')} />
 
       {loading ? (
-        <Text className="text-bodySmall text-text-secondary">{t('common.loading')}</Text>
+        <LoadingSpinner />
       ) : error ? (
-        <View className="gap-space-12">
-          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
-          <SecondaryButton fullWidth label={t('common.tryAgain')} onPress={onRetry} />
-        </View>
+        <ErrorState onRetry={onRetry} />
       ) : reviews.length === 0 ? (
-        <Text className="text-bodySmall text-text-secondary">{t('reviews.empty')}</Text>
+        <Text className="font-regular text-bodySmall text-text-secondary">
+          {t('reviews.empty')}
+        </Text>
       ) : null}
 
       <SecondaryButton

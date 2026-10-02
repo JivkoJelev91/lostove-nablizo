@@ -1,8 +1,6 @@
-import { Text, View } from 'react-native';
-
 import { useLocalSearchParams } from 'expo-router';
 
-import { GhostButton, Screen } from '@/components';
+import { ErrorState, LoadingSpinner, Screen } from '@/components';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useIsModeratorQuery } from '@/features/moderation/useModerationQuery';
@@ -39,7 +37,7 @@ function OwnerOnlyEditor() {
   if (isLoading) {
     return (
       <Screen edges={['top', 'bottom']}>
-        <Text className="text-body text-text-secondary">{t('common.loading')}</Text>
+        <LoadingSpinner />
       </Screen>
     );
   }
@@ -47,11 +45,7 @@ function OwnerOnlyEditor() {
   if (isError) {
     return (
       <Screen edges={['top', 'bottom']}>
-        <View className="gap-space-12">
-          <Text className="text-body text-text-primary">{t('common.errorTitle')}</Text>
-          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
-          <GhostButton label={t('common.tryAgain')} onPress={() => void refetch()} />
-        </View>
+        <ErrorState onRetry={() => void refetch()} />
       </Screen>
     );
   }
@@ -65,12 +59,20 @@ function OwnerOnlyEditor() {
 
   // A moderator may fix any spot's information, so the ownership check is a gate, not the rule.
   // While the moderator answer is still loading, a non-owner waits instead of being told the spot
-  // does not exist and then watching it appear.
+  // does not exist and then watching it appear; a failed answer is a failure, not a not-found.
   if (!isOwner && !canModerate) {
     if (moderator.isLoading) {
       return (
         <Screen edges={['top', 'bottom']}>
-          <Text className="text-body text-text-secondary">{t('common.loading')}</Text>
+          <LoadingSpinner />
+        </Screen>
+      );
+    }
+
+    if (moderator.isError) {
+      return (
+        <Screen edges={['top', 'bottom']}>
+          <ErrorState onRetry={() => void moderator.refetch()} />
         </Screen>
       );
     }

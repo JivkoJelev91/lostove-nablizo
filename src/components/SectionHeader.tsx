@@ -51,7 +51,7 @@ export function SectionHeader({
           </Text>
         </View>
         {description !== undefined ? (
-          <Text className="text-bodySmall text-text-secondary">{description}</Text>
+          <Text className="font-regular text-bodySmall text-text-secondary">{description}</Text>
         ) : null}
       </View>
 
