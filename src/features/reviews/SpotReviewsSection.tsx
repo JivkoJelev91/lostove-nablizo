@@ -18,7 +18,9 @@ type SpotReviewsProps = {
   /** The review this athlete can change, separated from everyone else's. */
   ownReview: SpotReview | undefined;
   /** Writes or replaces this athlete's review of the spot. */
-  onSaveReview: (rating: number, text: string) => void;
+  onSaveReview: (rating: number, text: string) => Promise<void>;
+  /** True while the write is in flight. */
+  saving: boolean;
   loading: boolean;
   error: boolean;
   onRetry: () => void;
@@ -37,6 +39,7 @@ export function SpotReviewsSection({
   reviews,
   ownReview,
   onSaveReview,
+  saving,
   loading,
   error,
   onRetry,
@@ -45,6 +48,7 @@ export function SpotReviewsSection({
   // Bumped on every open, so the sheet remounts and starts from the stored review rather than
   // from whatever was typed and then cancelled last time.
   const [sheetSession, setSheetSession] = useState(0);
+  const [submitError, setSubmitError] = useState<string | undefined>(undefined);
 
   const { requireAuth, signedIn } = useRequireAuth();
 
@@ -56,10 +60,26 @@ export function SpotReviewsSection({
     // is never on screen for an athlete who cannot use it, and signing in returns them to the
     // spot they were reading.
     requireAuth(() => {
+      setSubmitError(undefined);
       setSheetSession((session) => session + 1);
       setSheetVisible(true);
     });
   }, [requireAuth]);
+
+  const handleSubmit = useCallback(
+    async (rating: number, text: string) => {
+      setSubmitError(undefined);
+
+      try {
+        await onSaveReview(rating, text);
+        setSheetVisible(false);
+      } catch {
+        // The list was rolled back by the hook; the sheet stays open so the draft is not lost.
+        setSubmitError(t('reviews.saveFailed'));
+      }
+    },
+    [onSaveReview],
+  );
 
   return (
     <View className="mt-space-32 gap-space-16">
@@ -127,13 +147,12 @@ export function SpotReviewsSection({
       )}
 
       <AddReviewSheet
+        errorText={submitError}
         existing={ownReview}
         key={sheetSession}
         onClose={() => setSheetVisible(false)}
-        onSubmit={(rating, text) => {
-          onSaveReview(rating, text);
-          setSheetVisible(false);
-        }}
+        onSubmit={handleSubmit}
+        saving={saving}
         spotName={spot.name}
         visible={sheetVisible}
       />

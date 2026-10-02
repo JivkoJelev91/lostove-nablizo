@@ -29,4 +29,5 @@ export const SPOT = {
   'reviews.textPlaceholder': 'Как бяха лостовете, настилката, хората?',
   'reviews.save': 'Запази',
   'reviews.post': 'Публикувай',
+  'reviews.saveFailed': 'Отзивът не се запази. Провери връзката и опитай отново.',
 } satisfies Record<string, string>;

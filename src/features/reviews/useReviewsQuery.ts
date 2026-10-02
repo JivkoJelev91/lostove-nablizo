@@ -1,11 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { supabase } from '@/lib/supabase';
-import { queryKeys } from '@/lib/query-keys';
+import { displayNameFromUser, FALLBACK_USERNAME } from '@/features/auth/identity';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
+import { reviewDraftSchema } from '@/features/reviews/review-schema';
 import { toSpotReviews } from '@/features/spots/spots-mappers';
 import type { SpotReview } from '@/features/spots/types';
-import { useCurrentUser } from '@/features/auth/useCurrentUser';
+import { supabase } from '@/lib/supabase';
+import { queryKeys } from '@/lib/query-keys';
 
 const REVIEWS_SELECT = `
   id,
@@ -18,6 +20,101 @@ const REVIEWS_SELECT = `
   profiles ( username )
 `;
 
+type WriteReviewVariables = {
+  rating: number;
+  text: string;
+};
+
+/** What the optimistic update replaced, so a failed write can put it back. */
+type WriteContext = {
+  previous: SpotReview[] | undefined;
+};
+
+/**
+ * The one write the spot page performs: this athlete's review of one spot.
+ *
+ * One review per athlete per spot is a database rule, so the write is an upsert against the
+ * `(spot_id, user_id)` conflict rather than a read-then-write that could race itself.
+ *
+ * The list is updated optimistically because that is the safe part: the row the athlete just
+ * wrote is theirs to show immediately, and a failure rolls the list back to what it held before.
+ * The spot's average and count are deliberately *not* faked — `recompute_spot_rating` owns them,
+ * and guessing at them on the client would be a second source of truth. The refetch after the
+ * write brings both the list and the aggregate in step.
+ */
+function useWriteReview(spotId: string | null) {
+  const queryClient = useQueryClient();
+  const { profile, user } = useCurrentUser();
+  const key = queryKeys.reviews.bySpot(spotId ?? '');
+
+  return useMutation({
+    mutationFn: async ({ rating, text }: WriteReviewVariables) => {
+      if (user === null) {
+        throw new Error('Sign in to review this spot.');
+      }
+
+      const parsed = reviewDraftSchema.safeParse({ rating, text: text.trim() });
+
+      if (!parsed.success) {
+        throw new Error('The review is invalid.');
+      }
+
+      const { error } = await supabase.from('reviews').upsert(
+        {
+          spot_id: spotId ?? '',
+          user_id: user.id,
+          rating: parsed.data.rating,
+          comment: parsed.data.text === '' ? null : parsed.data.text,
+        },
+        { onConflict: 'spot_id,user_id' },
+      );
+
+      if (error) throw error;
+    },
+    onMutate: async ({ rating, text }): Promise<WriteContext> => {
+      await queryClient.cancelQueries({ queryKey: key });
+
+      const previous = queryClient.getQueryData<SpotReview[]>(key);
+
+      if (user !== null) {
+        const authorName = profile?.username ?? displayNameFromUser(user) ?? FALLBACK_USERNAME;
+        const optimistic: SpotReview = {
+          authorId: user.id,
+          authorName,
+          date: new Date(),
+          id: previous?.find((review) => review.authorId === user.id)?.id ?? `optimistic-${spotId}`,
+          rating,
+          spotId: spotId ?? '',
+          text: text.trim(),
+        };
+
+        queryClient.setQueryData<SpotReview[]>(key, (current) => {
+          const list = current ?? [];
+          const hasOwn = list.some((review) => review.authorId === user.id);
+
+          return hasOwn
+            ? list.map((review) => (review.authorId === user.id ? optimistic : review))
+            : [optimistic, ...list];
+        });
+      }
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(key, context.previous);
+      }
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: key }),
+        // The spot row carries the average and the count the header shows.
+        queryClient.invalidateQueries({ queryKey: queryKeys.spots.detail(spotId ?? '') }),
+      ]);
+    },
+  });
+}
+
 /** The reviews of one spot as the spot page needs them, plus the one write it performs. */
 export type SpotReviews = {
   reviews: readonly SpotReview[];
@@ -27,7 +124,7 @@ export type SpotReviews = {
   isError: boolean;
   refetch: () => void;
   /** Writes or replaces this athlete's review, one per spot as the database requires. */
-  writeReview: (rating: number, text: string) => void;
+  writeReview: (rating: number, text: string) => Promise<void>;
   isSaving: boolean;
 };
 
@@ -39,8 +136,8 @@ export type SpotReviews = {
  * client, where the two could disagree.
  */
 export function useSpotReviewsQuery(spotId: string | null): SpotReviews {
-  const queryClient = useQueryClient();
   const { user } = useCurrentUser();
+  const write = useWriteReview(spotId);
 
   const query = useQuery({
     queryKey: queryKeys.reviews.bySpot(spotId ?? ''),
@@ -58,36 +155,6 @@ export function useSpotReviewsQuery(spotId: string | null): SpotReviews {
     enabled: spotId !== null,
   });
 
-  const write = useMutation({
-    mutationFn: async ({ rating, text }: { rating: number; text: string }) => {
-      if (user === null) {
-        throw new Error('Sign in to review this spot.');
-      }
-
-      // One review per athlete per spot, so this is an upsert. The unique index on
-      // (spot_id, user_id) makes the conflict the thing to write against rather than something to
-      // check first and race with.
-      const { error } = await supabase.from('reviews').upsert(
-        {
-          spot_id: spotId ?? '',
-          user_id: user.id,
-          rating,
-          comment: text.trim() === '' ? null : text.trim(),
-        },
-        { onConflict: 'spot_id,user_id' },
-      );
-
-      if (error) throw error;
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.reviews.bySpot(spotId ?? '') }),
-        // The spot row carries the average and the count the header shows.
-        queryClient.invalidateQueries({ queryKey: queryKeys.spots.detail(spotId ?? '') }),
-      ]);
-    },
-  });
-
   const refetch = useCallback(() => {
     void query.refetch();
   }, [query]);
@@ -101,9 +168,7 @@ export function useSpotReviewsQuery(spotId: string | null): SpotReviews {
       isLoading: query.isLoading,
       isError: query.isError,
       refetch,
-      writeReview: (rating, text) => {
-        write.mutate({ rating, text });
-      },
+      writeReview: (rating, text) => write.mutateAsync({ rating, text }),
       isSaving: write.isPending,
     }),
     [query.data, query.isLoading, query.isError, refetch, user?.id, write],

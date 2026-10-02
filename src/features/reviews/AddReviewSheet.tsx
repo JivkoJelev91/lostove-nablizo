@@ -2,17 +2,19 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { BottomSheet, PrimaryButton, RatingInput, TextArea } from '@/components';
+import { REVIEW_TEXT_MAX_LENGTH } from '@/features/reviews/review-schema';
 import type { SpotReview } from '@/features/spots/types';
 import { t } from '@/i18n';
-
-/** The most characters a review comment accepts. The comment itself is optional. */
-export const REVIEW_TEXT_MAX_LENGTH = 300;
 
 export type AddReviewSheetProps = {
   visible: boolean;
   spotName: string;
   /** This athlete's stored review, when the sheet is editing rather than writing a first one. */
   existing?: SpotReview;
+  /** True while the write is in flight, so the sheet cannot be submitted twice. */
+  saving?: boolean;
+  /** The message to show when the last write failed; the sheet stays open on it. */
+  errorText?: string;
   onClose: () => void;
   onSubmit: (rating: number, text: string) => void;
 };
@@ -32,6 +34,8 @@ export function AddReviewSheet({
   visible,
   spotName,
   existing,
+  saving = false,
+  errorText,
   onClose,
   onSubmit,
 }: AddReviewSheetProps) {
@@ -63,10 +67,15 @@ export function AddReviewSheet({
         value={text}
       />
 
+      {errorText === undefined ? null : (
+        <Text className="text-caption text-status-bad">{errorText}</Text>
+      )}
+
       <PrimaryButton
-        disabled={rating === 0}
+        disabled={rating === 0 || saving}
         fullWidth
         label={editing ? t('reviews.save') : t('reviews.post')}
+        loading={saving}
         onPress={() => onSubmit(rating, text.trim())}
       />
     </BottomSheet>

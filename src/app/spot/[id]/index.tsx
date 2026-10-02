@@ -220,6 +220,7 @@ export default function SpotScreen() {
             onSaveReview={reviews.writeReview}
             ownReview={reviews.ownReview}
             reviews={reviews.reviews}
+            saving={reviews.isSaving}
             spot={spot}
           />
         ) : null}
