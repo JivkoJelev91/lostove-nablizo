@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useColorScheme } from 'nativewind';
 
+import { QueryProvider } from '@/components/providers/QueryProvider';
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
 import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
@@ -42,25 +43,27 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style={schemeStatusBarStyle[scheme]} />
-      {/* Above the navigator, so a heart tapped on a pushed spot page and the Favorites tab read
+      <QueryProvider>
+        {/* Above the navigator, so a heart tapped on a pushed spot page and the Favorites tab read
           the same saved spots, a review written on a spot page shows on the Profile tab's list of
           contributions, and a spot submitted in the Add tab is the same waiting-for-review spot
           the profile lists. Spots sit outermost because favourites and reviews resolve against
           them. The session wraps everything because it is who the app is acting as. */}
-      <SessionProvider>
-        <SpotsProvider>
-          <FavoritesProvider>
-            <ReviewsProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: schemeBackground[scheme] },
-                }}
-              />
-            </ReviewsProvider>
-          </FavoritesProvider>
-        </SpotsProvider>
-      </SessionProvider>
+        <SessionProvider>
+          <SpotsProvider>
+            <FavoritesProvider>
+              <ReviewsProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: schemeBackground[scheme] },
+                  }}
+                />
+              </ReviewsProvider>
+            </FavoritesProvider>
+          </SpotsProvider>
+        </SessionProvider>
+      </QueryProvider>
     </>
   );
 }
