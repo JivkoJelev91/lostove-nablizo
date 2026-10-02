@@ -71,6 +71,8 @@ export type { LoadingSpinnerProps, LoadingSpinnerSize } from './LoadingSpinner';
 export { Modal } from './Modal';
 export type { ModalProps } from './Modal';
 
+export { OfflineBanner } from './OfflineBanner';
+
 export { PhotoCard } from './PhotoCard';
 export type { PhotoCardProps } from './PhotoCard';
 

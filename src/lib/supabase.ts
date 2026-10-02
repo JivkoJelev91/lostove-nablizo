@@ -42,6 +42,56 @@ import type { Database } from '@/types/database';
 export type { Tables, TablesInsert, TablesUpdate, Enums, CompositeTypes } from '@/types/database';
 
 /**
+ * How long an API request may hang before it is treated as a failure, in milliseconds.
+ *
+ * A stalled connection can leave a fetch pending forever, and every screen would then wait on a
+ * request that will never answer. The timeout turns the hang into an ordinary error, which the
+ * retry policy and the screens' retry buttons already know what to do with.
+ */
+const REQUEST_TIMEOUT_MS = 20_000;
+
+/**
+ * Storage object uploads carry photo bytes and legitimately take minutes on mobile data, so they
+ * get their own bound rather than the request one.
+ */
+const UPLOAD_TIMEOUT_MS = 120_000;
+
+/** The path every Storage object write goes through. */
+const STORAGE_OBJECT_PATH = '/storage/v1/object/';
+
+/** The request's URL, whichever of the three shapes fetch accepts it in. */
+function urlOf(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.toString();
+  return input.url;
+}
+
+/**
+ * `fetch` with a deadline, so no Supabase call can hang the UI indefinitely.
+ *
+ * The caller's own abort signal is honoured by forwarding it to the internal controller, because
+ * Supabase aborts requests itself (auth refresh, query cancellation) and the timeout must not
+ * swallow that.
+ */
+const fetchWithTimeout: typeof fetch = async (input, init) => {
+  const timeout = urlOf(input).includes(STORAGE_OBJECT_PATH)
+    ? UPLOAD_TIMEOUT_MS
+    : REQUEST_TIMEOUT_MS;
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const timer = setTimeout(abort, timeout);
+
+  init?.signal?.addEventListener('abort', abort);
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+    init?.signal?.removeEventListener('abort', abort);
+  }
+};
+
+/**
  * The shared, typed Supabase client.
  *
  * `Database` is the generated schema type, so table names, column names, insert shapes and
@@ -54,4 +104,5 @@ export const supabase = createClient<Database>(env.supabase.url, env.supabase.pu
     autoRefreshToken: true,
     detectSessionInUrl: false,
   },
+  global: { fetch: fetchWithTimeout },
 });

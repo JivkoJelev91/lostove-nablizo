@@ -13,6 +13,7 @@ import * as SystemUI from 'expo-system-ui';
 import { useColorScheme } from 'nativewind';
 
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { OfflineBanner } from '@/components/OfflineBanner';
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
 import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
@@ -55,6 +56,8 @@ export default function RootLayout() {
                 contentStyle: { backgroundColor: schemeBackground[scheme] },
               }}
             />
+            {/* Over everything, including pushed screens: connectivity is app-wide news. */}
+            <OfflineBanner />
           </FavoritesProvider>
         </SessionProvider>
       </QueryProvider>

@@ -21,6 +21,7 @@ export const COMMON = {
   'common.removePhoto': 'Премахни снимката',
   'common.errorTitle': 'Нещо се обърка',
   'common.errorDescription': 'Опитай отново след малко.',
+  'common.offline': 'Няма връзка. Показваме последно заредените данни.',
 
   'nav.nearby': 'Наблизо',
   'nav.favorites': 'Любими',
