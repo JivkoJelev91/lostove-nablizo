@@ -1,11 +1,14 @@
 import type { ComponentType } from 'react';
 import { ScrollView } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { FilterChip } from '@/components';
 import type { EquipmentIconProps } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { EQUIPMENT_ICONS } from '@/features/spots/equipment-icons';
 import { equipmentLabel } from '@/i18n/equipment';
+import { t } from '@/i18n';
 
 export type EquipmentFilter = {
   /** Matches the equipment names used by `Spot.equipment`. */
@@ -61,19 +64,37 @@ export function EquipmentFilterChip({ filter, selected, onToggle }: EquipmentFil
 export type EquipmentFilterChipsProps = {
   selectedNames: readonly string[];
   onToggle: (name: string) => void;
+  /** Clears every selected chip. The row only offers it while something is selected. */
+  onClear: () => void;
 };
 
 /**
  * The horizontally scrollable equipment row. The container keeps its own screen padding so
  * the chips can bleed to the edge while the first one still lines up with the content.
+ *
+ * The reset chip is first, not last: with several chips selected the row scrolls, and a reset
+ * that has to be scrolled to is one the athlete will not find.
  */
-export function EquipmentFilterChips({ selectedNames, onToggle }: EquipmentFilterChipsProps) {
+export function EquipmentFilterChips({
+  selectedNames,
+  onToggle,
+  onClear,
+}: EquipmentFilterChipsProps) {
   return (
     <ScrollView
       contentContainerClassName="gap-space-8 px-screen-px"
       horizontal
       showsHorizontalScrollIndicator={false}
     >
+      {selectedNames.length === 0 ? null : (
+        <FilterChip
+          accessibilityLabel={t('home.resetFilters')}
+          label={t('home.resetFilters')}
+          leftIcon={<Ionicons color={brandColors.primary} name="close" size={iconSizeValues.xs} />}
+          onPress={onClear}
+        />
+      )}
+
       {EQUIPMENT_FILTERS.map((filter) => (
         <EquipmentFilterChip
           key={filter.name}
