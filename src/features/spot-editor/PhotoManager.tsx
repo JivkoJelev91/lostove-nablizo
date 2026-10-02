@@ -38,8 +38,11 @@ export function PhotoManager({ photos, onChange, errorText, className }: PhotoMa
   const handleResult = (result: PhotoPickResult) => {
     switch (result.status) {
       case 'picked':
-        setPickerError(undefined);
-        onChange([...photos, ...result.assets]);
+        if (result.photos.length > 0) {
+          onChange([...photos, ...result.photos]);
+        }
+
+        setPickerError(result.failed > 0 ? t('photosStep.pickerFailed') : undefined);
         break;
       case 'denied':
         setPickerError(t('photosStep.cameraDenied'));

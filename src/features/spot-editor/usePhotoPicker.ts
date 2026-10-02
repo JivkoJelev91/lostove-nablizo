@@ -1,14 +1,16 @@
 import { useCallback, useRef, useState } from 'react';
 
 import * as ImagePicker from 'expo-image-picker';
-import type { ImagePickerAsset } from 'expo-image-picker';
+import type { ImageResult } from 'expo-image-manipulator';
+
+import { preparePhotos } from '@/features/spot-editor/prepare-photo';
 
 /** Which system surface the picker is about to open. */
 export type PhotoSource = 'camera' | 'library';
 
-/** What a pick attempt produced: assets to add, a cancel, or a reason nothing was added. */
+/** What a pick attempt produced: prepared photos, a cancel, or a reason nothing was added. */
 export type PhotoPickResult =
-  | { status: 'picked'; assets: ImagePickerAsset[] }
+  | { status: 'picked'; photos: ImageResult[]; failed: number }
   | { status: 'canceled' }
   | { status: 'denied' }
   | { status: 'failed' };
@@ -20,16 +22,29 @@ export type PhotoPicker = {
   pickFromLibrary: (selectionLimit: number) => Promise<PhotoPickResult>;
 };
 
-/** A spot photo is displayed at card size; full camera resolution would only cost upload time. */
-const PHOTO_QUALITY = 0.8;
+/** The picker's own compression, before preparation re-encodes at the stored quality. */
+const PICKER_QUALITY = 0.8;
+
+/** A finished system pick, turned into prepared photos or the reason there are none. */
+async function fromPickerResult(result: ImagePicker.ImagePickerResult): Promise<PhotoPickResult> {
+  if (result.canceled) {
+    return { status: 'canceled' };
+  }
+
+  const prepared = await preparePhotos(result.assets);
+
+  return { failed: prepared.failed, photos: prepared.photos, status: 'picked' };
+}
 
 /**
  * The camera and gallery surfaces behind the editor's add-photo actions.
  *
- * The camera is the only one that needs a runtime permission: `launchCameraAsync` requires it,
- * so the hook asks and reports a denial instead of launching an unexplained system dialog. The
- * library needs no request — the system picker grants access to the chosen items by itself — so
- * asking there would prompt for broader access than the picker actually uses.
+ * Every returned photo has already been through {@link preparePhotos}, so full-resolution
+ * originals never enter the draft and cannot be uploaded by accident. The camera is the only
+ * surface that needs a runtime permission: `launchCameraAsync` requires it, so the hook asks and
+ * reports a denial instead of launching an unexplained system dialog. The library needs no
+ * request — the system picker grants access to the chosen items by itself — so asking there
+ * would prompt for broader access than the picker actually uses.
  */
 export function usePhotoPicker(): PhotoPicker {
   const [busy, setBusy] = useState<PhotoSource | null>(null);
@@ -70,12 +85,10 @@ export function usePhotoPicker(): PhotoPicker {
 
         const result = await ImagePicker.launchCameraAsync({
           mediaTypes: ['images'],
-          quality: PHOTO_QUALITY,
+          quality: PICKER_QUALITY,
         });
 
-        return result.canceled
-          ? { status: 'canceled' }
-          : { status: 'picked', assets: result.assets };
+        return fromPickerResult(result);
       }),
     [run],
   );
@@ -87,12 +100,10 @@ export function usePhotoPicker(): PhotoPicker {
           mediaTypes: ['images'],
           allowsMultipleSelection: selectionLimit > 1,
           selectionLimit,
-          quality: PHOTO_QUALITY,
+          quality: PICKER_QUALITY,
         });
 
-        return result.canceled
-          ? { status: 'canceled' }
-          : { status: 'picked', assets: result.assets };
+        return fromPickerResult(result);
       }),
     [run],
   );
