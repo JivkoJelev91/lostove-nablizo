@@ -1,18 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import type { TablesInsert } from '@/lib/supabase';
+import { getCurrentUserId } from '@/features/auth/current-user';
 import { resolveEquipmentIds, toSpot } from '@/features/spots/spots-mappers';
 import { SPOT_SELECT } from '@/features/spots/spot-select';
 import type { SpotWithRelations } from '@/features/spots/spots-mappers';
 import type { Coordinate, Spot, SpotEdits, SpotSubmission } from '@/features/spots/types';
-
-/** The signed-in athlete's id, or `null` for a guest. */
-async function currentUserId(): Promise<string | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user?.id ?? null;
-}
 
 /**
  * Replaces a spot's equipment with the submitted set.
@@ -118,7 +110,7 @@ export async function getSpotById(spotId: string): Promise<Spot | null> {
  * session the RLS policy already checks.
  */
 export async function createSpot(submission: SpotSubmission): Promise<Spot> {
-  const ownerId = await currentUserId();
+  const ownerId = await getCurrentUserId();
 
   if (ownerId === null) {
     throw new Error('Sign in to add a spot.');
@@ -204,7 +196,7 @@ export type ReportSpotInput = {
  * message the screen can show instead of a raw policy error.
  */
 export async function reportSpot({ spotId, reason, description }: ReportSpotInput): Promise<void> {
-  const reporterId = await currentUserId();
+  const reporterId = await getCurrentUserId();
 
   if (reporterId === null) {
     throw new Error('Sign in to report a spot.');
