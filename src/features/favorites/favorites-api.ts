@@ -5,11 +5,16 @@ import type { SpotWithRelations } from '@/features/spots/spots-mappers';
 import type { Spot } from '@/features/spots/types';
 
 /**
- * The spots the athlete has saved, newest first.
+ * The spots the athlete has saved, newest first, approved only.
  *
  * A favourite is private to its owner, so this is the athlete's own list and nothing else. It
  * resolves against `spots` with the same relation shape the discovery list uses, which is what
  * lets a saved spot render as a full card rather than a name and a heart.
+ *
+ * The row survives moderation on purpose — a rejected spot that is approved again comes back on
+ * its own — but it is not shown while it is not public. Without this filter the owner's own
+ * rejected submission appeared here looking exactly like a visitable place, because RLS lets them
+ * read their own rows; the profile's "Твоите места" is where submissions carry their status.
  */
 export async function getFavoriteSpots(userId: string): Promise<Spot[]> {
   const { data, error } = await supabase
@@ -33,7 +38,8 @@ export async function getFavoriteSpots(userId: string): Promise<Spot[]> {
 
       return spot === null ? null : toSpot(spot);
     })
-    .filter((spot): spot is Spot => spot !== null);
+    .filter((spot): spot is Spot => spot !== null)
+    .filter((spot) => spot.status === 'approved');
 }
 
 /**
