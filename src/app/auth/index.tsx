@@ -1,19 +1,26 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { GhostButton, PrimaryButton, ScreenShell, TextInput } from '@/components';
 import { isAuthFailure, signIn } from '@/features/auth/auth-api';
+import { isKnownRoute } from '@/features/auth/return-route';
 import { validateEmail, validatePasswordEntry } from '@/features/auth/validation';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
 
 export default function SignInScreen() {
+  const { next } = useLocalSearchParams<{ next?: string | string[] }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [problem, setProblem] = useState<TranslationKey | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Where to go after signing in. A guard that pushed this screen came from somewhere specific, and
+  // `replace` there is what makes "sign in to save this spot" end at that spot rather than on the
+  // home tab. An unrecognised or absent value falls back to the feed.
+  const destination = typeof next === 'string' && isKnownRoute(next) ? next : '/';
 
   const submit = async () => {
     const firstProblem = validateEmail(email) ?? validatePasswordEntry(password);
@@ -28,7 +35,7 @@ export default function SignInScreen() {
 
     try {
       await signIn(email, password);
-      router.replace('/');
+      router.replace(destination);
     } catch (failure: unknown) {
       setProblem(isAuthFailure(failure) ? failure.key : 'auth.error.generic');
     } finally {

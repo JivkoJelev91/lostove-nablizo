@@ -1,21 +1,18 @@
-import { useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import {
   ConditionBadge,
   EquipmentList,
   FavoriteButton,
+  GhostButton,
   IconButton,
   ImageCarousel,
   PrimaryButton,
   Rating,
-  ReviewCard,
   Screen,
-  SecondaryButton,
   SectionHeader,
   VerificationBadge,
 } from '@/components';
@@ -23,17 +20,16 @@ import type { EquipmentListItem } from '@/components';
 import { brandColors, iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useFavorites } from '@/features/favorites/useFavorites';
-import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
-import { useReviews } from '@/features/reviews/useReviews';
+import { SpotReviewsSection } from '@/features/reviews/SpotReviewsSection';
+import { useSpotReviewsQuery } from '@/features/reviews/useReviewsQuery';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
 import { spotDirectionsUrl } from '@/features/spots/spot-links';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
 import { SpotStatusNotice } from '@/features/spots/SpotStatusNotice';
 import type { Spot } from '@/features/spots/types';
-import { useSpots } from '@/features/spots/useSpots';
+import { useSpotQuery } from '@/features/spots/useSpotsQuery';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
-import { formatMonthDayYear } from '@/utils/dates';
 
 /** Turns a spot's equipment into the tiles the list renders, icons included where one exists. */
 function equipmentItemsFor(spot: Spot): EquipmentListItem[] {
@@ -51,121 +47,98 @@ function equipmentItemsFor(spot: Spot): EquipmentListItem[] {
   });
 }
 
-/**
- * The reviews section: the athlete's own review first, then everyone else's, with the one action
- * that writes or edits it.
- *
- * The athlete's review is deliberately separated from the rest rather than left to read as one
- * voice among many: it is the only one they can change, and the spot page has to make their own
- * rating tellable apart from the spot's average.
- */
-function SpotReviews({ spot }: { spot: Spot }) {
-  const { otherReviewsFor, ownReviewFor, reviewsFor, saveReview } = useReviews();
-  const [sheetVisible, setSheetVisible] = useState(false);
-  // Bumped on every open, so the sheet remounts and starts from the stored review rather than
-  // from whatever was typed and then cancelled last time.
-  const [sheetSession, setSheetSession] = useState(0);
-
-  const ownReview = ownReviewFor(spot.id);
-  const otherReviews = otherReviewsFor(spot.id);
-  const hasReviews = reviewsFor(spot.id).length > 0;
-
-  const openSheet = () => {
-    setSheetSession((session) => session + 1);
-    setSheetVisible(true);
-  };
+/** The header row: back, and the edit action for whoever is allowed to press it. */
+function SpotHeader({ spot, canEdit }: { spot: Spot; canEdit: boolean }) {
+  const scheme = useScheme();
 
   return (
-    <View className="mt-space-32 gap-space-16">
-      <SectionHeader accent title={t('reviews.title')} />
-
-      {hasReviews ? null : (
-        <Text className="text-bodySmall text-text-secondary">{t('reviews.empty')}</Text>
-      )}
-
-      <SecondaryButton
-        fullWidth
-        label={ownReview === undefined ? t('reviews.write') : t('reviews.edit')}
-        leftIcon={
+    <View className="flex-row items-center justify-between p-space-12">
+      <IconButton
+        accessibilityLabel={t('common.back')}
+        icon={
           <Ionicons
-            color={brandColors.primary}
-            name={ownReview === undefined ? 'star-outline' : 'create-outline'}
-            size={iconSizeValues.sm}
+            color={schemeTextPrimary[scheme]}
+            name="chevron-back"
+            size={iconSizeValues.md}
           />
         }
-        onPress={openSheet}
+        onPress={() => router.back()}
+        variant="surface"
       />
 
-      {ownReview === undefined ? null : (
-        <Animated.View
-          className="gap-space-8"
-          entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
-        >
-          <Text className="font-semibold text-bodySmall text-text-secondary">
-            {t('reviews.yourReview')}
-          </Text>
-          <ReviewCard
-            authorName={ownReview.authorName}
-            dateLabel={formatMonthDayYear(ownReview.date)}
-            rating={ownReview.rating}
-            text={ownReview.text}
-          />
-        </Animated.View>
-      )}
-
-      {otherReviews.length === 0 ? null : (
-        <View className="gap-list-gap">
-          {otherReviews.map((review) => (
-            <ReviewCard
-              authorName={review.authorName}
-              dateLabel={formatMonthDayYear(review.date)}
-              key={review.id}
-              rating={review.rating}
-              text={review.text}
+      {canEdit ? (
+        <IconButton
+          accessibilityLabel={t('spot.edit')}
+          icon={
+            <Ionicons
+              color={schemeTextPrimary[scheme]}
+              name="create-outline"
+              size={iconSizeValues.md}
             />
-          ))}
-        </View>
-      )}
-
-      <AddReviewSheet
-        existing={ownReview}
-        key={sheetSession}
-        onClose={() => setSheetVisible(false)}
-        onSubmit={(rating, text) => {
-          saveReview(spot.id, rating, text);
-          setSheetVisible(false);
-        }}
-        spotName={spot.name}
-        visible={sheetVisible}
-      />
+          }
+          onPress={() => router.push({ pathname: '/spot/[id]/edit', params: { id: spot.id } })}
+          variant="surface"
+        />
+      ) : null}
     </View>
   );
 }
 
+/**
+ * One spot: its photos, name, rating, equipment, condition, description and reviews.
+ *
+ * Everything on this page is one row and its relations, so it is a single query rather than four
+ * that could each fail on their own. The three states are kept apart: not-found is a settled
+ * answer for a spot that does not exist or that the reader may not see, an error is a real
+ * failure with a retry, and loading says so rather than showing a page of zeroes.
+ */
 export default function SpotScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const spotId = typeof id === 'string' ? id : null;
+
+  const { data: spot, isLoading, isError, refetch } = useSpotQuery(spotId);
+  const reviews = useSpotReviewsQuery(spotId);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
-  const { summaryFor } = useReviews();
-  const { spotById } = useSpots();
   const { user } = useCurrentUser();
-  const scheme = useScheme();
 
-  const spot = spotById(id);
-  const isOwner = spot !== undefined && spot.ownerId !== undefined && spot.ownerId === user?.id;
+  if (isLoading) {
+    return (
+      <Screen edges={['top', 'bottom']} padded={false} scroll>
+        <Text className="p-space-24 text-body text-text-secondary">{t('common.loading')}</Text>
+      </Screen>
+    );
+  }
 
-  // A spot that is not approved is only visible to the athlete who submitted it; everyone
-  // else gets the same answer as for a removed spot.
-  if (spot === undefined || (spot.status !== 'approved' && !isOwner)) {
+  if (isError) {
+    return (
+      <Screen edges={['top', 'bottom']} padded={false} scroll>
+        <View className="gap-space-12 p-space-24">
+          <Text className="text-body text-text-primary">{t('common.errorTitle')}</Text>
+          <Text className="text-bodySmall text-text-secondary">
+            {t('common.errorDescription')}
+          </Text>
+          <GhostButton label={t('common.tryAgain')} onPress={() => refetch()} />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (spot === null || spot === undefined) {
     return <SpotNotFound />;
   }
 
-  const summary = summaryFor(spot);
+  const isOwner = spot.ownerId !== undefined && spot.ownerId === user?.id;
+
+  // A spot that is not approved is only visible to the athlete who submitted it; everyone
+  // else gets the same answer as for a removed spot.
+  if (spot.status !== 'approved' && !isOwner) {
+    return <SpotNotFound />;
+  }
+
   const saved = isFavorite(spot.id);
   const canEdit = isOwner && spot.status !== 'closed';
-
-  const openDirections = () => {
-    void Linking.openURL(spotDirectionsUrl(spot));
-  };
+  // A spot still waiting for its first review has no rating to state.
+  const hasRating = spot.reviewCount > 0;
 
   return (
     <Screen
@@ -174,35 +147,7 @@ export default function SpotScreen() {
       padded={false}
       scroll
     >
-      <View className="flex-row items-center justify-between p-space-12">
-        <IconButton
-          accessibilityLabel={t('common.back')}
-          icon={
-            <Ionicons
-              color={schemeTextPrimary[scheme]}
-              name="chevron-back"
-              size={iconSizeValues.md}
-            />
-          }
-          onPress={() => router.back()}
-          variant="surface"
-        />
-
-        {canEdit ? (
-          <IconButton
-            accessibilityLabel={t('spot.edit')}
-            icon={
-              <Ionicons
-                color={schemeTextPrimary[scheme]}
-                name="create-outline"
-                size={iconSizeValues.md}
-              />
-            }
-            onPress={() => router.push({ pathname: '/spot/[id]/edit', params: { id: spot.id } })}
-            variant="surface"
-          />
-        ) : null}
-      </View>
+      <SpotHeader canEdit={canEdit} spot={spot} />
 
       <ImageCarousel accessibilityLabel={spot.name} images={spot.images} />
 
@@ -219,10 +164,9 @@ export default function SpotScreen() {
             />
           </View>
 
-          {/* A spot still waiting for its first review has no rating to state. */}
-          {summary.count === 0 ? null : (
-            <Rating count={summary.count} value={summary.average} variant="summary" />
-          )}
+          {hasRating ? (
+            <Rating count={spot.reviewCount} value={spot.rating} variant="summary" />
+          ) : null}
 
           {spot.verifiedAt === undefined ? null : (
             <VerificationBadge verifiedAt={spot.verifiedAt} />
@@ -262,13 +206,25 @@ export default function SpotScreen() {
                 size={iconSizeValues.sm}
               />
             }
-            onPress={openDirections}
+            onPress={() => {
+              void Linking.openURL(spotDirectionsUrl(spot));
+            }}
           />
         </View>
 
         {/* Reviews belong to a spot the public can see; while one waits for approval there is
             nobody to read them, so the page ends at the description and navigation instead. */}
-        {spot.status === 'approved' ? <SpotReviews spot={spot} /> : null}
+        {spot.status === 'approved' ? (
+          <SpotReviewsSection
+            error={reviews.isError}
+            loading={reviews.isLoading}
+            onRetry={() => void reviews.refetch()}
+            onSaveReview={reviews.writeReview}
+            ownReview={reviews.ownReview}
+            reviews={reviews.reviews}
+            spot={spot}
+          />
+        ) : null}
       </View>
     </Screen>
   );

@@ -22,7 +22,7 @@ import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
-import { useSpots } from '@/features/spots/useSpots';
+import { useSpotsQuery } from '@/features/spots/useSpotsQuery';
 import { t } from '@/i18n';
 
 function SpotCardSeparator() {
@@ -35,8 +35,8 @@ function SpotCardSeparator() {
  * It sits on the first tab, which lists spots by distance rather than on a map.
  */
 export default function HomeScreen() {
-  // Only approved spots are public; one waiting for review is reachable from the profile instead.
-  const { approvedSpots } = useSpots();
+  const { data: spots = [], isLoading, isError, refetch } = useSpotsQuery();
+  const approvedSpots = useMemo(() => spots.filter((spot) => spot.status === 'approved'), [spots]);
   const { selectedNames, toggle, clear, filtered } = useSpotFilters(approvedSpots);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const [searchVisible, setSearchVisible] = useState(false);
@@ -81,6 +81,31 @@ export default function HomeScreen() {
     [isFavorite, openSpot, toggleFavorite],
   );
 
+  const renderEmpty = useCallback(
+    () => (
+      <View className="px-screen-px">
+        {isLoading ? (
+          <EmptyState description={t('common.loading')} padded={false} title={t('home.aroundYou')} />
+        ) : isError ? (
+          <EmptyState
+            action={<GhostButton label="Retry" onPress={() => refetch()} />}
+            description={t('common.errorDescription')}
+            padded={false}
+            title={t('common.errorTitle')}
+          />
+        ) : (
+          <EmptyState
+            action={<GhostButton label={t('home.clearFilters')} onPress={clear} />}
+            description={t('home.noMatchDescription')}
+            padded={false}
+            title={t('home.noMatchTitle')}
+          />
+        )}
+      </View>
+    ),
+    [clear, isError, isLoading, refetch],
+  );
+
   return (
     <>
       <ScreenShell header={false} padded={false} variant="tab">
@@ -91,32 +116,18 @@ export default function HomeScreen() {
           initialNumToRender={4}
           ItemSeparatorComponent={SpotCardSeparator}
           keyExtractor={(spot) => spot.id}
-          ListEmptyComponent={
-            <View className="px-screen-px">
-              <EmptyState
-                action={<GhostButton label={t('home.clearFilters')} onPress={clear} />}
-                description={t('home.noMatchDescription')}
-                padded={false}
-                title={t('home.noMatchTitle')}
-              />
-            </View>
-          }
+          ListEmptyComponent={renderEmpty}
           ListHeaderComponent={
             <View className="gap-space-12 pb-space-12">
-              {/* The brand stays visible on the app's first screen, not just in the opening
-                  mark that fades away. */}
               <View className="px-screen-px">
                 <BrandLogo />
               </View>
-
               <View className="gap-space-12">
                 <View className="px-screen-px">
                   <SpotsSearchBar onPress={() => setSearchVisible(true)} />
                 </View>
-
                 <EquipmentFilterChips onToggle={toggle} selectedNames={selectedNames} />
               </View>
-
               <View className="px-screen-px">
                 <SectionHeader
                   action={

@@ -18,6 +18,7 @@ export const SPOT = {
   'reviews.title': 'Отзиви',
   'reviews.empty': 'Още няма отзиви. Бъди първият, който тренира тук, и остави отзив.',
   'reviews.write': 'Напиши отзив',
+  'reviews.writeSignedIn': 'Влез, за да напишеш отзив',
   'reviews.edit': 'Редактирай отзива си',
   'reviews.yourReview': 'Твоят отзив',
   'reviews.sheetWriteTitle': 'Напиши отзив',

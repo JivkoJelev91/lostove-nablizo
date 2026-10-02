@@ -137,6 +137,9 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
           id: existing?.id ?? `review-${spotId}-own`,
           spotId,
           authorName: authoredName,
+          // The mock store has no accounts, so the writer is identified by the name it files the
+          // review under. Seeded reviews carry a `seed-` id and can never be mistaken for this.
+          authorId: `local-${authoredName}`,
           rating,
           text,
           date: new Date(),

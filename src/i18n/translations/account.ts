@@ -70,4 +70,9 @@ export const ACCOUNT = {
   'auth.error.emailNotConfirmed': 'Потвърди имейла си, преди да влезеш.',
   'auth.error.tooManyAttempts': 'Твърде много опити. Опитай отново след малко.',
   'auth.error.generic': 'Не се получи. Опитай отново.',
+
+  'auth.guard.title': 'Влез, за да го направиш',
+  'auth.guard.reason':
+    'Добавянето на места, запазването им, отзивите и редакциите са за участници с акаунт.',
+  'auth.guard.signIn': 'Влез',
 } satisfies Record<string, string>;

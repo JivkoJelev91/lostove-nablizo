@@ -8,7 +8,7 @@ import { daysAgo } from '@/utils/dates';
  * The authors are invented and unrelated to whoever is signed in, so a seeded review is never
  * mistaken for the athlete's own.
  */
-export const MOCK_REVIEWS: readonly SpotReview[] = [
+const SEED_REVIEWS = [
   {
     id: 'review-trakia-1',
     spotId: 'trakia-fitness-park',
@@ -121,4 +121,16 @@ export const MOCK_REVIEWS: readonly SpotReview[] = [
     text: 'Чисто, тихо и в добро състояние. Пейка наблизо би го направила идеално.',
     date: daysAgo(21),
   },
-];
+] satisfies readonly Omit<SpotReview, 'authorId'>[];
+
+/**
+ * The seeded reviews, each given an author id that belongs to nobody.
+ *
+ * The spot page picks the signed-in athlete's review out by account, so a seeded review needs an
+ * id that cannot collide with a real one. Deriving it from the row id keeps the seed free of
+ * hand-written ids that would have to be kept in step with the array.
+ */
+export const MOCK_REVIEWS: readonly SpotReview[] = SEED_REVIEWS.map((review) => ({
+  ...review,
+  authorId: `seed-${review.id}`,
+}));

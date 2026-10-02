@@ -65,6 +65,11 @@ export type SpotReview = {
   id: string;
   spotId: string;
   authorName: string;
+  /**
+   * The account that wrote the review, so the spot page can pick out the signed-in athlete's own
+   * review by identity rather than by a display name two people can share.
+   */
+  authorId: string;
   rating: number;
   text: string;
   date: Date;
