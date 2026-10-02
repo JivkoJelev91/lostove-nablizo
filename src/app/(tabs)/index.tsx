@@ -12,7 +12,7 @@ import { byDistance } from '@/features/spots/spot-distance';
 import { SpotFilterSheet } from '@/features/spots/SpotFilterSheet';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
-import { filterSpots, useSpotFilters } from '@/features/spots/useSpotFilters';
+import { filterSpots, NO_FILTERS, useSpotFilters } from '@/features/spots/useSpotFilters';
 import { useFeedSpotsQuery, useSearchSpotsQuery } from '@/features/spots/useSpotsQuery';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
@@ -143,6 +143,7 @@ export default function HomeScreen() {
           setFilterVisible(false);
         }}
         onClose={() => setFilterVisible(false)}
+        onReset={() => apply(NO_FILTERS)}
         spots={approvedSpots}
         visible={filterVisible}
       />

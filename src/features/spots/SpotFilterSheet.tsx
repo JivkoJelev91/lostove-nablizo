@@ -87,6 +87,13 @@ export type SpotFilterSheetProps = {
   /** Whether the feed was measured from a position, so a distance filter means anything. */
   hasDistance: boolean;
   onApply: (filters: SpotFilters) => void;
+  /**
+   * Clears the filters in force immediately. Reset is the one control that must not wait for
+   * confirm: it is what an athlete presses when the screen looks wrong, and leaving the main
+   * page filtered after it said "clear" is the bug that made them open the sheet in the first
+   * place.
+   */
+  onReset: () => void;
   onClose: () => void;
 };
 
@@ -107,6 +114,7 @@ export function SpotFilterSheet({
   spots,
   hasDistance,
   onApply,
+  onReset,
   onClose,
 }: SpotFilterSheetProps) {
   const [draft, setDraft] = useState(filters);
@@ -177,7 +185,14 @@ export function SpotFilterSheet({
 
       <View className="flex-row gap-space-8">
         <View className="flex-1">
-          <GhostButton fullWidth label={t('filters.reset')} onPress={() => setDraft(NO_FILTERS)} />
+          <GhostButton
+            fullWidth
+            label={t('filters.reset')}
+            onPress={() => {
+              setDraft(NO_FILTERS);
+              onReset();
+            }}
+          />
         </View>
 
         <View className="flex-1">
