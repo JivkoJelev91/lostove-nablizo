@@ -4,22 +4,21 @@ import { router } from 'expo-router';
 import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import { ReviewCard } from '@/components';
-import { useSpots } from '@/features/spots/useSpots';
-import type { SpotReview } from '@/features/spots/types';
+import type { OwnReview } from '@/features/reviews/useOwnReviewsQuery';
 import { formatMonthDayYear } from '@/utils/dates';
 
 export type ProfileReviewCardProps = {
-  review: SpotReview;
+  review: OwnReview;
 };
 
 /**
  * One of the athlete's reviews, titled with the spot it is about and linking back to it, so a
  * review is never a dead end on the profile. It fades in on mount, matching the spot rows.
+ *
+ * The spot's name arrives with the review; the card does not look it up, because a lookup that
+ * fails would silently leave the review untitled.
  */
 export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
-  const { spotById } = useSpots();
-  const spot = spotById(review.spotId);
-
   const openSpot = useCallback(() => {
     router.push({ pathname: '/spot/[id]', params: { id: review.spotId } });
   }, [review.spotId]);
@@ -28,9 +27,9 @@ export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
     <Animated.View entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}>
       <ReviewCard
         dateLabel={formatMonthDayYear(review.date)}
-        onPress={spot === undefined ? undefined : openSpot}
+        onPress={openSpot}
         rating={review.rating}
-        spotName={spot?.name}
+        spotName={review.spotName ?? undefined}
         text={review.text}
       />
     </Animated.View>

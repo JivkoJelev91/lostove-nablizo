@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { displayNameFromUser, usernameFromUser } from '@/features/auth/identity';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
-import { useReviews } from '@/features/reviews/useReviews';
+import { useOwnReviewsQuery } from '@/features/reviews/useOwnReviewsQuery';
 import { byDistance } from '@/features/spots/spot-distance';
 import { useOwnedSpotsQuery } from '@/features/spots/useSpotsQuery';
 import type { SpotStatus } from '@/components';
@@ -27,12 +27,12 @@ const STATUS_ORDER: Record<SpotStatus, number> = {
  * hook only reports what is true.
  *
  * The contributions come from the database: the adopted spots are the rows this account owns,
- * whatever their moderation state, and an empty list is what a brand-new account has. Reviews
- * still come from the shared store until that feature reads Supabase.
+ * whatever their moderation state, and the reviews are the rows it wrote, each carrying the spot
+ * it is about. An empty list is what a brand-new account has.
  */
 export function useProfile() {
   const { profile, user } = useCurrentUser();
-  const { ownReviews } = useReviews();
+  const ownedReviews = useOwnReviewsQuery(user?.id ?? null);
   const owned = useOwnedSpotsQuery(user?.id ?? null);
 
   const spots = useMemo(
@@ -48,5 +48,5 @@ export function useProfile() {
   const displayName = signedIn ? (displayNameFromUser(user) ?? profile?.username ?? '') : '';
   const username = signedIn ? (profile?.username ?? usernameFromUser(user) ?? '') : '';
 
-  return { displayName, reviews: ownReviews, signedIn, spots, username };
+  return { displayName, reviews: ownedReviews.data ?? [], signedIn, spots, username };
 }

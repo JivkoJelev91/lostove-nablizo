@@ -14,7 +14,8 @@ import { ProfileReviewCard } from '@/features/profile/ProfileReviewCard';
 import { ProfileSpotCard } from '@/features/profile/ProfileSpotCard';
 import { ProfileStats } from '@/features/profile/ProfileStats';
 import { useProfile } from '@/features/profile/useProfile';
-import type { Spot, SpotReview } from '@/features/spots/types';
+import type { OwnReview } from '@/features/reviews/useOwnReviewsQuery';
+import type { Spot } from '@/features/spots/types';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 
@@ -26,7 +27,7 @@ type ProfileRow =
   | { kind: 'heading'; key: string; title: string; viewAll?: Href }
   | { kind: 'text'; key: string; text: string }
   | { kind: 'spot'; key: string; spot: Spot }
-  | { kind: 'review'; key: string; review: SpotReview };
+  | { kind: 'review'; key: string; review: OwnReview };
 
 /**
  * What this athlete has contributed to the directory: the spots they added, the reviews they

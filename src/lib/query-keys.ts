@@ -23,6 +23,8 @@ export const queryKeys = {
     all: ['reviews'] as const,
     lists: () => [...queryKeys.reviews.all, 'list'] as const,
     bySpot: (spotId: string) => [...queryKeys.reviews.lists(), spotId] as const,
+    /** One athlete's reviews across every spot, for the profile's own list. */
+    byUser: (userId: string) => [...queryKeys.reviews.all, 'user', userId] as const,
   },
   location: {
     all: ['location'] as const,

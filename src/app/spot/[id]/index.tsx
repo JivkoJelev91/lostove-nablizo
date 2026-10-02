@@ -214,8 +214,10 @@ export default function SpotScreen() {
             nobody to read them, so the page ends at the description and navigation instead. */}
         {spot.status === 'approved' ? (
           <SpotReviewsSection
+            deleting={reviews.isDeleting}
             error={reviews.isError}
             loading={reviews.isLoading}
+            onDeleteReview={reviews.deleteReview}
             onRetry={() => void reviews.refetch()}
             onSaveReview={reviews.writeReview}
             ownReview={reviews.ownReview}

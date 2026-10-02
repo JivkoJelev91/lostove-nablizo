@@ -7,7 +7,7 @@ import { EmptyState, PrimaryButton, ScreenShell } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { ProfileReviewCard } from '@/features/profile/ProfileReviewCard';
 import { useProfile } from '@/features/profile/useProfile';
-import type { SpotReview } from '@/features/spots/types';
+import type { OwnReview } from '@/features/reviews/useOwnReviewsQuery';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
@@ -19,7 +19,7 @@ export default function ProfileReviewsScreen() {
   const scheme = useScheme();
   const { reviews } = useProfile();
 
-  const renderReview = ({ item }: ListRenderItemInfo<SpotReview>) => (
+  const renderReview = ({ item }: ListRenderItemInfo<OwnReview>) => (
     <ProfileReviewCard review={item} />
   );
 

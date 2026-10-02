@@ -4,7 +4,14 @@ import { Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
-import { SecondaryButton, SectionHeader, ReviewCard } from '@/components';
+import {
+  DangerButton,
+  GhostButton,
+  Modal,
+  SecondaryButton,
+  SectionHeader,
+  ReviewCard,
+} from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { useRequireAuth } from '@/features/auth/useRequireAuth';
 import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
@@ -19,12 +26,102 @@ type SpotReviewsProps = {
   ownReview: SpotReview | undefined;
   /** Writes or replaces this athlete's review of the spot. */
   onSaveReview: (rating: number, text: string) => Promise<void>;
+  /** Removes this athlete's review of the spot. */
+  onDeleteReview: () => Promise<void>;
   /** True while the write is in flight. */
   saving: boolean;
+  /** True while the delete is in flight. */
+  deleting: boolean;
   loading: boolean;
   error: boolean;
   onRetry: () => void;
 };
+
+type OwnReviewBlockProps = {
+  review: SpotReview;
+  deleting: boolean;
+  errorText: string | undefined;
+  onDeletePress: () => void;
+};
+
+/** The athlete's own review, with the one action that removes it. */
+function OwnReviewBlock({ review, deleting, errorText, onDeletePress }: OwnReviewBlockProps) {
+  return (
+    <Animated.View
+      className="gap-space-8"
+      entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
+    >
+      <Text className="font-semibold text-bodySmall text-text-secondary">
+        {t('reviews.yourReview')}
+      </Text>
+      <ReviewCard
+        authorName={review.authorName}
+        dateLabel={formatMonthDayYear(review.date)}
+        rating={review.rating}
+        text={review.text}
+      />
+
+      {errorText === undefined ? null : (
+        <Text className="text-caption text-status-bad">{errorText}</Text>
+      )}
+
+      <View className="flex-row">
+        <DangerButton
+          label={t('reviews.delete')}
+          loading={deleting}
+          onPress={onDeletePress}
+          size="sm"
+        />
+      </View>
+    </Animated.View>
+  );
+}
+
+type DeleteReviewDialogProps = {
+  visible: boolean;
+  deleting: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+};
+
+/** The confirmation a delete asks for before the row is removed. */
+function DeleteReviewDialog({ visible, deleting, onClose, onConfirm }: DeleteReviewDialogProps) {
+  return (
+    <Modal
+      actions={
+        <>
+          <GhostButton label={t('common.cancel')} onPress={onClose} />
+          <DangerButton label={t('reviews.deleteConfirm')} loading={deleting} onPress={onConfirm} />
+        </>
+      }
+      description={t('reviews.deleteDescription')}
+      onClose={onClose}
+      title={t('reviews.deleteTitle')}
+      visible={visible}
+    />
+  );
+}
+
+/** Everyone else's reviews, newest first, as plain cards. */
+function OtherReviewList({ reviews }: { reviews: readonly SpotReview[] }) {
+  if (reviews.length === 0) {
+    return null;
+  }
+
+  return (
+    <View className="gap-list-gap">
+      {reviews.map((review) => (
+        <ReviewCard
+          authorName={review.authorName}
+          dateLabel={formatMonthDayYear(review.date)}
+          key={review.id}
+          rating={review.rating}
+          text={review.text}
+        />
+      ))}
+    </View>
+  );
+}
 
 /**
  * The reviews section: the athlete's own review first, then everyone else's, with the one action
@@ -39,7 +136,9 @@ export function SpotReviewsSection({
   reviews,
   ownReview,
   onSaveReview,
+  onDeleteReview,
   saving,
+  deleting,
   loading,
   error,
   onRetry,
@@ -49,6 +148,8 @@ export function SpotReviewsSection({
   // from whatever was typed and then cancelled last time.
   const [sheetSession, setSheetSession] = useState(0);
   const [submitError, setSubmitError] = useState<string | undefined>(undefined);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
   const { requireAuth, signedIn } = useRequireAuth();
 
@@ -80,6 +181,18 @@ export function SpotReviewsSection({
     },
     [onSaveReview],
   );
+
+  const handleDelete = useCallback(async () => {
+    setDeleteError(undefined);
+
+    try {
+      await onDeleteReview();
+      setDeleteVisible(false);
+    } catch {
+      setDeleteVisible(false);
+      setDeleteError(t('reviews.deleteFailed'));
+    }
+  }, [onDeleteReview]);
 
   return (
     <View className="mt-space-32 gap-space-16">
@@ -116,35 +229,18 @@ export function SpotReviewsSection({
       />
 
       {ownReview === undefined ? null : (
-        <Animated.View
-          className="gap-space-8"
-          entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
-        >
-          <Text className="font-semibold text-bodySmall text-text-secondary">
-            {t('reviews.yourReview')}
-          </Text>
-          <ReviewCard
-            authorName={ownReview.authorName}
-            dateLabel={formatMonthDayYear(ownReview.date)}
-            rating={ownReview.rating}
-            text={ownReview.text}
-          />
-        </Animated.View>
+        <OwnReviewBlock
+          deleting={deleting}
+          errorText={deleteError}
+          onDeletePress={() => {
+            setDeleteError(undefined);
+            setDeleteVisible(true);
+          }}
+          review={ownReview}
+        />
       )}
 
-      {otherReviews.length === 0 ? null : (
-        <View className="gap-list-gap">
-          {otherReviews.map((review) => (
-            <ReviewCard
-              authorName={review.authorName}
-              dateLabel={formatMonthDayYear(review.date)}
-              key={review.id}
-              rating={review.rating}
-              text={review.text}
-            />
-          ))}
-        </View>
-      )}
+      <OtherReviewList reviews={otherReviews} />
 
       <AddReviewSheet
         errorText={submitError}
@@ -155,6 +251,13 @@ export function SpotReviewsSection({
         saving={saving}
         spotName={spot.name}
         visible={sheetVisible}
+      />
+
+      <DeleteReviewDialog
+        deleting={deleting}
+        onClose={() => setDeleteVisible(false)}
+        onConfirm={() => void handleDelete()}
+        visible={deleteVisible}
       />
     </View>
   );

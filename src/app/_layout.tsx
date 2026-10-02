@@ -16,8 +16,6 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-tokens';
 import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
-import { ReviewsProvider } from '@/features/reviews/ReviewsProvider';
-import { SpotsProvider } from '@/features/spots/SpotsProvider';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -44,24 +42,20 @@ export default function RootLayout() {
     <>
       <StatusBar style={schemeStatusBarStyle[scheme]} />
       <QueryProvider>
-        {/* Above the navigator, so a heart tapped on a pushed spot page and the Favorites tab read
-          the same saved spots, a review written on a spot page shows on the Profile tab's list of
-          contributions, and a spot submitted in the Add tab is the same waiting-for-review spot
-          the profile lists. Spots sit outermost because favourites and reviews resolve against
-          them. The session wraps everything because it is who the app is acting as. */}
+        {/* Favourites wrap the navigator, so a heart tapped on a pushed spot page and the
+            Favorites tab read the same saved spots. Spots and reviews are not providers: they
+            are TanStack Query caches over Supabase, so every screen reads the same rows instead
+            of a copy that can drift. The session wraps everything because it is who the app is
+            acting as. */}
         <SessionProvider>
-          <SpotsProvider>
-            <FavoritesProvider>
-              <ReviewsProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: schemeBackground[scheme] },
-                  }}
-                />
-              </ReviewsProvider>
-            </FavoritesProvider>
-          </SpotsProvider>
+          <FavoritesProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: schemeBackground[scheme] },
+              }}
+            />
+          </FavoritesProvider>
         </SessionProvider>
       </QueryProvider>
     </>

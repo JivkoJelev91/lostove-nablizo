@@ -30,4 +30,10 @@ export const SPOT = {
   'reviews.save': 'Запази',
   'reviews.post': 'Публикувай',
   'reviews.saveFailed': 'Отзивът не се запази. Провери връзката и опитай отново.',
+  'reviews.delete': 'Изтрий отзива',
+  'reviews.deleteTitle': 'Да изтриеш ли отзива?',
+  'reviews.deleteDescription':
+    'Отзивът и оценката ти ще бъдат премахнати от мястото. Това не може да се отмени.',
+  'reviews.deleteConfirm': 'Изтрий',
+  'reviews.deleteFailed': 'Отзивът не се изтри. Провери връзката и опитай отново.',
 } satisfies Record<string, string>;
