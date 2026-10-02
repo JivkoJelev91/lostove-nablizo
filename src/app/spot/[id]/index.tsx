@@ -15,7 +15,6 @@ import {
   Rating,
   Screen,
   SectionHeader,
-  VerificationBadge,
 } from '@/components';
 import type { EquipmentListItem } from '@/components';
 import { brandColors, iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
@@ -23,12 +22,13 @@ import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useRequireAuth } from '@/features/auth/useRequireAuth';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { ReportSpotSheet } from '@/features/reports/ReportSpotSheet';
-import { SpotReviewsSection } from '@/features/reviews/SpotReviewsSection';
-import { useSpotReviewsQuery } from '@/features/reviews/useReviewsQuery';
+import { SpotReviews } from '@/features/reviews/SpotReviews';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
 import { spotDirectionsUrl } from '@/features/spots/spot-links';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
 import { SpotStatusNotice } from '@/features/spots/SpotStatusNotice';
+import { SpotVerification } from '@/features/spots/SpotVerification';
+import { VerifySpotButton } from '@/features/spots/VerifySpotButton';
 import type { Spot } from '@/features/spots/types';
 import { useSpotQuery } from '@/features/spots/useSpotsQuery';
 import { useScheme } from '@/hooks/useScheme';
@@ -113,7 +113,11 @@ function SpotSummary({ spot, isFavorite, isOwner, onToggleFavorite }: SpotSummar
 
       {hasRating ? <Rating count={spot.reviewCount} value={spot.rating} variant="summary" /> : null}
 
-      {spot.verifiedAt === undefined ? null : <VerificationBadge verifiedAt={spot.verifiedAt} />}
+      <SpotVerification
+        confirmations={spot.verificationCount}
+        source={spot.verificationSource}
+        verifiedAt={spot.verifiedAt}
+      />
 
       {isOwner && spot.status !== 'approved' ? (
         <SpotStatusNotice className="mt-space-16" status={spot.status} />
@@ -193,7 +197,6 @@ export default function SpotScreen() {
   const spotId = typeof id === 'string' ? id : null;
 
   const { data: spot, isLoading, isError, refetch } = useSpotQuery(spotId);
-  const reviews = useSpotReviewsQuery(spotId);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { user } = useCurrentUser();
   const { requireAuth } = useRequireAuth();
@@ -257,22 +260,15 @@ export default function SpotScreen() {
 
         <SpotDetails spot={spot} />
 
+        {spot.status === 'approved' ? (
+          <View className="mt-space-32">
+            <VerifySpotButton spotId={spot.id} />
+          </View>
+        ) : null}
+
         {/* Reviews belong to a spot the public can see; while one waits for approval there is
             nobody to read them, so the page ends at the description and navigation instead. */}
-        {spot.status === 'approved' ? (
-          <SpotReviewsSection
-            deleting={reviews.isDeleting}
-            error={reviews.isError}
-            loading={reviews.isLoading}
-            onDeleteReview={reviews.deleteReview}
-            onRetry={() => void reviews.refetch()}
-            onSaveReview={reviews.writeReview}
-            ownReview={reviews.ownReview}
-            reviews={reviews.reviews}
-            saving={reviews.isSaving}
-            spot={spot}
-          />
-        ) : null}
+        {spot.status === 'approved' ? <SpotReviews spot={spot} /> : null}
 
         {/* An owner reporting their own spot is not a case that needs an entry point. */}
         {!isOwner && spot.status === 'approved' ? (

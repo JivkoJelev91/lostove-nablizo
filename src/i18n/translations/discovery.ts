@@ -43,6 +43,8 @@ export const DISCOVERY = {
   'filters.rating4': '4+',
   'filters.rating45': '4,5+',
   'filters.condition': 'Състояние',
+  'filters.verification': 'Потвърждаване',
+  'filters.verifiedRecently': 'Потвърдени наскоро',
   'filters.equipment': 'Уреди',
   'filters.reset': 'Изчисти',
   'filters.applyOne': 'Покажи 1 място',

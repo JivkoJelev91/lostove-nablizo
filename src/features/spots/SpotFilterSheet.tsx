@@ -98,9 +98,8 @@ export type SpotFilterSheetProps = {
  * behind the sheet rearranging on every tap. The caller remounts the sheet (via `key`) each time
  * it opens, which is what starts the draft from the filters actually in force.
  *
- * "Verified recently" and an open/closed toggle are deliberately absent: there is no verification
- * column yet (that is the verification phase) and the public lists already contain only approved,
- * open spots, so a control for either would be a switch that changes nothing.
+ * An open/closed toggle is deliberately absent: the public lists already contain only approved,
+ * open spots, so the control would be a switch that changes nothing.
  */
 export function SpotFilterSheet({
   visible,
@@ -153,6 +152,16 @@ export function SpotFilterSheet({
             selected={draft.conditions.includes(condition)}
           />
         ))}
+      </FilterSection>
+
+      <FilterSection title={t('filters.verification')}>
+        <FilterChip
+          label={t('filters.verifiedRecently')}
+          onPress={() =>
+            setDraft((current) => ({ ...current, verifiedRecently: !current.verifiedRecently }))
+          }
+          selected={draft.verifiedRecently}
+        />
       </FilterSection>
 
       <FilterSection title={t('filters.equipment')}>

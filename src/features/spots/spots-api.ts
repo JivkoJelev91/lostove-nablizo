@@ -248,6 +248,20 @@ export type ReportSpotInput = {
 };
 
 /**
+ * Records that the signed-in athlete confirmed an approved spot still exists.
+ *
+ * The athlete is the session, never a field on the input, and the database does both halves --
+ * the confirmation row and the spot's new verification date -- inside one function, so the two
+ * cannot disagree about who verified what and when. A repeat confirmation is not an error: the
+ * function refreshes the athlete's row and the spot's date rather than counting the tap twice.
+ */
+export async function verifySpot(spotId: string): Promise<void> {
+  const { error } = await supabase.rpc('verify_spot', { p_spot_id: spotId });
+
+  if (error) throw error;
+}
+
+/**
  * Files a report against a spot.
  *
  * The reporter is the session, never a field on the input, so a report cannot be filed under

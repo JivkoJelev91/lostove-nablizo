@@ -254,6 +254,42 @@ export type Database = {
           },
         ];
       };
+      spot_verifications: {
+        Row: {
+          created_at: string;
+          id: string;
+          spot_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          spot_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          spot_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'spot_verifications_spot_id_fkey';
+            columns: ['spot_id'];
+            isOneToOne: false;
+            referencedRelation: 'spots';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spot_verifications_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       spots: {
         Row: {
           city: string | null;
@@ -271,6 +307,9 @@ export type Database = {
           source: string;
           status: string;
           updated_at: string;
+          verification_source: string | null;
+          verified_at: string | null;
+          verified_by: string | null;
         };
         Insert: {
           city?: string | null;
@@ -288,6 +327,9 @@ export type Database = {
           source?: string;
           status?: string;
           updated_at?: string;
+          verification_source?: string | null;
+          verified_at?: string | null;
+          verified_by?: string | null;
         };
         Update: {
           city?: string | null;
@@ -305,11 +347,21 @@ export type Database = {
           source?: string;
           status?: string;
           updated_at?: string;
+          verification_source?: string | null;
+          verified_at?: string | null;
+          verified_by?: string | null;
         };
         Relationships: [
           {
             foreignKeyName: 'spots_created_by_fkey';
             columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spots_verified_by_fkey';
+            columns: ['verified_by'];
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
@@ -353,6 +405,8 @@ export type Database = {
           rating_count: number;
           spot_equipment: Json;
           status: string;
+          verification_source: string | null;
+          verified_at: string | null;
         }[];
       };
       recompute_spot_rating: {
@@ -377,7 +431,13 @@ export type Database = {
           rating_count: number;
           spot_equipment: Json;
           status: string;
+          verification_source: string | null;
+          verified_at: string | null;
         }[];
+      };
+      verify_spot: {
+        Args: { p_spot_id: string };
+        Returns: undefined;
       };
     };
     Enums: {

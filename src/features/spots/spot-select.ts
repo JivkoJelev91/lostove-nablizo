@@ -20,6 +20,8 @@ const SPOT_COLUMNS = `
   rating_average,
   rating_count,
   status,
+  verified_at,
+  verification_source,
   created_by
 `;
 
@@ -38,5 +40,6 @@ export const SPOT_SELECT = `
     quantity,
     equipment ( id, name )
   ),
-  photos ( id, user_id, storage_path, width, height, created_at )
+  photos ( id, user_id, storage_path, width, height, created_at ),
+  spot_verifications ( count )
 `;

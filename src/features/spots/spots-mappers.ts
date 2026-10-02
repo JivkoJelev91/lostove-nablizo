@@ -5,7 +5,7 @@ import type { Tables } from '@/lib/supabase';
 import type { EquipmentCondition, SpotEquipment, SpotStatus } from '@/components';
 import type { StoredPhoto } from '@/features/photos/types';
 import { SPOT_PHOTO } from '@/features/spots/spot-photos';
-import type { Coordinate, Spot, SpotReview } from '@/features/spots/types';
+import type { Coordinate, Spot, SpotReview, VerificationSource } from '@/features/spots/types';
 
 type SpotRow = Tables<'spots'>;
 type SpotEquipmentRow = Tables<'spot_equipment'>;
@@ -15,12 +15,13 @@ type ReviewRow = Tables<'reviews'>;
 type ProfileRow = Tables<'profiles'>;
 
 /**
- * A spot row with the three relations the screens need to render it: its equipment, its photos
- * and, on the detail query, the reviews behind its rating.
+ * A spot row with the relations the screens need to render it: its equipment, its photos, its
+ * confirmation count and, on the detail query, the reviews behind its rating.
  */
 export type SpotWithRelations = SpotRow & {
   spot_equipment?: (SpotEquipmentRow & { equipment?: EquipmentRow | null })[];
   photos?: PhotoRow[];
+  spot_verifications?: { count: number }[];
   reviews?: (ReviewRow & { profiles?: ProfileRow | null })[];
 };
 
@@ -60,6 +61,20 @@ export function toCondition(condition: string | null | undefined): EquipmentCond
   const match = CONDITIONS.find((candidate) => candidate === condition);
 
   return match ?? 'good';
+}
+
+const VERIFICATION_SOURCES: readonly VerificationSource[] = ['import', 'moderator', 'user'];
+
+/**
+ * Narrows the `verification_source` text column, or `undefined` for a spot never verified.
+ *
+ * A value added by a later migration arrives as something the badge cannot attribute; dropping it
+ * leaves the date on its own rather than crediting a check to a source nobody knows.
+ */
+export function toVerificationSource(
+  source: string | null | undefined,
+): VerificationSource | undefined {
+  return VERIFICATION_SOURCES.find((candidate) => candidate === source);
 }
 
 /**
@@ -179,6 +194,10 @@ export function toSpotReviews(rows: ReviewWithAuthor[] | undefined): SpotReview[
  */
 export function toSpot(row: SpotWithRelations): Spot {
   const coordinate: Coordinate = { latitude: row.latitude, longitude: row.longitude };
+  const verificationSource = toVerificationSource(row.verification_source);
+  // An aggregate embed answers with one row, or an empty list when nothing matched. Absent for
+  // the RPC card queries, which do not embed the table; the count is a detail-page fact.
+  const verificationCount = row.spot_verifications?.[0]?.count;
 
   return {
     id: row.id,
@@ -194,6 +213,9 @@ export function toSpot(row: SpotWithRelations): Spot {
     images: toImages(row.photos),
     photos: toSpotPhotos(row.photos),
     status: toSpotStatus(row.status),
+    ...(row.verified_at === null ? {} : { verifiedAt: new Date(row.verified_at) }),
+    ...(verificationSource === undefined ? {} : { verificationSource }),
+    ...(verificationCount === undefined ? {} : { verificationCount }),
     ...(row.created_by === null ? {} : { ownerId: row.created_by }),
   };
 }

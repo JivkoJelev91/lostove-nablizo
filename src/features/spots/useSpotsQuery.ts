@@ -11,6 +11,7 @@ import {
   searchSpots,
   SEARCH_MIN_QUERY_LENGTH,
   updateSpot,
+  verifySpot,
 } from '@/features/spots/spots-api';
 import type { ReportSpotInput } from '@/features/spots/spots-api';
 import type { SpotEdits, SpotSubmission } from '@/features/spots/types';
@@ -164,5 +165,23 @@ export function useUpdateSpotMutation() {
 export function useReportSpotMutation() {
   return useMutation({
     mutationFn: (input: ReportSpotInput) => reportSpot(input),
+  });
+}
+
+/**
+ * Confirms a spot and refreshes everything that shows its verification.
+ *
+ * Every spots query, not just this spot: the date travelled onto the cards as well, and a feed
+ * that keeps serving yesterday's red badge after the athlete just turned it green is the same bug
+ * the mutation exists to prevent.
+ */
+export function useVerifySpotMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (spotId: string) => verifySpot(spotId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: spotsQueryKeys.all });
+    },
   });
 }

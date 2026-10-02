@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { describeVerification } from '@/components';
 import type { EquipmentCondition } from '@/components';
 import type { Spot } from '@/features/spots/types';
 
-/** The filter set the discovery screens combine. Empty and zero mean "everything". */
+/** The filter set the discovery screens combine. Empty, zero and false mean "everything". */
 export type SpotFilters = {
   /** Spots must carry every selected piece. */
   equipment: readonly string[];
@@ -13,6 +14,8 @@ export type SpotFilters = {
   conditions: readonly EquipmentCondition[];
   /** Maximum straight-line distance in metres; 0 means any distance, known or not. */
   maxDistanceM: number;
+  /** Only spots whose verification is still fresh, per the badge's own thresholds. */
+  verifiedRecently: boolean;
 };
 
 export const NO_FILTERS: SpotFilters = {
@@ -20,6 +23,7 @@ export const NO_FILTERS: SpotFilters = {
   equipment: [],
   maxDistanceM: 0,
   minRating: 0,
+  verifiedRecently: false,
 };
 
 /** How many filter groups are active, for the button's count. */
@@ -28,7 +32,8 @@ export function countActiveFilters(filters: SpotFilters): number {
     (filters.equipment.length > 0 ? 1 : 0) +
     (filters.minRating > 0 ? 1 : 0) +
     (filters.conditions.length > 0 ? 1 : 0) +
-    (filters.maxDistanceM > 0 ? 1 : 0)
+    (filters.maxDistanceM > 0 ? 1 : 0) +
+    (filters.verifiedRecently ? 1 : 0)
   );
 }
 
@@ -69,6 +74,15 @@ export function filterSpots(spots: readonly Spot[], filters: SpotFilters): reado
       if (distance === null || distance > filters.maxDistanceM) {
         return false;
       }
+    }
+
+    // The badge's own verdict, so the filter and the colour can never disagree about what
+    // "recently" means. A never-verified spot is not recently verified.
+    if (
+      filters.verifiedRecently &&
+      (spot.verifiedAt === undefined || describeVerification(spot.verifiedAt).tone !== 'fresh')
+    ) {
+      return false;
     }
 
     return true;

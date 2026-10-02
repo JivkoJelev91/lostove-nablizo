@@ -4,6 +4,8 @@ export const SPOT = {
   'spot.description': 'Описание',
   'spot.navigate': 'Навигация',
   'spot.edit': 'Редактирай мястото',
+  'spot.verify': 'Потвърди, че мястото е тук',
+  'spot.verifyFailed': 'Потвърждението не се запази. Провери връзката и опитай отново.',
   'spot.notFoundTitle': 'Мястото не е намерено',
   'spot.notFoundDescription':
     'Мястото, което търсиш, може да е премахнато или връзката да е грешна.',

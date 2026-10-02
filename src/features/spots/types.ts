@@ -13,6 +13,12 @@ export type Coordinate = {
 };
 
 /**
+ * How a spot's last verification was produced: the OSM import, a moderator review, or an
+ * athlete standing at the spot. The badge colours the date; this says whose word it is.
+ */
+export type VerificationSource = 'import' | 'moderator' | 'user';
+
+/**
  * A spot as the discovery screens render it: the summary facts and the photo.
  *
  * The data layer will later map database rows into this shape, so the components never
@@ -31,8 +37,15 @@ export type Spot = {
   condition: EquipmentCondition;
   /** One or two sentences for the spot page, written like a listing description. */
   description: string;
-  /** The date a moderator last checked the spot, absent until one has. */
+  /** The date a moderator, the import or an athlete last checked the spot, absent if never. */
   verifiedAt?: Date;
+  /** Whose check produced {@link verifiedAt}; absent together with it. */
+  verificationSource?: VerificationSource;
+  /**
+   * How many distinct athletes have confirmed the spot, when the query asked for the count.
+   * Absent on list cards, which fetch from the RPC functions that do not embed it.
+   */
+  verificationCount?: number;
   /** Straight-line distance from the athlete's position. `null` when no position is known. */
   distanceMeters: number | null;
   /** The spot's gallery, cover first. One bundled stand-in per frame until Storage provides real uploads. */

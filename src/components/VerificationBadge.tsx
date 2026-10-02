@@ -2,13 +2,7 @@ import { Text, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import {
-  brandColors,
-  iconSizeValues,
-  schemeTextSecondary,
-  statusColors,
-} from '@/constants/design-tokens';
-import { useScheme } from '@/hooks/useScheme';
+import { iconSizeValues, statusColors } from '@/constants/design-tokens';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
 import { DAY_IN_MS } from '@/utils/dates';
@@ -21,7 +15,7 @@ export type VerifiedAt = Date | string;
  * How recent a verification is.
  *
  * The tone is the point: a badge only reads as a reassurance while it still means one, so the
- * colour moves green to amber to neutral as the date ages instead of the badge looking equally
+ * colour runs green to amber to red as the date ages instead of the badge looking equally
  * trustworthy a year later.
  */
 export type VerificationTone = 'fresh' | 'aging' | 'stale';
@@ -31,19 +25,36 @@ export type VerificationRecency = {
   tone: VerificationTone;
 };
 
-const FRESH_DAYS = 7;
-const AGING_DAYS = 30;
+/**
+ * The recency thresholds, in days, as named constants rather than numbers inside a comparison:
+ * how fast equipment goes stale is a product decision, and one place changing is the difference
+ * between a tweak and a hunt.
+ */
+export const VERIFICATION_FRESH_DAYS = 7;
+export const VERIFICATION_AGING_DAYS = 30;
 
 const BORDER_TONE_CLASS: Record<VerificationTone, string> = {
-  fresh: 'border-primary',
+  fresh: 'border-status-good',
   aging: 'border-status-warning',
-  stale: 'border-border',
+  stale: 'border-status-bad',
 };
 
 const LABEL_TONE_CLASS: Record<VerificationTone, string> = {
-  fresh: 'text-text-primary',
-  aging: 'text-text-primary',
-  stale: 'text-text-secondary',
+  fresh: 'text-status-good',
+  aging: 'text-status-warning',
+  stale: 'text-status-bad',
+};
+
+const ICON_COLOR: Record<VerificationTone, string> = {
+  fresh: statusColors.good,
+  aging: statusColors.warning,
+  stale: statusColors.bad,
+};
+
+const ICON_NAME: Record<VerificationTone, 'checkmark-circle' | 'alert-circle'> = {
+  fresh: 'checkmark-circle',
+  aging: 'alert-circle',
+  stale: 'alert-circle',
 };
 
 /** The dictionary keys for each unit, so the wording lives in the translation table. */
@@ -90,13 +101,13 @@ export function describeVerification(
   }
 
   const tone: VerificationTone =
-    days <= FRESH_DAYS ? 'fresh' : days <= AGING_DAYS ? 'aging' : 'stale';
+    days <= VERIFICATION_FRESH_DAYS ? 'fresh' : days <= VERIFICATION_AGING_DAYS ? 'aging' : 'stale';
 
   if (days < 7) {
     return { label: verifiedLabel('day', days), tone };
   }
 
-  if (days < AGING_DAYS) {
+  if (days < VERIFICATION_AGING_DAYS) {
     return { label: verifiedLabel('week', Math.floor(days / 7)), tone };
   }
 
@@ -121,14 +132,7 @@ export type VerificationBadgeProps = {
  * verified because a label was passed once and never updated.
  */
 export function VerificationBadge({ verifiedAt, label, className }: VerificationBadgeProps) {
-  const scheme = useScheme();
   const recency = describeVerification(verifiedAt);
-
-  const iconColor: Record<VerificationTone, string> = {
-    fresh: brandColors.primary,
-    aging: statusColors.warning,
-    stale: schemeTextSecondary[scheme],
-  };
 
   return (
     <View
@@ -140,8 +144,8 @@ export function VerificationBadge({ verifiedAt, label, className }: Verification
       )}
     >
       <Ionicons
-        color={iconColor[recency.tone]}
-        name={recency.tone === 'stale' ? 'checkmark-circle-outline' : 'checkmark-circle'}
+        color={ICON_COLOR[recency.tone]}
+        name={ICON_NAME[recency.tone]}
         size={iconSizeValues.xs}
       />
       <Text
