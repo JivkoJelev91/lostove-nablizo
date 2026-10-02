@@ -42,12 +42,28 @@ async function writeEquipment(
   if (insertError) throw insertError;
 }
 
-/** Every spot, newest submission first, for the discovery list. */
-export async function getSpots(): Promise<Spot[]> {
+/** How many spots one feed page carries. Big enough to fill several screens, small enough to be one cheap response. */
+export const FEED_PAGE_SIZE = 20;
+
+/**
+ * One page of the directory, newest first, for the feed without a position.
+ *
+ * The range is the pagination: PostgREST turns it into `offset`/`limit`, and the id tiebreaker
+ * keeps the page boundaries stable when two spots share a creation timestamp. Only approved spots
+ * are asked for — RLS would also show the caller their own pending ones, and the feed never
+ * displayed those anyway.
+ */
+export async function getSpotsPage(
+  offset: number,
+  limit: number = FEED_PAGE_SIZE,
+): Promise<Spot[]> {
   const { data, error } = await supabase
     .from('spots')
     .select(SPOT_SELECT)
-    .order('created_at', { ascending: false });
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
+    .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
@@ -55,18 +71,24 @@ export async function getSpots(): Promise<Spot[]> {
 }
 
 /**
- * Approved spots within `radiusM` of `origin`, nearest first.
+ * One page of approved spots within `radiusM` of `origin`, nearest first.
  *
- * One call, and the card comes whole: the function returns the spot's columns with its equipment
- * and photos embedded, so there is no second request per result set and nothing to merge. The
- * distance is the database's, measured on the GiST index — but it lands in the same
- * `distanceMeters` field the client-side calculation fills, and the display formats both the same
- * way. One field, one meaning, whichever layer measured it.
+ * The distance ordering and the radius predicate are the database's, measured on the GiST index,
+ * and pagination is the function's own `p_limit`/`p_offset` so page one is the nearest spots and
+ * page two continues outward. The distance lands in the same `distanceMeters` field the
+ * client-side calculation fills, and the display formats both the same way.
  */
-export async function getNearbySpots(origin: Coordinate, radiusM: number): Promise<Spot[]> {
+export async function getNearbySpots(
+  origin: Coordinate,
+  radiusM: number,
+  offset: number,
+  limit: number = FEED_PAGE_SIZE,
+): Promise<Spot[]> {
   const { data, error } = await supabase.rpc('nearby_spots', {
     p_latitude: origin.latitude,
     p_longitude: origin.longitude,
+    p_offset: offset,
+    p_limit: limit,
     p_radius_m: radiusM,
   });
 

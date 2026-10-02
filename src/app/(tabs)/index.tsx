@@ -31,10 +31,13 @@ const SEARCH_DEBOUNCE_MS = 300;
 export default function HomeScreen() {
   const location = useUserLocation();
   const {
-    data: spots = [],
+    spots,
     isLoading,
     isError,
     isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     refetch,
     nearby: measured,
   } = useFeedSpotsQuery(location);
@@ -97,13 +100,16 @@ export default function HomeScreen() {
       <ScreenShell header={false} padded={false} variant="tab">
         <FeedList
           activeCount={activeCount}
+          hasMore={hasNextPage}
           isError={isError}
           isFetching={isFetching}
           isLoading={isLoading}
+          loadingMore={isFetchingNextPage}
           location={location}
           measured={measured}
           onAddSpot={() => router.navigate('/(tabs)/add')}
           onClearFilters={clear}
+          onLoadMore={() => void fetchNextPage()}
           onOpenFilters={openFilters}
           onOpenSearch={openSearch}
           onRefresh={() => void refetch()}

@@ -390,6 +390,8 @@ export type Database = {
           p_latitude: number;
           p_longitude: number;
           p_radius_m: number;
+          p_limit?: number;
+          p_offset?: number;
         };
         Returns: {
           city: string | null;

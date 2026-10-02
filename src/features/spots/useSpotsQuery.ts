@@ -1,12 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { UserLocation } from '@/features/location/useUserLocation';
 import {
   createSpot,
+  FEED_PAGE_SIZE,
   getNearbySpots,
   getOwnedSpots,
   getSpotById,
-  getSpots,
+  getSpotsPage,
   reportSpot,
   searchSpots,
   SEARCH_MIN_QUERY_LENGTH,
@@ -44,9 +45,10 @@ const FEED_STALE_TIME_MS = 60_000;
  * directory — the prompt says browsing is public — and the cards say the distance is unknown
  * rather than printing a number the app cannot know.
  *
- * The fetch waits for the permission question to be answered and, when it is granted, for the fix.
- * Fetching the full list first would download every spot on a launch that is about to ask for the
- * nearby ones instead: exactly the redundant download this whole path exists to avoid.
+ * Both modes are paged, one {@link FEED_PAGE_SIZE} at a time: the database orders by distance or
+ * recency and the feed asks for the next page as the athlete nears the end of the list, so a
+ * directory that grows to thousands never arrives in one response. The fetch also waits for the
+ * permission question to be answered and, when it is granted, for the fix.
  */
 export function useFeedSpotsQuery(location: UserLocation) {
   const { coordinate, failed, granted, resolved } = location;
@@ -56,12 +58,20 @@ export function useFeedSpotsQuery(location: UserLocation) {
   // than a spinner that never resolves. The failure is already surfaced by the prompt.
   const waitingForFix = granted && !failed && coordinate === null;
 
-  const query = useQuery({
+  const query = useInfiniteQuery({
     queryKey:
       coordinate === null
         ? spotsQueryKeys.lists()
         : spotsQueryKeys.nearby(coordinate.latitude, coordinate.longitude, NEARBY_RADIUS_M),
-    queryFn: () => (coordinate === null ? getSpots() : getNearbySpots(coordinate, NEARBY_RADIUS_M)),
+    queryFn: ({ pageParam }) =>
+      coordinate === null
+        ? getSpotsPage(pageParam)
+        : getNearbySpots(coordinate, NEARBY_RADIUS_M, pageParam),
+    initialPageParam: 0,
+    // A full page means there may be more; a short page is the end. No total count is requested:
+    // the feed only needs to know whether to keep a loader at the bottom.
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === FEED_PAGE_SIZE ? allPages.length * FEED_PAGE_SIZE : undefined,
     enabled: resolved && !waitingForFix,
     // The two modes are separate cache entries, so granting location switches the key. Without a
     // placeholder that switch blanks the feed to its loading state; carrying the previous rows
@@ -74,6 +84,8 @@ export function useFeedSpotsQuery(location: UserLocation) {
     ...query,
     /** Whether the rows were measured from a position, which decides what an empty list means. */
     nearby: coordinate !== null,
+    /** The pages as the one list the screens render; nothing outside this hook knows about pages. */
+    spots: query.data?.pages.flat() ?? [],
     // A disabled query is `pending`, not `loading`, in v5, so the caller is told the difference
     // between "no spots" and "not allowed to ask yet".
     isLoading: query.isLoading || !resolved || waitingForFix,

@@ -22,20 +22,25 @@ const MODERATOR_STALE_TIME_MS = 5 * 60_000;
  */
 export function useIsModeratorQuery() {
   const { user } = useCurrentUser();
+  const userId = user?.id ?? null;
 
   return useQuery({
-    queryKey: queryKeys.moderation.mine(),
+    queryKey: queryKeys.moderation.mine(userId ?? 'guest'),
     queryFn: amIModerator,
-    enabled: user !== null,
+    enabled: userId !== null,
     staleTime: MODERATOR_STALE_TIME_MS,
   });
 }
 
 /** The moderation queue: every report, newest first. */
 export function useModerationReportsQuery() {
+  const { user } = useCurrentUser();
+  const userId = user?.id ?? null;
+
   return useQuery({
-    queryKey: queryKeys.moderation.reports(),
+    queryKey: queryKeys.moderation.reports(userId ?? 'guest'),
     queryFn: getModerationReports,
+    enabled: userId !== null,
   });
 }
 
@@ -48,7 +53,7 @@ export function useModerateSpotMutation() {
       moderateSpot(spotId, status),
     onSuccess: async (_data, { spotId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.moderation.reports() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.moderation.reportsRoot() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.spots.detail(spotId) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.spots.all }),
       ]);
@@ -64,7 +69,7 @@ export function useSetReportStatusMutation() {
     mutationFn: ({ reportId, status }: { reportId: string; status: ReportStatus }) =>
       setReportStatus(reportId, status),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.moderation.reports() });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.moderation.reportsRoot() });
     },
   });
 }

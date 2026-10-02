@@ -5,6 +5,9 @@ export const DISCOVERY = {
   'home.sortedByDistance': 'Местата са подредени по близост до теб',
   'home.noMatchTitle': 'Няма съвпадение',
   'home.noMatchDescription': 'Няма места с всички избрани уреди.',
+  'home.noMatchMoreDescription':
+    'Сред заредените места няма съвпадение. Зареди още, за да продължиш да търсиш.',
+  'home.loadMoreSpots': 'Зареди още места',
   'home.clearFilters': 'Изчисти филтрите',
   'home.resetFilters': 'Изчисти',
   'home.nearbyEmptyTitle': 'Няма места наблизо',

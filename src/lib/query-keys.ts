@@ -19,7 +19,6 @@ export const queryKeys = {
   },
   favorites: {
     all: ['favorites'] as const,
-    lists: () => [...queryKeys.favorites.all, 'list'] as const,
   },
   reviews: {
     all: ['reviews'] as const,
@@ -35,8 +34,14 @@ export const queryKeys = {
   },
   moderation: {
     all: ['moderation'] as const,
-    /** The caller's own moderator flag, so the settings row and gates read one answer. */
-    mine: () => [...queryKeys.moderation.all, 'mine'] as const,
-    reports: () => [...queryKeys.moderation.all, 'reports'] as const,
+    /**
+     * The moderator flag and the queue are both per account. Without the id in the key a shared
+     * device could serve one athlete's cached answer — including the report queue — to the next
+     * account within the stale window, because a query cache is not RLS.
+     */
+    mineRoot: () => [...queryKeys.moderation.all, 'mine'] as const,
+    mine: (userId: string) => [...queryKeys.moderation.mineRoot(), userId] as const,
+    reportsRoot: () => [...queryKeys.moderation.all, 'reports'] as const,
+    reports: (userId: string) => [...queryKeys.moderation.reportsRoot(), userId] as const,
   },
 } as const;

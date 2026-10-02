@@ -31,10 +31,13 @@ type FeedEmptyStateProps = {
   isLoading: boolean;
   isError: boolean;
   hasFilters: boolean;
+  /** Whether the database has more pages; a filtered-empty list may still have matches out there. */
+  hasMore: boolean;
   /** Whether the rows were measured from a position, which decides what an empty list means. */
   measured: boolean;
   onAddSpot: () => void;
   onClearFilters: () => void;
+  onLoadMore: () => void;
   onRetry: () => void;
   onSearchElsewhere: () => void;
 };
@@ -48,14 +51,20 @@ type FeedEmptyStateProps = {
  * they did not create. The two "nothing here" branches also carry the action their copy asks
  * for: a directory can reach a term, an empty directory can reach the add screen, and neither
  * sentence should end without a way to do what it suggests.
+ *
+ * The filtered case is honest about paging: the filters narrow the pages loaded so far, so with
+ * more pages on the server "no match" would be a claim the feed cannot make. It offers the next
+ * page instead, and keeps the clear action beside it.
  */
 function FeedEmptyState({
   hasFilters,
+  hasMore,
   isError,
   isLoading,
   measured,
   onAddSpot,
   onClearFilters,
+  onLoadMore,
   onRetry,
   onSearchElsewhere,
 }: FeedEmptyStateProps) {
@@ -72,8 +81,17 @@ function FeedEmptyState({
   if (hasFilters) {
     return (
       <EmptyState
-        action={<GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />}
-        description={t('home.noMatchDescription')}
+        action={
+          hasMore ? (
+            <View className="gap-space-8">
+              <PrimaryButton label={t('home.loadMoreSpots')} onPress={onLoadMore} />
+              <GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />
+            </View>
+          ) : (
+            <GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />
+          )
+        }
+        description={hasMore ? t('home.noMatchMoreDescription') : t('home.noMatchDescription')}
         icon={
           <Ionicons
             color={schemeTextMuted[scheme]}
@@ -203,15 +221,18 @@ function FeedHeader({
 
 export type FeedListProps = {
   activeCount: number;
+  hasMore: boolean;
   isError: boolean;
   isFetching: boolean;
   isLoading: boolean;
+  loadingMore: boolean;
   location: UserLocation;
   measured: boolean;
   selectedEquipment: readonly string[];
   spots: Spot[];
   onAddSpot: () => void;
   onClearFilters: () => void;
+  onLoadMore: () => void;
   onOpenFilters: () => void;
   onOpenSearch: () => void;
   onRefresh: () => void;
@@ -223,15 +244,18 @@ export type FeedListProps = {
 /** The feed list with its header, empty states and pull-to-refresh, apart from the screen's data. */
 export function FeedList({
   activeCount,
+  hasMore,
   isError,
   isFetching,
   isLoading,
+  loadingMore,
   location,
   measured,
   selectedEquipment,
   spots,
   onAddSpot,
   onClearFilters,
+  onLoadMore,
   onOpenFilters,
   onOpenSearch,
   onRefresh,
@@ -253,15 +277,20 @@ export function FeedList({
         <View className="px-screen-px">
           <FeedEmptyState
             hasFilters={activeCount > 0}
+            hasMore={hasMore}
             isError={isError}
             isLoading={isLoading}
             measured={measured}
             onAddSpot={onAddSpot}
             onClearFilters={onClearFilters}
+            onLoadMore={onLoadMore}
             onRetry={onRetry}
             onSearchElsewhere={onOpenSearch}
           />
         </View>
+      }
+      ListFooterComponent={
+        loadingMore ? <LoadingSpinner className="py-section-gap" size="sm" /> : null
       }
       ListHeaderComponent={
         <FeedHeader
@@ -274,6 +303,9 @@ export function FeedList({
           selectedEquipment={selectedEquipment}
         />
       }
+      // The next page starts loading half a screen before the end, so scrolling stays unbroken.
+      onEndReached={hasMore ? onLoadMore : undefined}
+      onEndReachedThreshold={0.5}
       refreshControl={
         <RefreshControl
           onRefresh={onRefresh}
