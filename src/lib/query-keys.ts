@@ -12,6 +12,8 @@ export const queryKeys = {
       [...queryKeys.spots.all, 'nearby', { latitude, longitude, radiusM }] as const,
     details: () => [...queryKeys.spots.all, 'detail'] as const,
     detail: (spotId: string) => [...queryKeys.spots.details(), spotId] as const,
+    /** The signed-in athlete's own spots, keyed by who owns them. */
+    owned: (userId: string) => [...queryKeys.spots.all, 'owned', userId] as const,
   },
   favorites: {
     all: ['favorites'] as const,

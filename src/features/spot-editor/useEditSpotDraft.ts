@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ImageSourcePropType } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
 
 import type { EquipmentCondition } from '@/components';
+import { useCurrentUser } from '@/features/auth/useCurrentUser';
+import type { DraftPhoto } from '@/features/photos/types';
 import type { Spot } from '@/features/spots/types';
-import { useSpots } from '@/features/spots/useSpots';
+import { useUpdateSpotMutation } from '@/features/spots/useSpotsQuery';
 import {
   equipmentDraftFromSpot,
   equipmentDraftsEqual,
@@ -18,34 +19,81 @@ import {
 } from '@/features/spot-editor/validation';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 
-/** How long the mock save spends "saving" before the confirmation appears. */
-const SAVE_DELAY_MS = 1100;
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/** True when two draft photos are the same file still in the same place in the list. */
+function samePhoto(first: DraftPhoto, second: DraftPhoto): boolean {
+  if (first.kind !== second.kind) {
+    return false;
+  }
+
+  return first.kind === 'stored' && second.kind === 'stored'
+    ? first.id === second.id
+    : first.uri === second.uri;
+}
 
 /**
- * The Edit Spot form's state: every field's draft value, validation, dirtiness, and the mock
- * save lifecycle.
+ * The athlete's own stored photos as draft entries. A spot can collect photos from several
+ * contributors, so the editor only ever offers the ones this account may delete.
+ */
+function ownedDraftPhotos(spot: Spot, userId: string | undefined): readonly DraftPhoto[] {
+  return spot.photos
+    .filter((photo) => photo.userId === (userId ?? ''))
+    .map((photo) => ({
+      height: photo.height,
+      id: photo.id,
+      kind: 'stored' as const,
+      uri: photo.uri,
+      userId: photo.userId,
+      width: photo.width,
+    }));
+}
+
+/** True when the draft lists exactly the same photos, in the same order, as it started with. */
+function photosMatch(photos: readonly DraftPhoto[], initial: readonly DraftPhoto[]): boolean {
+  return (
+    photos.length === initial.length &&
+    photos.every((photo, index) => {
+      const starting = initial[index];
+
+      return starting !== undefined && samePhoto(photo, starting);
+    })
+  );
+}
+
+/**
+ * The Edit Spot form's state: every field's draft value, validation, dirtiness, and the save
+ * lifecycle.
+ *
+ * The draft only carries the athlete's own photos. A spot can collect photos from several
+ * contributors, and a save must delete only the rows its own uploader is allowed to delete —
+ * so somebody else's work is not even shown as removable here, and `updateSpot` repeats the
+ * same restriction at the database.
  *
  * A dirty form asks before it discards, whichever way the screen is left: the header back
  * button and Cancel call {@link requestClose}, and Android's back button is intercepted by
- * {@link useUnsavedChangesGuard}. A save writes to the spots store — which sends the spot back
- * to review — and then behaves like a pending request for a moment before the confirmation.
+ * {@link useUnsavedChangesGuard}. A save writes to Supabase — which sends the spot back to
+ * review — and the confirmation appears after the request settles.
  */
 export function useEditSpotDraft(spot: Spot) {
-  const { updateSpot } = useSpots();
+  const { user } = useCurrentUser();
+  const { mutateAsync: updateSpot } = useUpdateSpotMutation();
   const initialEquipment = useMemo(() => equipmentDraftFromSpot(spot), [spot]);
+  const initialPhotos = useMemo(() => ownedDraftPhotos(spot, user?.id), [spot, user?.id]);
   const [name, setName] = useState(spot.name);
   const [description, setDescription] = useState(spot.description);
   const [equipment, setEquipment] = useState<readonly EquipmentDraftItem[]>(initialEquipment);
   const [condition, setCondition] = useState<EquipmentCondition>(spot.condition);
-  const [photos, setPhotos] = useState<readonly ImageSourcePropType[]>(spot.images);
+  const [photos, setPhotos] = useState<readonly DraftPhoto[]>(initialPhotos);
   const [errors, setErrors] = useState<SpotDraftErrors>({});
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [savedVisible, setSavedVisible] = useState(false);
   const [discardVisible, setDiscardVisible] = useState(false);
 
-  const photosUnchanged =
-    photos.length === spot.images.length &&
-    photos.every((photo, index) => photo === spot.images[index]);
+  const photosUnchanged = photosMatch(photos, initialPhotos);
 
   const isDirty =
     name !== spot.name ||
@@ -56,19 +104,6 @@ export function useEditSpotDraft(spot: Spot) {
 
   const showDiscard = useCallback(() => setDiscardVisible(true), []);
   const leave = useUnsavedChangesGuard(isDirty, showDiscard);
-
-  useEffect(() => {
-    if (!saving) {
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setSaving(false);
-      setSavedVisible(true);
-    }, SAVE_DELAY_MS);
-
-    return () => clearTimeout(timeout);
-  }, [saving]);
 
   const changeName = useCallback((value: string) => {
     setName(value);
@@ -85,7 +120,7 @@ export function useEditSpotDraft(spot: Spot) {
     setErrors((current) => ({ ...current, equipment: undefined }));
   }, []);
 
-  const changePhotos = useCallback((value: readonly ImageSourcePropType[]) => {
+  const changePhotos = useCallback((value: readonly DraftPhoto[]) => {
     setPhotos(value);
     setErrors((current) => ({ ...current, photos: undefined }));
   }, []);
@@ -106,7 +141,7 @@ export function useEditSpotDraft(spot: Spot) {
     leave();
   }, [leave]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const nextErrors: SpotDraftErrors = {
       name: validateName(name),
       description: validateDescription(description),
@@ -119,22 +154,36 @@ export function useEditSpotDraft(spot: Spot) {
       return;
     }
 
-    // The store puts the spot back under review, so an approved spot stops showing facts a
-    // moderator has not seen. Trimming here keeps the form's state equal to what was stored.
     const trimmedName = name.trim();
     const trimmedDescription = description.trim();
 
-    setName(trimmedName);
-    setDescription(trimmedDescription);
-    updateSpot(spot.id, {
-      name: trimmedName,
-      description: trimmedDescription,
-      equipment,
-      condition,
-      images: photos,
-    });
     setErrors({});
+    setSaveError(undefined);
     setSaving(true);
+
+    try {
+      // The store puts the spot back under review, so an approved spot stops showing facts a
+      // moderator has not seen. Photos sync inside the same call: new files upload first, then
+      // the rows the draft dropped are deleted.
+      await updateSpot({
+        edits: {
+          condition,
+          description: trimmedDescription,
+          equipment,
+          name: trimmedName,
+          photos,
+        },
+        spotId: spot.id,
+      });
+
+      setName(trimmedName);
+      setDescription(trimmedDescription);
+      setSavedVisible(true);
+    } catch (error: unknown) {
+      setSaveError(messageOf(error));
+    } finally {
+      setSaving(false);
+    }
   }, [condition, description, equipment, name, photos, spot.id, updateSpot]);
 
   const handleSavedDone = useCallback(() => {
@@ -160,6 +209,7 @@ export function useEditSpotDraft(spot: Spot) {
     name,
     photos,
     requestClose,
+    saveError,
     savedVisible,
     saving,
   };

@@ -1,9 +1,12 @@
+import { Text, View } from 'react-native';
+
 import { useLocalSearchParams } from 'expo-router';
 
+import { GhostButton, Screen } from '@/components';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
-import { useSpots } from '@/features/spots/useSpots';
+import { useSpotQuery } from '@/features/spots/useSpotsQuery';
 import { EditSpotForm } from '@/features/spot-editor/EditSpotForm';
 import { t } from '@/i18n';
 
@@ -27,11 +30,35 @@ export default function EditSpotScreen() {
 
 function OwnerOnlyEditor() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { spotById } = useSpots();
+  const spotId = typeof id === 'string' ? id : null;
   const { user } = useCurrentUser();
-  const spot = spotById(id);
+  const { data: spot, isError, isLoading, refetch } = useSpotQuery(spotId);
 
-  if (spot === undefined || spot.ownerId === undefined || spot.ownerId !== user?.id) {
+  if (isLoading) {
+    return (
+      <Screen edges={['top', 'bottom']}>
+        <Text className="text-body text-text-secondary">{t('common.loading')}</Text>
+      </Screen>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Screen edges={['top', 'bottom']}>
+        <View className="gap-space-12">
+          <Text className="text-body text-text-primary">{t('common.errorTitle')}</Text>
+          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
+          <GhostButton label={t('common.tryAgain')} onPress={() => void refetch()} />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (spot === null || spot === undefined) {
+    return <SpotNotFound />;
+  }
+
+  if (spot.ownerId === undefined || spot.ownerId !== user?.id) {
     return <SpotNotFound />;
   }
 

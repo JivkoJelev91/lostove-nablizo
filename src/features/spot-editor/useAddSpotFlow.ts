@@ -4,8 +4,10 @@ import { BackHandler } from 'react-native';
 
 import { router, useFocusEffect } from 'expo-router';
 
+import { uploadSpotPhotos } from '@/features/photos/photos-api';
+import type { PhotoUploadProgress } from '@/features/photos/photos-api';
 import type { Coordinate, Spot, SpotSubmission } from '@/features/spots/types';
-import { useSpots } from '@/features/spots/useSpots';
+import { useCreateSpotMutation } from '@/features/spots/useSpotsQuery';
 import type { AddSpotStep, SpotDraft, SpotDraftErrors } from '@/features/spot-editor/types';
 import {
   firstInvalidStep,
@@ -28,8 +30,9 @@ const LAST_STEP: AddSpotStep = 5;
 const NEXT_STEP: Record<AddSpotStep, AddSpotStep> = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 5 };
 const PREVIOUS_STEP: Record<AddSpotStep, AddSpotStep> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
 
-/** How long the mock submit spends "saving" before the success state appears. */
-const SUBMIT_DELAY_MS = 1200;
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 /** The store's input for a finished draft, or null when the coordinate never arrived. */
 function submissionFromDraft(draft: SpotDraft): SpotSubmission | null {
@@ -44,7 +47,11 @@ function submissionFromDraft(draft: SpotDraft): SpotSubmission | null {
     description: draft.description,
     coordinate,
     equipment: draft.equipment.map((item) => ({ name: item.name, quantity: item.quantity })),
-    images: draft.photos,
+    photos: draft.photos.map((photo) => ({
+      height: photo.height,
+      uri: photo.uri,
+      width: photo.width,
+    })),
   };
 }
 
@@ -75,32 +82,35 @@ function useWizardBackStep(
 }
 
 /**
- * The Add Spot wizard's state: the draft, the current step, validation errors, and the submit
- * lifecycle.
+ * The submit half of the wizard: the create request, then the photos, with the states a screen
+ * needs to show progress and failures.
  *
- * A finished draft goes to the spots store as a spot waiting for review; the brief simulated
- * save is only there until a real request replaces it. Everything the flow needs to decide —
- * including where Android's back gesture goes — lives here, leaving the screen to lay out
- * what it returns.
+ * The two requests are ordered because a photo needs the spot's id, not the other way round. They
+ * do not share success, though: a spot with a failed photo is still a usable spot, so the upload
+ * report is surfaced on the success screen instead of rolling the submission back.
  */
-export function useAddSpotFlow() {
-  const { addSpot } = useSpots();
-  const [step, setStep] = useState<AddSpotStep>(1);
-  const [draft, setDraft] = useState<SpotDraft>(EMPTY_DRAFT);
-  const [errors, setErrors] = useState<SpotDraftErrors>({});
+function useSpotSubmission(draft: SpotDraft) {
+  const { mutateAsync: createSpot } = useCreateSpotMutation();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [createdSpot, setCreatedSpot] = useState<Spot | null>(null);
-  const submittedRef = useRef(false);
+  const [photoFailures, setPhotoFailures] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<PhotoUploadProgress | null>(null);
+  const [submitError, setSubmitError] = useState<string | undefined>(undefined);
+
+  const start = useCallback(() => {
+    setSubmitError(undefined);
+    setPhotoFailures(0);
+    setSubmitting(true);
+  }, []);
 
   const reset = useCallback(() => {
-    setStep(1);
-    setDraft(EMPTY_DRAFT);
-    setErrors({});
     setSubmitting(false);
     setSubmitted(false);
     setCreatedSpot(null);
-    submittedRef.current = false;
+    setPhotoFailures(0);
+    setUploadProgress(null);
+    setSubmitError(undefined);
   }, []);
 
   useEffect(() => {
@@ -108,7 +118,7 @@ export function useAddSpotFlow() {
       return;
     }
 
-    const timeout = setTimeout(() => {
+    const save = async () => {
       const submission = submissionFromDraft(draft);
 
       if (submission === null) {
@@ -117,14 +127,70 @@ export function useAddSpotFlow() {
         return;
       }
 
-      setCreatedSpot(addSpot(submission));
-      setSubmitting(false);
-      setSubmitted(true);
-      submittedRef.current = true;
-    }, SUBMIT_DELAY_MS);
+      try {
+        const spot = await createSpot(submission);
 
-    return () => clearTimeout(timeout);
-  }, [addSpot, draft, submitting]);
+        const uploaded = await uploadSpotPhotos(spot.id, submission.photos, {
+          onProgress: setUploadProgress,
+        });
+
+        setPhotoFailures(uploaded.failed.length);
+        setCreatedSpot(spot);
+        setSubmitted(true);
+      } catch (error: unknown) {
+        setSubmitError(messageOf(error));
+      } finally {
+        setSubmitting(false);
+        setUploadProgress(null);
+      }
+    };
+
+    void save();
+  }, [createSpot, draft, submitting]);
+
+  return {
+    createdSpot,
+    photoFailures,
+    reset,
+    start,
+    submitError,
+    submitted,
+    submitting,
+    uploadProgress,
+  };
+}
+
+/**
+ * The Add Spot wizard's state: the draft, the current step, validation errors, and the submit
+ * lifecycle. Everything the flow needs to decide — including where Android's back gesture goes —
+ * lives here, leaving the screen to lay out what it returns.
+ */
+export function useAddSpotFlow() {
+  const [step, setStep] = useState<AddSpotStep>(1);
+  const [draft, setDraft] = useState<SpotDraft>(EMPTY_DRAFT);
+  const [errors, setErrors] = useState<SpotDraftErrors>({});
+  const {
+    createdSpot,
+    photoFailures,
+    reset: resetSubmission,
+    start,
+    submitError,
+    submitted,
+    submitting,
+    uploadProgress,
+  } = useSpotSubmission(draft);
+  const submittedRef = useRef(false);
+
+  useEffect(() => {
+    submittedRef.current = submitted;
+  }, [submitted]);
+
+  const reset = useCallback(() => {
+    setStep(1);
+    setDraft(EMPTY_DRAFT);
+    setErrors({});
+    resetSubmission();
+  }, [resetSubmission]);
 
   // Coming back to the tab after a finished flow should greet the user with a fresh form.
   useFocusEffect(
@@ -193,8 +259,8 @@ export function useAddSpotFlow() {
     }
 
     setErrors({});
-    setSubmitting(true);
-  }, [draft]);
+    start();
+  }, [draft, start]);
 
   const handleViewSpot = useCallback(() => {
     if (createdSpot === null) {
@@ -218,9 +284,12 @@ export function useAddSpotFlow() {
     handleSubmit,
     handleViewSpot,
     isLastStep: step === LAST_STEP,
+    photoFailures,
     reset,
     step,
+    submitError,
     submitted,
     submitting,
+    uploadProgress,
   };
 }

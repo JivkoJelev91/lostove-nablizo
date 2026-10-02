@@ -44,6 +44,10 @@ export const EDITOR = {
 
   'submit.add': 'Добави мястото',
   'submit.submitting': 'Добавяме мястото...',
+  'submit.uploading': 'Качваме снимките... {done} / {total}',
+  'submit.addFailed': 'Мястото не се запази. Провери връзката и опитай отново.',
+  'submit.saveFailed': 'Промените не се запазиха. Провери връзката и опитай отново.',
+  'submit.photoFailures': 'Някои снимки не се качиха. Добави ги от редакцията на мястото.',
   'submit.changes': 'Запази промените',
   'submit.savingChanges': 'Запазваме промените...',
   'submit.changesTitle': 'Промените са изпратени',

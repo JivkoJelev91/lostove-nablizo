@@ -65,7 +65,8 @@ export function SpotsProvider({ children }: { children: ReactNode }) {
         condition: 'good',
         description: submission.description.trim(),
         distanceMeters: null,
-        images: submission.images,
+        images: submission.photos.map((photo) => ({ uri: photo.uri })),
+        photos: [],
         status: 'under_review',
         ...(ownerId === null ? {} : { ownerId }),
       };
@@ -87,7 +88,7 @@ export function SpotsProvider({ children }: { children: ReactNode }) {
               description: edits.description.trim(),
               equipment: edits.equipment,
               condition: edits.condition,
-              images: edits.images,
+              images: edits.photos.map((photo) => ({ uri: photo.uri })),
               status: 'under_review',
             }
           : spot,

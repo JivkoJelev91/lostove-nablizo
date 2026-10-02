@@ -26,7 +26,7 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
         <Image
           accessibilityLabel={draft.name}
           className="h-spot-image w-full rounded-lg bg-bg-surface"
-          source={cover}
+          source={{ uri: cover.uri }}
         />
       )}
 

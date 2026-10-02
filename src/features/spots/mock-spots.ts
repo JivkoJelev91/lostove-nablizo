@@ -38,6 +38,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(4),
     distanceMeters: 800,
     images: [SPOT_PHOTO, SPOT_PHOTO_PULL_UP, SPOT_PHOTO_RINGS],
+    photos: [],
     status: 'approved',
   },
   {
@@ -56,6 +57,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(14),
     distanceMeters: 2100,
     images: [SPOT_PHOTO_PULL_UP, SPOT_PHOTO],
+    photos: [],
     status: 'approved',
   },
   {
@@ -76,6 +78,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(45),
     distanceMeters: 3600,
     images: [SPOT_PHOTO_MONKEY_BARS, SPOT_PHOTO_RINGS, SPOT_PHOTO],
+    photos: [],
     status: 'approved',
   },
   {
@@ -91,6 +94,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(8),
     distanceMeters: 4900,
     images: [SPOT_PHOTO_RINGS],
+    photos: [],
     status: 'approved',
   },
   {
@@ -109,6 +113,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(120),
     distanceMeters: 6200,
     images: [SPOT_PHOTO, SPOT_PHOTO_MONKEY_BARS],
+    photos: [],
     status: 'approved',
   },
   {
@@ -128,6 +133,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(2),
     distanceMeters: 1400,
     images: [SPOT_PHOTO],
+    photos: [],
     status: 'approved',
   },
   {
@@ -142,6 +148,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'Малко фитнес кътче между блоковете в Слатина с два лоста и успоредка. Осветено е и след мръкване, но земята остава кална един ден след дъжд.',
     distanceMeters: 4200,
     images: [SPOT_PHOTO_PULL_UP],
+    photos: [],
     status: 'under_review',
   },
   {
@@ -156,6 +163,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
       'Лостове и гимнастическа стълба до спортната зала в Младост. Боята е прясна, а лостовете са здрави.',
     distanceMeters: 6800,
     images: [SPOT_PHOTO],
+    photos: [],
     status: 'rejected',
   },
   {
@@ -171,6 +179,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     verifiedAt: daysAgo(300),
     distanceMeters: 2400,
     images: [SPOT_PHOTO_RINGS],
+    photos: [],
     status: 'closed',
   },
 ];

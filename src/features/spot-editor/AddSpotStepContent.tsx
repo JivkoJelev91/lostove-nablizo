@@ -1,5 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
-
+import type { DraftPhoto } from '@/features/photos/types';
 import type { Coordinate } from '@/features/spots/types';
 import { AddSpotDetailsStep } from '@/features/spot-editor/AddSpotDetailsStep';
 import { AddSpotEquipmentStep } from '@/features/spot-editor/AddSpotEquipmentStep';
@@ -21,7 +20,7 @@ export type AddSpotStepContentProps = {
   onChangeName: (name: string) => void;
   onChangeDescription: (description: string) => void;
   onChangeEquipment: (equipment: readonly EquipmentDraftItem[]) => void;
-  onChangePhotos: (photos: readonly ImageSourcePropType[]) => void;
+  onChangePhotos: (photos: readonly DraftPhoto[]) => void;
 };
 
 /** Picks the step the wizard is currently on. Steps keep their own layout and validation. */

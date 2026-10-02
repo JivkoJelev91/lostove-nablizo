@@ -3,6 +3,7 @@ import type { ImageSourcePropType } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/lib/supabase';
 import type { EquipmentCondition, SpotEquipment, SpotStatus } from '@/components';
+import type { StoredPhoto } from '@/features/photos/types';
 import { SPOT_PHOTO } from '@/features/spots/spot-photos';
 import type { Coordinate, Spot, SpotReview } from '@/features/spots/types';
 
@@ -117,6 +118,21 @@ function toImages(photos: PhotoRow[] | undefined): readonly ImageSourcePropType[
     : ordered.map((photo) => photoSource(photo.storage_path));
 }
 
+/** The same gallery as records a save can act on: row id, uploader, and stored dimensions. */
+function toSpotPhotos(photos: PhotoRow[] | undefined): StoredPhoto[] {
+  const ordered = [...(photos ?? [])].sort(
+    (first, second) => new Date(first.created_at).getTime() - new Date(second.created_at).getTime(),
+  );
+
+  return ordered.map((photo) => ({
+    id: photo.id,
+    height: photo.height,
+    uri: supabase.storage.from('photos').getPublicUrl(photo.storage_path).data.publicUrl,
+    userId: photo.user_id,
+    width: photo.width,
+  }));
+}
+
 /**
  * A review row with the author's profile joined onto it, which may be absent for a deleted account.
  *
@@ -175,6 +191,7 @@ export function toSpot(row: SpotWithRelations): Spot {
     description: row.description ?? '',
     distanceMeters: null,
     images: toImages(row.photos),
+    photos: toSpotPhotos(row.photos),
     status: toSpotStatus(row.status),
     ...(row.created_by === null ? {} : { ownerId: row.created_by }),
   };

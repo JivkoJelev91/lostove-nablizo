@@ -1,16 +1,8 @@
 import { getCurrentUserId } from '@/features/auth/current-user';
+import { isLocalPhoto, isStoredPhoto } from '@/features/photos/types';
+import type { DraftPhoto, LocalPhoto } from '@/features/photos/types';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/lib/supabase';
-
-/**
- * A prepared photo on the device, as the picker pipeline hands it over: a local file, already
- * resized and re-encoded to JPEG.
- */
-export type LocalPhoto = {
-  uri: string;
-  width: number;
-  height: number;
-};
 
 /** One photo that failed to upload, with the reason to report. */
 export type PhotoUploadFailure = {
@@ -21,6 +13,16 @@ export type PhotoUploadFailure = {
 export type PhotoUploadResult = {
   rows: Tables<'photos'>[];
   failed: PhotoUploadFailure[];
+};
+
+/** Where a batch got to, reported before the first upload and after every photo. */
+export type PhotoUploadProgress = {
+  completed: number;
+  total: number;
+};
+
+export type PhotoUploadOptions = {
+  onProgress?: (progress: PhotoUploadProgress) => void;
 };
 
 const PHOTO_BUCKET = 'photos';
@@ -131,6 +133,7 @@ export async function uploadSpotPhoto(
 export async function uploadSpotPhotos(
   spotId: string,
   photos: readonly LocalPhoto[],
+  options: PhotoUploadOptions = {},
 ): Promise<PhotoUploadResult> {
   const userId = await getCurrentUserId();
 
@@ -140,6 +143,9 @@ export async function uploadSpotPhotos(
 
   const rows: Tables<'photos'>[] = [];
   const failed: PhotoUploadFailure[] = [];
+  const total = photos.length;
+
+  options.onProgress?.({ completed: 0, total });
 
   for (const photo of photos) {
     try {
@@ -147,7 +153,89 @@ export async function uploadSpotPhotos(
     } catch (error: unknown) {
       failed.push({ message: messageOf(error), uri: photo.uri });
     }
+
+    options.onProgress?.({ completed: rows.length + failed.length, total });
   }
 
   return { failed, rows };
+}
+
+/**
+ * Deletes one stored photo: the object first, then the row that names it.
+ *
+ * That order makes a failure recoverable. If removing the row fails, the object is already gone
+ * and retrying is a no-op removal plus the row delete; the other order would leave an object the
+ * database has forgotten. Photos the caller does not own are invisible to the select, so this is
+ * a no-op for them rather than a policy error.
+ */
+export async function deleteSpotPhoto(photoId: string): Promise<void> {
+  const userId = await getCurrentUserId();
+
+  if (userId === null) {
+    throw new Error('Sign in to delete photos.');
+  }
+
+  const { data: photo, error: readError } = await supabase
+    .from('photos')
+    .select('id, storage_path, user_id')
+    .eq('id', photoId)
+    .maybeSingle();
+
+  if (readError) throw readError;
+  if (photo === null) return;
+
+  if (photo.user_id !== userId) {
+    throw new Error('You can only delete your own photos.');
+  }
+
+  const { error: removeError } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .remove([photo.storage_path]);
+
+  if (removeError) throw removeError;
+
+  const { error: deleteError } = await supabase.from('photos').delete().eq('id', photoId);
+
+  if (deleteError) throw deleteError;
+}
+
+/**
+ * Makes the stored photos match the draft: uploads the new files, then deletes the athlete's own
+ * photos the draft no longer lists.
+ *
+ * Uploads run before deletions so a failed upload cannot combine with a removal to leave the spot
+ * with fewer photos than either step intended. Photos by other contributors are never touched —
+ * the editor only ever shows the athlete their own, and a save must not remove somebody else's
+ * work.
+ */
+export async function syncSpotPhotos(
+  spotId: string,
+  photos: readonly DraftPhoto[],
+  options: PhotoUploadOptions = {},
+): Promise<PhotoUploadResult> {
+  const userId = await getCurrentUserId();
+
+  if (userId === null) {
+    throw new Error('Sign in to update photos.');
+  }
+
+  const { data: existing, error } = await supabase
+    .from('photos')
+    .select('id')
+    .eq('spot_id', spotId)
+    .eq('user_id', userId);
+
+  if (error) throw error;
+
+  const keep = new Set(photos.filter(isStoredPhoto).map((photo) => photo.id));
+  const added = photos.filter(isLocalPhoto);
+  const removed = (existing ?? []).filter((row) => !keep.has(row.id));
+
+  const result = await uploadSpotPhotos(spotId, added, options);
+
+  for (const row of removed) {
+    await deleteSpotPhoto(row.id);
+  }
+
+  return result;
 }

@@ -1,6 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
 import type { EquipmentCondition, SpotEquipment, SpotStatus } from '@/components';
+import type { DraftPhoto, LocalPhoto, StoredPhoto } from '@/features/photos/types';
 
 /**
  * A geographic point as plain numbers rather than a map library's type, which keeps it
@@ -34,6 +35,11 @@ export type Spot = {
   distanceMeters: number | null;
   /** The spot's gallery, cover first. One bundled stand-in per frame until Storage provides real uploads. */
   images: readonly ImageSourcePropType[];
+  /**
+   * The gallery as stored records, which delete and edit need: each photo's row id and uploader.
+   * `images` stays the render list; this is the one that can be pointed at a row.
+   */
+  photos: readonly StoredPhoto[];
   /** Only `approved` spots reach the public screens; the rest wait in the owner's profile. */
   status: SpotStatus;
   /** The athlete who added the spot, absent on spots that arrived from an import. */
@@ -46,7 +52,8 @@ export type SpotSubmission = {
   description: string;
   coordinate: Coordinate;
   equipment: readonly SpotEquipment[];
-  images: readonly ImageSourcePropType[];
+  /** Prepared local files; the create flow uploads them once the spot has an id. */
+  photos: readonly LocalPhoto[];
 };
 
 /**
@@ -56,8 +63,13 @@ export type SpotSubmission = {
  * A save puts the spot back under review, so an approved spot never keeps showing information
  * a moderator has not seen.
  */
-export type SpotEdits = Omit<SpotSubmission, 'coordinate'> & {
+export type SpotEdits = {
+  name: string;
+  description: string;
+  equipment: readonly SpotEquipment[];
   condition: EquipmentCondition;
+  /** Stored rows to keep and local files to add; missing stored rows are deleted on save. */
+  photos: readonly DraftPhoto[];
 };
 
 /** One athlete's review of a spot, as the spot page lists it. */

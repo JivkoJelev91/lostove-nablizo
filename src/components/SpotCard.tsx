@@ -1,10 +1,11 @@
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { Card } from '@/components/Card';
 import { FavoriteButton } from '@/components/FavoriteButton';
+import { PhotoImage } from '@/components/PhotoImage';
 import { Rating } from '@/components/Rating';
 import { SpotStatusBadge } from '@/components/SpotStatusBadge';
 import type { SpotStatus } from '@/components/SpotStatusBadge';
@@ -164,7 +165,7 @@ function CompactSpotCard({
     >
       <View className="flex-row items-center gap-space-12">
         {imageUri !== undefined ? (
-          <Image
+          <PhotoImage
             accessibilityLabel={name}
             className="h-equipment-tile w-equipment-tile rounded-md bg-bg-surface"
             source={imageUri}
@@ -244,7 +245,7 @@ export function SpotCard({
       variant={variant === 'map' ? 'flat' : 'elevated'}
     >
       {variant === 'list' && imageUri !== undefined ? (
-        <Image
+        <PhotoImage
           accessibilityLabel={name}
           className="h-spot-image w-full bg-bg-surface"
           source={imageUri}

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
@@ -28,10 +28,13 @@ export function AddSpotFlow() {
     handleSubmit,
     handleViewSpot,
     isLastStep,
+    photoFailures,
     reset,
     step,
+    submitError,
     submitted,
     submitting,
+    uploadProgress,
   } = useAddSpotFlow();
 
   if (submitted && createdSpot !== null) {
@@ -39,6 +42,7 @@ export function AddSpotFlow() {
       <AddSpotSuccess
         onAddAnother={reset}
         onViewSpot={handleViewSpot}
+        photoFailures={photoFailures}
         spotName={createdSpot.name}
       />
     );
@@ -62,7 +66,11 @@ export function AddSpotFlow() {
           />
         </View>
 
-        <View className="px-screen-px pb-space-16 pt-space-12">
+        <View className="gap-space-8 px-screen-px pb-space-16 pt-space-12">
+          {submitError === undefined ? null : (
+            <Text className="text-caption text-status-bad">{t('submit.addFailed')}</Text>
+          )}
+
           {isLastStep ? (
             <PrimaryButton
               fullWidth
@@ -82,7 +90,16 @@ export function AddSpotFlow() {
           entering={FadeIn.duration(150).reduceMotion(ReduceMotion.System)}
         >
           <View className="rounded-xl bg-surface-card-elevated p-card-pad shadow-card-elevated">
-            <LoadingSpinner label={t('submit.submitting')} />
+            <LoadingSpinner
+              label={
+                uploadProgress === null
+                  ? t('submit.submitting')
+                  : t('submit.uploading', {
+                      done: uploadProgress.completed,
+                      total: uploadProgress.total,
+                    })
+              }
+            />
           </View>
         </Animated.View>
       ) : null}

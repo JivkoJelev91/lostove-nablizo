@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import type { ImageSourcePropType } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { PhotoGrid, SecondaryButton } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
+import type { DraftPhoto } from '@/features/photos/types';
 import { usePhotoPicker } from '@/features/spot-editor/usePhotoPicker';
 import type { PhotoPickResult } from '@/features/spot-editor/usePhotoPicker';
 import { t } from '@/i18n';
@@ -15,8 +15,8 @@ import { cn } from '@/utils/cn';
 export const MAX_SPOT_PHOTOS = 4;
 
 export type PhotoManagerProps = {
-  photos: readonly ImageSourcePropType[];
-  onChange: (photos: readonly ImageSourcePropType[]) => void;
+  photos: readonly DraftPhoto[];
+  onChange: (photos: readonly DraftPhoto[]) => void;
   errorText?: string;
   className?: string;
 };
@@ -39,7 +39,15 @@ export function PhotoManager({ photos, onChange, errorText, className }: PhotoMa
     switch (result.status) {
       case 'picked':
         if (result.photos.length > 0) {
-          onChange([...photos, ...result.photos]);
+          onChange([
+            ...photos,
+            ...result.photos.map((photo) => ({
+              height: photo.height,
+              kind: 'local' as const,
+              uri: photo.uri,
+              width: photo.width,
+            })),
+          ]);
         }
 
         setPickerError(result.failed > 0 ? t('photosStep.pickerFailed') : undefined);
@@ -73,9 +81,9 @@ export function PhotoManager({ photos, onChange, errorText, className }: PhotoMa
       {photos.length === 0 ? null : (
         <PhotoGrid
           onRemovePhoto={removePhoto}
-          photos={photos.map((uri, index) => ({
+          photos={photos.map((photo, index) => ({
             accessibilityLabel: t('photosStep.label', { index: index + 1 }),
-            uri,
+            uri: { uri: photo.uri },
           }))}
         />
       )}

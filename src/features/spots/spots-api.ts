@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { TablesInsert } from '@/lib/supabase';
 import { getCurrentUserId } from '@/features/auth/current-user';
+import { syncSpotPhotos } from '@/features/photos/photos-api';
 import { resolveEquipmentIds, toSpot } from '@/features/spots/spots-mappers';
 import { SPOT_SELECT } from '@/features/spots/spot-select';
 import type { SpotWithRelations } from '@/features/spots/spots-mappers';
@@ -157,7 +158,9 @@ export async function createSpot(submission: SpotSubmission): Promise<Spot> {
  * back to pending whenever the content a moderator approves actually changes, so the rule holds
  * no matter what the client sends.
  *
- * The coordinate is not editable and is not written.
+ * The coordinate is not editable and is not written. Photos are synced rather than written:
+ * the draft names which stored rows stay, and the new local files are uploaded before the rows
+ * the draft dropped are deleted.
  */
 export async function updateSpot(spotId: string, edits: SpotEdits): Promise<Spot> {
   const { error: updateError } = await supabase
@@ -173,12 +176,26 @@ export async function updateSpot(spotId: string, edits: SpotEdits): Promise<Spot
   const names = edits.equipment.map((item) => item.name);
 
   await writeEquipment(spotId, names, edits.condition);
+  await syncSpotPhotos(spotId, edits.photos);
 
   const spot = await getSpotById(spotId);
 
   if (spot === null) throw new Error('The spot was saved but could not be read back.');
 
   return spot;
+}
+
+/** Every spot this athlete added, whatever its moderation state, newest first. */
+export async function getOwnedSpots(ownerId: string): Promise<Spot[]> {
+  const { data, error } = await supabase
+    .from('spots')
+    .select(SPOT_SELECT)
+    .eq('created_by', ownerId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => toSpot(row as SpotWithRelations));
 }
 
 export type ReportSpotInput = {

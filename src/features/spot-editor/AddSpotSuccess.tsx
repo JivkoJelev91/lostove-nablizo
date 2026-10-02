@@ -11,6 +11,8 @@ import { t } from '@/i18n';
 export type AddSpotSuccessProps = {
   /** The name of the spot just submitted, so the confirmation is about a real place. */
   spotName: string;
+  /** How many photos failed to upload; 0 when everything arrived. */
+  photoFailures?: number;
   onAddAnother: () => void;
   onViewSpot: () => void;
 };
@@ -20,7 +22,12 @@ export type AddSpotSuccessProps = {
  * cleared it, so the copy must not promise that it is public yet. The burst is short and the
  * screen underneath is already tappable; it celebrates the submission, not an approval.
  */
-export function AddSpotSuccess({ spotName, onAddAnother, onViewSpot }: AddSpotSuccessProps) {
+export function AddSpotSuccess({
+  spotName,
+  photoFailures = 0,
+  onAddAnother,
+  onViewSpot,
+}: AddSpotSuccessProps) {
   return (
     <Screen edges={['top']}>
       <View className="flex-1 items-center justify-center gap-space-24">
@@ -46,6 +53,12 @@ export function AddSpotSuccess({ spotName, onAddAnother, onViewSpot }: AddSpotSu
           <Text className="text-center text-bodySmall text-text-secondary">
             {t('success.message', { name: spotName })}
           </Text>
+
+          {photoFailures > 0 ? (
+            <Text className="text-center text-caption text-status-bad">
+              {t('submit.photoFailures')}
+            </Text>
+          ) : null}
         </Animated.View>
 
         <View className="w-full gap-space-8">

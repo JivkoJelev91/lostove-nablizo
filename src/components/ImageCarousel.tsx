@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FlatList, Image, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Text, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
 import Animated, {
@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { PhotoImage } from '@/components/PhotoImage';
 import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
@@ -34,7 +35,7 @@ function CarouselSlide({ source, label, heightClassName, width }: CarouselSlideP
   return (
     <View className={cn('bg-bg-surface', heightClassName)} style={{ width }}>
       <Animated.View style={[animatedStyle, { flex: 1 }]}>
-        <Image
+        <PhotoImage
           accessibilityLabel={label}
           className="h-full w-full"
           onLoad={() => {
@@ -80,7 +81,7 @@ export function ImageCarousel({
 
   if (images.length === 1) {
     return (
-      <Image
+      <PhotoImage
         accessibilityLabel={accessibilityLabel}
         className={cn('w-full bg-bg-surface', heightClassName)}
         source={first}

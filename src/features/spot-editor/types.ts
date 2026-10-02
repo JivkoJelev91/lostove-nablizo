@@ -1,5 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
-
+import type { DraftPhoto } from '@/features/photos/types';
 import type { Coordinate } from '@/features/spots/types';
 import type { EquipmentName } from '@/features/spots/equipment-icons';
 
@@ -28,5 +27,5 @@ export type SpotDraft = {
   name: string;
   description: string;
   equipment: readonly EquipmentDraftItem[];
-  photos: readonly ImageSourcePropType[];
+  photos: readonly DraftPhoto[];
 };

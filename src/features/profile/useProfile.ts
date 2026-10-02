@@ -4,7 +4,7 @@ import { displayNameFromUser, usernameFromUser } from '@/features/auth/identity'
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useReviews } from '@/features/reviews/useReviews';
 import { byDistance } from '@/features/spots/spot-distance';
-import { useSpots } from '@/features/spots/useSpots';
+import { useOwnedSpotsQuery } from '@/features/spots/useSpotsQuery';
 import type { SpotStatus } from '@/components';
 
 /**
@@ -26,22 +26,22 @@ const STATUS_ORDER: Record<SpotStatus, number> = {
  * rather than borrowed from a stand-in. The screens decide what an empty name looks like; this
  * hook only reports what is true.
  *
- * The contributions come from the shared stores, so a spot the athlete adds is the same object
- * the feed or the spot page would render and their reviews are the ones written under their name.
- * Until the stores read Supabase, that means the lists hold what this session has produced.
+ * The contributions come from the database: the adopted spots are the rows this account owns,
+ * whatever their moderation state, and an empty list is what a brand-new account has. Reviews
+ * still come from the shared store until that feature reads Supabase.
  */
 export function useProfile() {
   const { profile, user } = useCurrentUser();
   const { ownReviews } = useReviews();
-  const { ownedSpots } = useSpots();
+  const owned = useOwnedSpotsQuery(user?.id ?? null);
 
   const spots = useMemo(
     () =>
-      [...ownedSpots].sort(
+      [...(owned.data ?? [])].sort(
         (first, second) =>
           STATUS_ORDER[first.status] - STATUS_ORDER[second.status] || byDistance(first, second),
       ),
-    [ownedSpots],
+    [owned.data],
   );
 
   const signedIn = user !== null;

@@ -126,6 +126,7 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
     name,
     photos,
     requestClose,
+    saveError,
     savedVisible,
     saving,
   } = useEditSpotDraft(spot);
@@ -143,7 +144,7 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
           <Image
             accessibilityLabel={t('photosStep.coverPhoto', { name })}
             className="h-spot-image w-full rounded-lg bg-bg-surface"
-            source={cover}
+            source={{ uri: cover.uri }}
           />
         )}
 
@@ -187,12 +188,18 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
           <PhotoManager errorText={errors.photos} onChange={changePhotos} photos={photos} />
         </View>
 
-        <PrimaryButton
-          fullWidth
-          label={t('submit.changes')}
-          loading={saving}
-          onPress={handleSave}
-        />
+        <View className="gap-space-8">
+          {saveError === undefined ? null : (
+            <Text className="text-caption text-status-bad">{t('submit.saveFailed')}</Text>
+          )}
+
+          <PrimaryButton
+            fullWidth
+            label={t('submit.changes')}
+            loading={saving}
+            onPress={handleSave}
+          />
+        </View>
       </ScreenShell>
 
       <EditSpotDialogs

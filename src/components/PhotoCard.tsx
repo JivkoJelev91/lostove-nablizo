@@ -1,9 +1,10 @@
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { IconButton } from '@/components/IconButton';
+import { PhotoImage } from '@/components/PhotoImage';
 import { Skeleton } from '@/components/Skeleton';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
@@ -45,7 +46,7 @@ export function PhotoCard({
           disabled={onPress === undefined}
           onPress={onPress}
         >
-          <Image accessible={false} className="h-full w-full" source={uri} />
+          <PhotoImage accessible={false} className="h-full w-full" source={uri} />
         </Pressable>
       )}
 

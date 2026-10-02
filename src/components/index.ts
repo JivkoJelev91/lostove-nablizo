@@ -77,6 +77,9 @@ export type { PhotoCardProps } from './PhotoCard';
 export { PhotoGrid } from './PhotoGrid';
 export type { PhotoGridItem, PhotoGridProps } from './PhotoGrid';
 
+export { PhotoImage } from './PhotoImage';
+export type { PhotoImageProps } from './PhotoImage';
+
 export { Rating } from './Rating';
 export type { RatingProps, RatingSize, RatingVariant } from './Rating';
 

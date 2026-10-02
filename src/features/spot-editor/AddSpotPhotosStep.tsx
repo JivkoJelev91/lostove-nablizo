@@ -1,14 +1,13 @@
-import type { ImageSourcePropType } from 'react-native';
-
+import type { DraftPhoto } from '@/features/photos/types';
 import { SectionHeader } from '@/components';
 import { PhotoManager } from '@/features/spot-editor/PhotoManager';
 import { StepScrollView } from '@/features/spot-editor/StepScrollView';
 import { t } from '@/i18n';
 
 export type AddSpotPhotosStepProps = {
-  photos: readonly ImageSourcePropType[];
+  photos: readonly DraftPhoto[];
   errorText?: string;
-  onChangePhotos: (photos: readonly ImageSourcePropType[]) => void;
+  onChangePhotos: (photos: readonly DraftPhoto[]) => void;
 };
 
 /** Step 4: the spot's photos, previewed with remove actions before anything is submitted. */

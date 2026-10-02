@@ -37,5 +37,5 @@ export const SPOT_SELECT = `
     quantity,
     equipment ( id, name )
   ),
-  photos ( id, storage_path, created_at )
+  photos ( id, user_id, storage_path, width, height, created_at )
 `;

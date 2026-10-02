@@ -4,6 +4,7 @@ import type { UserLocation } from '@/features/location/useUserLocation';
 import {
   createSpot,
   getNearbySpots,
+  getOwnedSpots,
   getSpotById,
   getSpots,
   reportSpot,
@@ -84,6 +85,20 @@ export function useSpotQuery(spotId: string | null) {
     queryKey: spotsQueryKeys.detail(spotId ?? ''),
     queryFn: () => getSpotById(spotId ?? ''),
     enabled: spotId !== null,
+  });
+}
+
+/**
+ * The spots the signed-in athlete added, whatever their moderation state.
+ *
+ * Disabled for a guest: there is no owner to ask about, and an empty list is the honest answer
+ * rather than a request that can only come back empty.
+ */
+export function useOwnedSpotsQuery(userId: string | null) {
+  return useQuery({
+    queryKey: spotsQueryKeys.owned(userId ?? ''),
+    queryFn: () => getOwnedSpots(userId ?? ''),
+    enabled: userId !== null,
   });
 }
 
