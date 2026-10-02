@@ -29,6 +29,11 @@ import { t } from '@/i18n';
 
 export type EditSpotFormProps = {
   spot: Spot;
+  /**
+   * True when a moderator is editing somebody else's spot: every stored photo is then part of the
+   * draft, not only the athlete's own, because the moderator is fixing the whole listing.
+   */
+  moderating?: boolean;
 };
 
 type EditSpotHeaderProps = {
@@ -107,7 +112,7 @@ function EditSpotDialogs({
  * The Edit Spot form: the spot's photo, then its name, description, equipment, condition and
  * photos as structured, validated sections with one Save action.
  */
-export function EditSpotForm({ spot }: EditSpotFormProps) {
+export function EditSpotForm({ spot, moderating = false }: EditSpotFormProps) {
   const {
     cancelDiscard,
     changeCondition,
@@ -129,7 +134,7 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
     saveError,
     savedVisible,
     saving,
-  } = useEditSpotDraft(spot);
+  } = useEditSpotDraft(spot, moderating);
 
   const cover = photos[0];
 
@@ -190,7 +195,7 @@ export function EditSpotForm({ spot }: EditSpotFormProps) {
 
         <View className="gap-space-8">
           {saveError === undefined ? null : (
-            <Text className="text-caption text-status-bad">{t('submit.saveFailed')}</Text>
+            <Text className="text-caption text-status-bad">{t(saveError)}</Text>
           )}
 
           <PrimaryButton

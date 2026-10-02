@@ -8,6 +8,7 @@ import { Card, DangerButton, Divider, ScreenShell, SectionHeader } from '@/compo
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { isAuthFailure, signOut } from '@/features/auth/auth-api';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
+import { useIsModeratorQuery } from '@/features/moderation/useModerationQuery';
 import { useProfile } from '@/features/profile/useProfile';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
@@ -91,6 +92,7 @@ function SettingsGroup({ title, rows }: SettingsGroupData) {
 export default function SettingsScreen() {
   const { username } = useProfile();
   const { user } = useCurrentUser();
+  const moderator = useIsModeratorQuery();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutProblem, setSignOutProblem] = useState<TranslationKey | null>(null);
   const version = Constants.expoConfig?.version;
@@ -115,6 +117,10 @@ export default function SettingsScreen() {
     {
       title: t('settings.account'),
       rows: [
+        // Only a moderator ever sees the queue; the row is not offered to anyone else.
+        ...(moderator.data === true
+          ? [{ label: t('moderation.title'), onPress: () => router.navigate('/moderation') }]
+          : []),
         {
           label: t('settings.profile'),
           onPress: () => router.navigate('/(tabs)/profile'),

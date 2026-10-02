@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { EquipmentCondition } from '@/components';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import type { DraftPhoto } from '@/features/photos/types';
+import { isSpotPhotoUploadError } from '@/features/spots/spots-api';
 import type { Spot } from '@/features/spots/types';
 import { useUpdateSpotMutation } from '@/features/spots/useSpotsQuery';
 import {
@@ -18,10 +19,7 @@ import {
   validatePhotos,
 } from '@/features/spot-editor/validation';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
-
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
+import type { TranslationKey } from '@/i18n';
 
 /** True when two draft photos are the same file still in the same place in the list. */
 function samePhoto(first: DraftPhoto, second: DraftPhoto): boolean {
@@ -37,10 +35,19 @@ function samePhoto(first: DraftPhoto, second: DraftPhoto): boolean {
 /**
  * The athlete's own stored photos as draft entries. A spot can collect photos from several
  * contributors, so the editor only ever offers the ones this account may delete.
+ *
+ * A moderator fixing somebody else's listing is the exception: they manage the whole gallery, so
+ * every stored photo is part of the draft. Their removals still only delete what they uploaded —
+ * `syncSpotPhotos` scopes to the caller — and a removed photo by another contributor comes back
+ * on the refetch, which is the honest outcome of a delete the database refuses.
  */
-function ownedDraftPhotos(spot: Spot, userId: string | undefined): readonly DraftPhoto[] {
+function ownedDraftPhotos(
+  spot: Spot,
+  userId: string | undefined,
+  includeEveryPhoto: boolean,
+): readonly DraftPhoto[] {
   return spot.photos
-    .filter((photo) => photo.userId === (userId ?? ''))
+    .filter((photo) => includeEveryPhoto || photo.userId === (userId ?? ''))
     .map((photo) => ({
       height: photo.height,
       id: photo.id,
@@ -67,9 +74,9 @@ function photosMatch(photos: readonly DraftPhoto[], initial: readonly DraftPhoto
  * The Edit Spot form's state: every field's draft value, validation, dirtiness, and the save
  * lifecycle.
  *
- * The draft only carries the athlete's own photos. A spot can collect photos from several
- * contributors, and a save must delete only the rows its own uploader is allowed to delete —
- * so somebody else's work is not even shown as removable here, and `updateSpot` repeats the
+ * The draft carries the athlete's own photos, or every photo when a moderator is fixing somebody
+ * else's listing. A save must delete only the rows its own uploader is allowed to delete — so
+ * another contributor's work is not shown as removable to an owner, and `updateSpot` repeats the
  * same restriction at the database.
  *
  * A dirty form asks before it discards, whichever way the screen is left: the header back
@@ -77,11 +84,14 @@ function photosMatch(photos: readonly DraftPhoto[], initial: readonly DraftPhoto
  * {@link useUnsavedChangesGuard}. A save writes to Supabase — which sends the spot back to
  * review — and the confirmation appears after the request settles.
  */
-export function useEditSpotDraft(spot: Spot) {
+export function useEditSpotDraft(spot: Spot, moderating = false) {
   const { user } = useCurrentUser();
   const { mutateAsync: updateSpot } = useUpdateSpotMutation();
   const initialEquipment = useMemo(() => equipmentDraftFromSpot(spot), [spot]);
-  const initialPhotos = useMemo(() => ownedDraftPhotos(spot, user?.id), [spot, user?.id]);
+  const initialPhotos = useMemo(
+    () => ownedDraftPhotos(spot, user?.id, moderating),
+    [moderating, spot, user?.id],
+  );
   const [name, setName] = useState(spot.name);
   const [description, setDescription] = useState(spot.description);
   const [equipment, setEquipment] = useState<readonly EquipmentDraftItem[]>(initialEquipment);
@@ -89,7 +99,7 @@ export function useEditSpotDraft(spot: Spot) {
   const [photos, setPhotos] = useState<readonly DraftPhoto[]>(initialPhotos);
   const [errors, setErrors] = useState<SpotDraftErrors>({});
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | undefined>(undefined);
+  const [saveError, setSaveError] = useState<TranslationKey | undefined>(undefined);
   const [savedVisible, setSavedVisible] = useState(false);
   const [discardVisible, setDiscardVisible] = useState(false);
 
@@ -180,7 +190,9 @@ export function useEditSpotDraft(spot: Spot) {
       setDescription(trimmedDescription);
       setSavedVisible(true);
     } catch (error: unknown) {
-      setSaveError(messageOf(error));
+      // A save can land in two ways: nothing was written, or the fields were written and only
+      // some photos failed. The second must not tell the athlete the whole edit was lost.
+      setSaveError(isSpotPhotoUploadError(error) ? 'submit.photosFailed' : 'submit.saveFailed');
     } finally {
       setSaving(false);
     }

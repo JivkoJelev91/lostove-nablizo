@@ -107,6 +107,25 @@ export async function getSpotById(spotId: string): Promise<Spot | null> {
 export const SEARCH_MIN_QUERY_LENGTH = 2;
 
 /**
+ * Thrown when a spot edit's fields landed but one or more of its new photos did not upload.
+ *
+ * A distinct type because the two halves of the save have different outcomes: the name, the
+ * equipment and the removed photos are already stored, so the screen must ask for a retry without
+ * telling the athlete their whole edit was lost.
+ */
+export class SpotPhotoUploadError extends Error {
+  constructor() {
+    super('Some photos could not be uploaded.');
+    this.name = 'SpotPhotoUploadError';
+  }
+}
+
+/** Narrows a caught value to {@link SpotPhotoUploadError}. */
+export function isSpotPhotoUploadError(value: unknown): value is SpotPhotoUploadError {
+  return value instanceof SpotPhotoUploadError;
+}
+
+/**
  * Approved spots whose name or description contains `query`, best match first.
  *
  * The work is the database's: `search_spots` runs a trigram-indexed substring match and returns
@@ -194,7 +213,12 @@ export async function updateSpot(spotId: string, edits: SpotEdits): Promise<Spot
   const names = edits.equipment.map((item) => item.name);
 
   await writeEquipment(spotId, names, edits.condition);
-  await syncSpotPhotos(spotId, edits.photos);
+
+  const photos = await syncSpotPhotos(spotId, edits.photos);
+
+  if (photos.failed.length > 0) {
+    throw new SpotPhotoUploadError();
+  }
 
   const spot = await getSpotById(spotId);
 
@@ -244,5 +268,11 @@ export async function reportSpot({ spotId, reason, description }: ReportSpotInpu
     description: description?.trim() ?? null,
   });
 
-  if (error) throw error;
+  if (error === null) return;
+
+  // 23505 is the one-report-per-athlete-per-spot index: a second report is not a failure, it is
+  // the report they already filed.
+  if (error.code === '23505') return;
+
+  throw error;
 }

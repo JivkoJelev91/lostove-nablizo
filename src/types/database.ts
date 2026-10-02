@@ -322,6 +322,14 @@ export type Database = {
     };
     Functions: {
       current_profile_id: { Args: never; Returns: string };
+      is_moderator: { Args: never; Returns: boolean };
+      moderate_spot: {
+        Args: {
+          p_spot_id: string;
+          p_status: string;
+        };
+        Returns: undefined;
+      };
       // Hand-maintained until the migration is applied and `pnpm db:types` can regenerate this
       // file. The shape is what the generator emits for a `returns table` function: Args named
       // after the parameters, Returns an array of the result columns.

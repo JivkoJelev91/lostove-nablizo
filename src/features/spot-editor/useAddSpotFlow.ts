@@ -129,12 +129,21 @@ function useSpotSubmission(draft: SpotDraft) {
 
       try {
         const spot = await createSpot(submission);
+        let failedPhotos = submission.photos.length;
 
-        const uploaded = await uploadSpotPhotos(spot.id, submission.photos, {
-          onProgress: setUploadProgress,
-        });
+        try {
+          const uploaded = await uploadSpotPhotos(spot.id, submission.photos, {
+            onProgress: setUploadProgress,
+          });
 
-        setPhotoFailures(uploaded.failed.length);
+          failedPhotos = uploaded.failed.length;
+        } catch {
+          // The spot row exists; a session that vanished between the two requests must not make a
+          // retry create a second spot. The photos are reported as failed and the spot stays
+          // usable, with the missing ones addable from its edit page.
+        }
+
+        setPhotoFailures(failedPhotos);
         setCreatedSpot(spot);
         setSubmitted(true);
       } catch (error: unknown) {

@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { GhostButton, Screen } from '@/components';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
+import { useIsModeratorQuery } from '@/features/moderation/useModerationQuery';
 import { SpotNotFound } from '@/features/spots/SpotNotFound';
 import { useSpotQuery } from '@/features/spots/useSpotsQuery';
 import { EditSpotForm } from '@/features/spot-editor/EditSpotForm';
@@ -32,6 +33,7 @@ function OwnerOnlyEditor() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const spotId = typeof id === 'string' ? id : null;
   const { user } = useCurrentUser();
+  const moderator = useIsModeratorQuery();
   const { data: spot, isError, isLoading, refetch } = useSpotQuery(spotId);
 
   if (isLoading) {
@@ -58,7 +60,21 @@ function OwnerOnlyEditor() {
     return <SpotNotFound />;
   }
 
-  if (spot.ownerId === undefined || spot.ownerId !== user?.id) {
+  const isOwner = spot.ownerId !== undefined && spot.ownerId === user?.id;
+  const canModerate = moderator.data === true;
+
+  // A moderator may fix any spot's information, so the ownership check is a gate, not the rule.
+  // While the moderator answer is still loading, a non-owner waits instead of being told the spot
+  // does not exist and then watching it appear.
+  if (!isOwner && !canModerate) {
+    if (moderator.isLoading) {
+      return (
+        <Screen edges={['top', 'bottom']}>
+          <Text className="text-body text-text-secondary">{t('common.loading')}</Text>
+        </Screen>
+      );
+    }
+
     return <SpotNotFound />;
   }
 
@@ -68,5 +84,5 @@ function OwnerOnlyEditor() {
     );
   }
 
-  return <EditSpotForm spot={spot} />;
+  return <EditSpotForm moderating={!isOwner} spot={spot} />;
 }

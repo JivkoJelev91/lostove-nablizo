@@ -33,4 +33,10 @@ export const queryKeys = {
     /** The device's current position. One entry: there is one device. */
     current: () => [...queryKeys.location.all, 'current'] as const,
   },
+  moderation: {
+    all: ['moderation'] as const,
+    /** The caller's own moderator flag, so the settings row and gates read one answer. */
+    mine: () => [...queryKeys.moderation.all, 'mine'] as const,
+    reports: () => [...queryKeys.moderation.all, 'reports'] as const,
+  },
 } as const;
