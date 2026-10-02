@@ -160,7 +160,7 @@ export default function HomeScreen() {
           isFavorite={isFavorite(item.id)}
           name={item.name}
           onPress={() => openSpot(item)}
-          onToggleFavorite={() => toggleFavorite(item.id)}
+          onToggleFavorite={() => toggleFavorite(item)}
           rating={item.rating}
           reviewCount={item.reviewCount}
           variant="list"

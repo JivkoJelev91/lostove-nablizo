@@ -156,7 +156,7 @@ export default function SpotScreen() {
 
             <FavoriteButton
               isFavorite={saved}
-              onPress={() => toggleFavorite(spot.id)}
+              onPress={() => toggleFavorite(spot)}
               size="md"
               variant="surface"
             />

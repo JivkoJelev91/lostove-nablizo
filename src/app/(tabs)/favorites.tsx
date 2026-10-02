@@ -36,7 +36,7 @@ export default function FavoritesScreen() {
       isFavorite={isFavorite(item.id)}
       name={item.name}
       onPress={() => openSpot(item)}
-      onToggleFavorite={() => toggle(item.id)}
+      onToggleFavorite={() => toggle(item)}
       rating={item.rating}
       reviewCount={item.reviewCount}
       verifiedAt={item.verifiedAt}

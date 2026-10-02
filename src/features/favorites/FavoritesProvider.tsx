@@ -15,9 +15,12 @@ export type FavoritesValue = {
   /**
    * Saves or unsaves a spot, and sends a guest to sign in first.
    *
+   * The whole spot travels, not just its id: saving one adds it to the saved list optimistically,
+   * and a list entry needs the card's data rather than a placeholder.
+   *
    * Returns whether the write was started, so a caller knows not to show its own confirmation.
    */
-  toggle: (spotId: string) => void;
+  toggle: (spot: Spot) => void;
   /** The saved list is loading, so a screen can show a spinner instead of an empty list. */
   loading: boolean;
   signedIn: boolean;
@@ -53,9 +56,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const isFavorite = useCallback((spotId: string) => savedIds.has(spotId), [savedIds]);
 
   const toggle = useCallback(
-    (spotId: string) => {
+    (spot: Spot) => {
       requireAuth(() => {
-        mutate({ saved: savedIds.has(spotId), spotId });
+        mutate({ saved: savedIds.has(spot.id), spot });
       });
     },
     [mutate, requireAuth, savedIds],

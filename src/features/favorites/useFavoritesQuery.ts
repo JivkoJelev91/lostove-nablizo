@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { addFavorite, getFavoriteSpots, removeFavorite } from '@/features/favorites/favorites-api';
+import type { Spot } from '@/features/spots/types';
 import { queryKeys } from '@/lib/query-keys';
 
 /**
@@ -43,13 +44,18 @@ export function useFavoriteSpotsQuery() {
  * is already saved and this decides by whether the write succeeds. It is a mutation rather than a
  * local toggle because the heart on a card, the heart on the spot page and the saved list are
  * three views of one row, and only the database can be the one that decides.
+ *
+ * The saved list is updated optimistically, because that is what the heart reads: without it the
+ * icon would only flip after the refetch, which is the delay the athlete reads as a broken button.
+ * The whole spot is carried so a save can put a real card into the list; a failure rolls the list
+ * back, and the refetch after the write is the source of truth either way.
  */
 export function useToggleFavoriteMutation() {
   const queryClient = useQueryClient();
   const { user } = useCurrentUser();
 
   return useMutation({
-    mutationFn: async ({ spotId, saved }: { spotId: string; saved: boolean }) => {
+    mutationFn: async ({ spot, saved }: { spot: Spot; saved: boolean }) => {
       const userId = user?.id ?? null;
 
       if (userId === null) {
@@ -57,12 +63,46 @@ export function useToggleFavoriteMutation() {
       }
 
       if (saved) {
-        await removeFavorite(userId, spotId);
+        await removeFavorite(userId, spot.id);
       } else {
-        await addFavorite(userId, spotId);
+        await addFavorite(userId, spot.id);
       }
     },
-    onSuccess: async () => {
+    onMutate: async ({ spot, saved }) => {
+      const userId = user?.id;
+
+      if (userId === undefined) {
+        return { previous: undefined };
+      }
+
+      const key = favoritesQueryKeys(userId).lists();
+
+      await queryClient.cancelQueries({ queryKey: key });
+
+      const previous = queryClient.getQueryData<Spot[]>(key);
+
+      queryClient.setQueryData<Spot[]>(key, (current) => {
+        const list = current ?? [];
+
+        if (saved) {
+          return list.filter((item) => item.id !== spot.id);
+        }
+
+        return list.some((item) => item.id === spot.id) ? list : [spot, ...list];
+      });
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      const userId = user?.id;
+
+      if (userId === undefined || context === undefined || context.previous === undefined) {
+        return;
+      }
+
+      queryClient.setQueryData(favoritesQueryKeys(userId).lists(), context.previous);
+    },
+    onSettled: async () => {
       const userId = user?.id;
 
       if (userId === undefined) return;
