@@ -103,6 +103,7 @@ export function BottomSheet({
             automaticallyAdjustKeyboardInsets
             className="flex-shrink"
             contentContainerClassName={cn('gap-card-gap p-card-pad', className)}
+            keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >

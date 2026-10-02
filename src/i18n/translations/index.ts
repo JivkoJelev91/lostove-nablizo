@@ -2,6 +2,7 @@ import { ACCOUNT } from '@/i18n/translations/account';
 import { COMMON } from '@/i18n/translations/common';
 import { DISCOVERY } from '@/i18n/translations/discovery';
 import { EDITOR } from '@/i18n/translations/editor';
+import { LEGAL } from '@/i18n/translations/legal';
 import { MODERATION } from '@/i18n/translations/moderation';
 import { SPOT } from '@/i18n/translations/spot';
 
@@ -19,6 +20,7 @@ export const TRANSLATIONS = {
   ...EDITOR,
   ...ACCOUNT,
   ...MODERATION,
+  ...LEGAL,
 };
 
 export type TranslationKey = keyof typeof TRANSLATIONS;

@@ -41,6 +41,7 @@ export const EDITOR = {
   'reviewStep.equipment': 'Уреди',
   'reviewStep.location': 'Локация',
   'reviewStep.notCaptured': 'Не е засечена',
+  'reviewStep.currentLocation': 'Текуща позиция',
 
   'submit.add': 'Добави мястото',
   'submit.submitting': 'Добавяме мястото...',

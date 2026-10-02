@@ -60,7 +60,7 @@ export function Avatar({ uri, name, size = 'md', accessibilityLabel, className }
       accessibilityLabel={label}
       accessibilityRole="image"
       className={cn(
-        'items-center justify-center rounded-pill bg-bg-surface',
+        'items-center justify-center rounded-pill border border-border bg-bg-surface',
         SIZE_CLASS[size],
         className,
       )}

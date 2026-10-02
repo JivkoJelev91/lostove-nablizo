@@ -1,3 +1,5 @@
+import { File } from 'expo-file-system';
+
 import { getCurrentUserId } from '@/features/auth/current-user';
 import { isLocalPhoto, isStoredPhoto } from '@/features/photos/types';
 import type { DraftPhoto, LocalPhoto } from '@/features/photos/types';
@@ -48,15 +50,21 @@ function objectKey(userId: string, spotId: string): string {
   return `${userId}/${spotId}/${unique}.jpg`;
 }
 
-/** The file's bytes, read off the device. */
-async function readBytes(uri: string): Promise<ArrayBuffer> {
-  const response = await fetch(uri);
+/**
+ * The file's bytes, read off the device.
+ *
+ * `File` rather than `fetch`: React Native's fetch cannot read local `file://` URIs, and a
+ * prepared photo always lives on disk, so the upload failed before a single byte left the phone.
+ * The file-system module reads the same URI the picker and the manipulator produced.
+ */
+async function readBytes(uri: string): Promise<Uint8Array> {
+  const bytes = await new File(uri).bytes();
 
-  if (!response.ok) {
-    throw new Error(`The photo could not be read from the device (HTTP ${response.status}).`);
+  if (bytes.byteLength === 0) {
+    throw new Error('The photo file is empty.');
   }
 
-  return response.arrayBuffer();
+  return bytes;
 }
 
 /**

@@ -63,20 +63,27 @@ export function DipBarsIcon(props: EquipmentIconProps) {
   );
 }
 
-/** Monkey bars: an overhead ladder, two uprights holding three rungs. */
+/**
+ * Monkey bars: an overhead frame you hang from and swing across.
+ *
+ * Drawn as a high top rail with short rungs hanging beneath it, between two tall end posts —
+ * the rungs stop well above the ground on purpose, so the glyph cannot be read as the vertical
+ * ladder ({@link LadderIcon}) it used to be confused with.
+ */
 export function MonkeyBarsIcon(props: EquipmentIconProps) {
   return (
     <EquipmentGlyph {...props}>
-      <Line strokeWidth={2} x1={5.5} x2={5.5} y1={2.5} y2={21.5} />
-      <Line strokeWidth={2} x1={18.5} x2={18.5} y1={2.5} y2={21.5} />
-      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={5.5} y2={5.5} />
-      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={12} y2={12} />
-      <Line strokeWidth={2} x1={5.5} x2={18.5} y1={18.5} y2={18.5} />
+      <Line strokeWidth={2} x1={1.5} x2={22.5} y1={4.5} y2={4.5} />
+      <Line strokeWidth={2} x1={3.5} x2={3.5} y1={4.5} y2={21.5} />
+      <Line strokeWidth={2} x1={20.5} x2={20.5} y1={4.5} y2={21.5} />
+      <Line strokeWidth={1.75} x1={8} x2={8} y1={4.5} y2={10.5} />
+      <Line strokeWidth={1.75} x1={12} x2={12} y1={4.5} y2={10.5} />
+      <Line strokeWidth={1.75} x1={16} x2={16} y1={4.5} y2={10.5} />
     </EquipmentGlyph>
   );
 }
 
-/** A ladder: two close-set rails joined by three rungs. */
+/** A ladder: two close-set vertical rails joined by three rungs, the kind you climb. */
 export function LadderIcon(props: EquipmentIconProps) {
   return (
     <EquipmentGlyph {...props}>

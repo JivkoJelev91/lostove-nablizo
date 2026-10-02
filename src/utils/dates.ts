@@ -26,3 +26,17 @@ export function formatMonthDayYear(date: Date): string {
   const month = MONTH_NAMES[date.getMonth()] ?? '';
   return `${date.getDate()} ${month} ${date.getFullYear()} г.`;
 }
+
+function pad(value: number): string {
+  return value.toString().padStart(2, '0');
+}
+
+/**
+ * The same date with the time on it, e.g. `12 май 2024 г., 14:35`.
+ *
+ * Reviews use it: two reviews on the same day are told apart by when they were written, and
+ * "today" is not enough to order them by.
+ */
+export function formatMonthDayYearTime(date: Date): string {
+  return `${formatMonthDayYear(date)}, ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

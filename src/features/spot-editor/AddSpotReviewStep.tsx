@@ -4,10 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { SectionHeader } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
-import { describeLocality } from '@/features/spot-editor/coordinates';
+import { useLocalityLabel } from '@/features/location/useLocalityLabel';
 import { formatEquipmentSummary } from '@/features/spot-editor/equipment-draft';
 import { StepScrollView } from '@/features/spot-editor/StepScrollView';
 import type { SpotDraft } from '@/features/spot-editor/types';
+import { formatCoordinates } from '@/features/spots/format-coordinates';
 import { t } from '@/i18n';
 
 export type AddSpotReviewStepProps = {
@@ -17,6 +18,7 @@ export type AddSpotReviewStepProps = {
 /** Step 5: everything the wizard collected, in reading order, ready for the final action. */
 export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
   const cover = draft.photos[0];
+  const locality = useLocalityLabel(draft.coordinate);
 
   return (
     <StepScrollView>
@@ -46,11 +48,22 @@ export function AddSpotReviewStep({ draft }: AddSpotReviewStepProps) {
         <SectionHeader accent title={t('reviewStep.location')} />
         <View className="flex-row items-center gap-space-8">
           <Ionicons color={brandColors.primary} name="location-outline" size={iconSizeValues.sm} />
-          <Text className="flex-1 font-regular text-body text-text-primary">
-            {draft.coordinate === null
-              ? t('reviewStep.notCaptured')
-              : describeLocality(draft.coordinate)}
-          </Text>
+
+          <View className="flex-1 gap-space-2">
+            <Text className="font-regular text-body text-text-primary">
+              {draft.coordinate === null
+                ? t('reviewStep.notCaptured')
+                : (locality ?? t('reviewStep.currentLocation'))}
+            </Text>
+
+            {/* The coordinates are always shown: the geocoder may be offline, and the athlete
+                should still be able to check that the pin is where they are. */}
+            {draft.coordinate === null ? null : (
+              <Text className="font-regular text-caption text-text-muted">
+                {formatCoordinates(draft.coordinate)}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
     </StepScrollView>

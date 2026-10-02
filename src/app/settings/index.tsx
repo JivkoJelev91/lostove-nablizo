@@ -132,18 +132,23 @@ export default function SettingsScreen() {
     {
       title: t('settings.preferences'),
       rows: [
-        { label: t('settings.notifications'), value: t('settings.on') },
         // Matches the permission app.json declares: location while using the app.
         { label: t('settings.location'), value: t('settings.locationWhileUsing') },
+        // The app follows the phone's light/dark setting; there is no in-app switch to state.
         { label: t('settings.appearance'), value: t('settings.followsSystem') },
       ],
     },
     {
       title: t('settings.about'),
       rows: [
-        { label: t('settings.privacy') },
-        { label: t('settings.terms') },
-        { label: t('settings.aboutApp') },
+        {
+          label: t('settings.privacy'),
+          onPress: () => router.navigate('/settings/privacy'),
+        },
+        {
+          label: t('settings.terms'),
+          onPress: () => router.navigate('/settings/terms'),
+        },
       ],
     },
   ];

@@ -5,7 +5,7 @@ import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 import { ReviewCard } from '@/components';
 import type { OwnReview } from '@/features/reviews/useOwnReviewsQuery';
-import { formatMonthDayYear } from '@/utils/dates';
+import { formatMonthDayYearTime } from '@/utils/dates';
 
 export type ProfileReviewCardProps = {
   review: OwnReview;
@@ -26,7 +26,7 @@ export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
   return (
     <Animated.View entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}>
       <ReviewCard
-        dateLabel={formatMonthDayYear(review.date)}
+        dateLabel={formatMonthDayYearTime(review.date)}
         onPress={openSpot}
         rating={review.rating}
         spotName={review.spotName ?? undefined}

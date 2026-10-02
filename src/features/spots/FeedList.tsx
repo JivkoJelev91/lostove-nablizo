@@ -170,27 +170,8 @@ function FeedHeader({
       </View>
 
       <View className="gap-space-12">
-        <View className="flex-row items-center gap-space-8 px-screen-px">
-          <View className="flex-1">
-            <SpotsSearchBar onPress={onOpenSearch} />
-          </View>
-
-          <SecondaryButton
-            label={
-              filterCount > 0
-                ? t('filters.openWithCount', { count: filterCount })
-                : t('filters.open')
-            }
-            leftIcon={
-              <Ionicons
-                color={brandColors.primary}
-                name="options-outline"
-                size={iconSizeValues.sm}
-              />
-            }
-            onPress={onOpenFilters}
-            size="sm"
-          />
+        <View className="px-screen-px">
+          <SpotsSearchBar onPress={onOpenSearch} />
         </View>
 
         <EquipmentFilterChips
@@ -207,8 +188,27 @@ function FeedHeader({
       <View className="px-screen-px">
         <SectionHeader
           action={
-            <View accessible accessibilityLabel={t('home.sortedByDistance')}>
-              <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
+            <View className="flex-row items-center gap-space-8">
+              <View accessible accessibilityLabel={t('home.sortedByDistance')}>
+                <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
+              </View>
+
+              <SecondaryButton
+                label={
+                  filterCount > 0
+                    ? t('filters.openWithCount', { count: filterCount })
+                    : t('filters.open')
+                }
+                leftIcon={
+                  <Ionicons
+                    color={brandColors.primary}
+                    name="options-outline"
+                    size={iconSizeValues.sm}
+                  />
+                }
+                onPress={onOpenFilters}
+                size="sm"
+              />
             </View>
           }
           title={t('home.aroundYou')}

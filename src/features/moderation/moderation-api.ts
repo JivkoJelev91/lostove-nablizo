@@ -73,6 +73,105 @@ export async function getModerationReports(): Promise<ModerationReport[]> {
   }));
 }
 
+/** One submission waiting for a moderator's decision. */
+export type ModerationSpot = {
+  id: string;
+  name: string;
+  city: string | null;
+  createdAt: Date;
+  ownerName: string;
+};
+
+/**
+ * Every spot waiting for approval, oldest first, so the queue is first-in-first-out.
+ *
+ * The moderator select policy is what returns the whole directory here; anyone else gets an
+ * empty list rather than an error, which is the same answer the reports queue gives.
+ */
+export async function getPendingSpots(): Promise<ModerationSpot[]> {
+  const { data, error } = await supabase
+    .from('spots')
+    .select(
+      `
+      id,
+      name,
+      city,
+      created_at,
+      profiles!spots_created_by_fkey ( username )
+    `,
+    )
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    city: row.city,
+    createdAt: new Date(row.created_at),
+    ownerName: row.profiles?.username ?? '—',
+  }));
+}
+
+/** One submission a moderator turned down, kept for the record until it is deleted. */
+export type RejectedSpot = ModerationSpot;
+
+/** Rejected spots, newest first, for the cleanup list. */
+export async function getRejectedSpots(): Promise<RejectedSpot[]> {
+  const { data, error } = await supabase
+    .from('spots')
+    .select(
+      `
+      id,
+      name,
+      city,
+      created_at,
+      profiles!spots_created_by_fkey ( username )
+    `,
+    )
+    .eq('status', 'rejected')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    city: row.city,
+    createdAt: new Date(row.created_at),
+    ownerName: row.profiles?.username ?? '—',
+  }));
+}
+
+/**
+ * Deletes a spot and its photos, as a moderator.
+ *
+ * Objects first, then the row: the database cascades every child row, but the bucket is not part
+ * of the database, so a failure after the row was gone would leave bytes nothing can find. This
+ * order leaves a row that still names its objects instead, which a retry can finish.
+ */
+export async function deleteSpotAsModerator(spotId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('photos')
+    .select('storage_path')
+    .eq('spot_id', spotId);
+
+  if (error) throw error;
+
+  const paths = (data ?? []).map((row) => row.storage_path);
+
+  if (paths.length > 0) {
+    const { error: removeError } = await supabase.storage.from('photos').remove(paths);
+
+    if (removeError) throw removeError;
+  }
+
+  const { error: deleteError } = await supabase.from('spots').delete().eq('id', spotId);
+
+  if (deleteError) throw deleteError;
+}
+
 /**
  * Moves a spot to a moderation state.
  *

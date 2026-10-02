@@ -19,7 +19,7 @@ import { useRequireAuth } from '@/features/auth/useRequireAuth';
 import { AddReviewSheet } from '@/features/reviews/AddReviewSheet';
 import type { Spot, SpotReview } from '@/features/spots/types';
 import { t } from '@/i18n';
-import { formatMonthDayYear } from '@/utils/dates';
+import { formatMonthDayYearTime } from '@/utils/dates';
 
 type SpotReviewsProps = {
   spot: Spot;
@@ -58,7 +58,7 @@ function OwnReviewBlock({ review, deleting, errorText, onDeletePress }: OwnRevie
       </Text>
       <ReviewCard
         authorName={review.authorName}
-        dateLabel={formatMonthDayYear(review.date)}
+        dateLabel={formatMonthDayYearTime(review.date)}
         rating={review.rating}
         text={review.text}
       />
@@ -115,7 +115,7 @@ function OtherReviewList({ reviews }: { reviews: readonly SpotReview[] }) {
       {reviews.map((review) => (
         <ReviewCard
           authorName={review.authorName}
-          dateLabel={formatMonthDayYear(review.date)}
+          dateLabel={formatMonthDayYearTime(review.date)}
           key={review.id}
           rating={review.rating}
           text={review.text}

@@ -31,6 +31,9 @@ export const queryKeys = {
     all: ['location'] as const,
     /** The device's current position. One entry: there is one device. */
     current: () => [...queryKeys.location.all, 'current'] as const,
+    /** One coordinate's reverse-geocoded locality; a stable answer, cached without expiry. */
+    geocode: (latitude: number, longitude: number) =>
+      [...queryKeys.location.all, 'geocode', latitude, longitude] as const,
   },
   moderation: {
     all: ['moderation'] as const,
@@ -43,5 +46,9 @@ export const queryKeys = {
     mine: (userId: string) => [...queryKeys.moderation.mineRoot(), userId] as const,
     reportsRoot: () => [...queryKeys.moderation.all, 'reports'] as const,
     reports: (userId: string) => [...queryKeys.moderation.reportsRoot(), userId] as const,
+    pendingRoot: () => [...queryKeys.moderation.all, 'pending'] as const,
+    pending: (userId: string) => [...queryKeys.moderation.pendingRoot(), userId] as const,
+    rejectedRoot: () => [...queryKeys.moderation.all, 'rejected'] as const,
+    rejected: (userId: string) => [...queryKeys.moderation.rejectedRoot(), userId] as const,
   },
 } as const;
