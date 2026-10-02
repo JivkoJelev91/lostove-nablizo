@@ -28,7 +28,10 @@ export const EDITOR = {
 
   'photosStep.title': 'Добави снимки',
   'photosStep.description': 'Покажи как изглежда мястото.',
-  'photosStep.add': 'Добави снимка',
+  'photosStep.camera': 'Снимай',
+  'photosStep.gallery': 'Галерия',
+  'photosStep.cameraDenied': 'За да снимаш, разреши достъп до камерата от настройките на телефона.',
+  'photosStep.pickerFailed': 'Снимката не можа да се добави. Опитай отново.',
   'photosStep.limit': 'До {count} снимки.',
   'photosStep.label': 'Снимка {index}',
   'photosStep.section': 'Снимки',
