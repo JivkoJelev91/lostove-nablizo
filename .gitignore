@@ -37,6 +37,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# OSM import cache and generated reports — data about a moment in OSM, regenerable, not source
+scripts/osm-import/.cache/
+scripts/osm-import/output/
+
 # generated native folders
 /ios
 /android

@@ -1,0 +1,4 @@
+{
+  "//": "Scoped to scripts only. Node parses .ts as ESM here without warning, while the app's package.json stays CommonJS for Metro and Babel.",
+  "type": "module"
+}

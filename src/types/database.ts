@@ -264,6 +264,7 @@ export type Database = {
           longitude: number;
           name: string;
           osm_id: number | null;
+          osm_type: string | null;
           rating_average: number;
           rating_count: number;
           source: string;
@@ -279,6 +280,7 @@ export type Database = {
           longitude: number;
           name: string;
           osm_id?: number | null;
+          osm_type?: string | null;
           rating_average?: number;
           rating_count?: number;
           source?: string;
@@ -294,6 +296,7 @@ export type Database = {
           longitude?: number;
           name?: string;
           osm_id?: number | null;
+          osm_type?: string | null;
           rating_average?: number;
           rating_count?: number;
           source?: string;

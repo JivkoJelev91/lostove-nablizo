@@ -1,0 +1,10 @@
+{
+  "//": "Node scripts, typechecked separately from the app. They need @types/node and .ts import extensions, both of which would change the app's type environment if they leaked into the root config.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", ".cache", "output"]
+}
