@@ -36,7 +36,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Фитнес на открито с лостове, успоредки, гимнастически халки и маймунски лостове. Уредите са на гумирана настилка под дърветата, така че може да тренираш и веднага след дъжд.',
     verifiedAt: daysAgo(4),
-    distanceKm: 0.8,
+    distanceMeters: 800,
     images: [SPOT_PHOTO, SPOT_PHOTO_PULL_UP, SPOT_PHOTO_RINGS],
     status: 'approved',
   },
@@ -54,7 +54,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Тихо кътче в Южен парк с три лоста и две успоредки. Най-добре е преди девет сутринта — съседната детска площадка се пълни, след като училището свърши.',
     verifiedAt: daysAgo(14),
-    distanceKm: 2.1,
+    distanceMeters: 2100,
     images: [SPOT_PHOTO_PULL_UP, SPOT_PHOTO],
     status: 'approved',
   },
@@ -74,7 +74,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Класическата градска площадка за уличен фитнес: лостове, халки и успоредки в сянката на старите дървета. В събота и неделя сутрин очаквай компания — местната група тренира тук почти всеки ден.',
     verifiedAt: daysAgo(45),
-    distanceKm: 3.6,
+    distanceMeters: 3600,
     images: [SPOT_PHOTO_MONKEY_BARS, SPOT_PHOTO_RINGS, SPOT_PHOTO],
     status: 'approved',
   },
@@ -89,7 +89,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Малко кътче за тренировка по пътя нагоре към Витоша с лост и комплект халки. Скромно, но солидно, а гледката към града си заслужава загрявката.',
     verifiedAt: daysAgo(8),
-    distanceKm: 4.9,
+    distanceMeters: 4900,
     images: [SPOT_PHOTO_RINGS],
     status: 'approved',
   },
@@ -107,7 +107,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Фитнес на открито между студентските блокове с четири лоста и четири успоредки. Вечер е претъпкано, а долните лостове вече започват да се износват.',
     verifiedAt: daysAgo(120),
-    distanceKm: 6.2,
+    distanceMeters: 6200,
     images: [SPOT_PHOTO, SPOT_PHOTO_MONKEY_BARS],
     status: 'approved',
   },
@@ -126,7 +126,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Наскоро проверено фитнес кътче в Северен парк с лост и пълен комплект маймунски лостове. Има осветление, така че стават и ранни сутрешни, и късни вечерни тренировки.',
     verifiedAt: daysAgo(2),
-    distanceKm: 1.4,
+    distanceMeters: 1400,
     images: [SPOT_PHOTO],
     status: 'approved',
   },
@@ -140,7 +140,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     condition: 'good',
     description:
       'Малко фитнес кътче между блоковете в Слатина с два лоста и успоредка. Осветено е и след мръкване, но земята остава кална един ден след дъжд.',
-    distanceKm: 4.2,
+    distanceMeters: 4200,
     images: [SPOT_PHOTO_PULL_UP],
     status: 'under_review',
   },
@@ -154,7 +154,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     condition: 'good',
     description:
       'Лостове и гимнастическа стълба до спортната зала в Младост. Боята е прясна, а лостовете са здрави.',
-    distanceKm: 6.8,
+    distanceMeters: 6800,
     images: [SPOT_PHOTO],
     status: 'rejected',
   },
@@ -169,7 +169,7 @@ export const MOCK_SPOTS: readonly Spot[] = [
     description:
       'Класически лостове в парк „Заимов“, затворени заради ремонта на парка. Уредите бяха износени още преди да започнат работите.',
     verifiedAt: daysAgo(300),
-    distanceKm: 2.4,
+    distanceMeters: 2400,
     images: [SPOT_PHOTO_RINGS],
     status: 'closed',
   },

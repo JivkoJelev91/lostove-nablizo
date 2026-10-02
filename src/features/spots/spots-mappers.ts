@@ -166,7 +166,7 @@ export function toSpot(row: SpotWithRelations): Spot {
     equipment: toEquipment(row.spot_equipment),
     condition: overallCondition(row.spot_equipment),
     description: row.description ?? '',
-    distanceKm: 0,
+    distanceMeters: null,
     images: toImages(row.photos),
     status: toSpotStatus(row.status),
     ...(row.created_by === null ? {} : { ownerId: row.created_by }),

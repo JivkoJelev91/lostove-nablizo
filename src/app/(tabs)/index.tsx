@@ -17,6 +17,7 @@ import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
 import { formatDistanceAway } from '@/features/spots/format-distance';
+import { byDistance } from '@/features/spots/spot-distance';
 import { coverImage } from '@/features/spots/spot-photos';
 import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
@@ -43,7 +44,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const nearby = useMemo(
-    () => [...filtered].sort((first, second) => first.distanceKm - second.distanceKm),
+    () => [...filtered].sort(byDistance),
     [filtered],
   );
 
@@ -64,7 +65,7 @@ export default function HomeScreen() {
     ({ item }: ListRenderItemInfo<Spot>) => (
       <View className="px-screen-px">
         <SpotCard
-          distanceLabel={formatDistanceAway(item.distanceKm)}
+          distanceLabel={formatDistanceAway(item.distanceMeters)}
           equipment={item.equipment}
           imageUri={coverImage(item)}
           isFavorite={isFavorite(item.id)}

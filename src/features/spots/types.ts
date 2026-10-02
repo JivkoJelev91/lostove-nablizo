@@ -30,8 +30,8 @@ export type Spot = {
   description: string;
   /** The date a moderator last checked the spot, absent until one has. */
   verifiedAt?: Date;
-  /** Straight-line distance from the mock user position, for the "Around you" ordering. */
-  distanceKm: number;
+  /** Straight-line distance from the athlete's position. `null` when no position is known. */
+  distanceMeters: number | null;
   /** The spot's gallery, cover first. One bundled stand-in per frame until Storage provides real uploads. */
   images: readonly ImageSourcePropType[];
   /** Only `approved` spots reach the public screens; the rest wait in the owner's profile. */

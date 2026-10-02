@@ -39,7 +39,9 @@ export function useProfile() {
       [...ownedSpots].sort(
         (first, second) =>
           STATUS_ORDER[first.status] - STATUS_ORDER[second.status] ||
-          first.distanceKm - second.distanceKm,
+          first.distanceMeters === null || second.distanceMeters === null
+            ? 0
+            : first.distanceMeters - second.distanceMeters,
       ),
     [ownedSpots],
   );

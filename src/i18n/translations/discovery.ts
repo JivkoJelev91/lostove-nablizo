@@ -19,5 +19,8 @@ export const DISCOVERY = {
   'search.noResultsTitle': 'Няма намерени места',
   'search.noResultsDescription': 'Нищо не съвпада с „{query}“.',
 
-  'distance.away': '{distance} км от теб',
+  'distance.meters': '{distance} м от теб',
+  'distance.kilometers': '{distance} км от теб',
+  'distance.here': 'Тук, до теб',
+  'distance.unknown': ' — няма локация',
 } satisfies Record<string, string>;

@@ -2,9 +2,7 @@ import { createContext, useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
-import { distanceKmBetween } from '@/features/spots/distance';
 import { MOCK_SPOTS } from '@/features/spots/mock-spots';
-import { MOCK_USER_COORDINATE } from '@/features/spots/mock-location';
 import type { Spot, SpotEdits, SpotSubmission } from '@/features/spots/types';
 
 export type SpotsValue = {
@@ -24,7 +22,7 @@ export type SpotsValue = {
 /** Null until a provider is above it, so the hook can tell a missing provider from no spots. */
 export const SpotsContext = createContext<SpotsValue | null>(null);
 
-const roundToTenth = (value: number): number => Math.round(value * 10) / 10;
+
 
 /**
  * Owns every spot the app renders: the seeded ones and whatever this athlete submits.
@@ -68,7 +66,7 @@ export function SpotsProvider({ children }: { children: ReactNode }) {
         equipment: submission.equipment,
         condition: 'good',
         description: submission.description.trim(),
-        distanceKm: roundToTenth(distanceKmBetween(MOCK_USER_COORDINATE, submission.coordinate)),
+        distanceMeters: null,
         images: submission.images,
         status: 'under_review',
         ...(ownerId === null ? {} : { ownerId }),
