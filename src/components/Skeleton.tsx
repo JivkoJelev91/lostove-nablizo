@@ -27,15 +27,17 @@ export function Skeleton({ className }: SkeletonProps) {
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
-  // The pulse goes on an animated view that only carries a style; the caller's size and radius
-  // stay on the plain view around it, because an animated component never takes `className`.
+  // The pulse lives on an animated wrapper that carries only its style, and the size, radius and
+  // background stay on the plain view inside it, because an animated component never takes
+  // `className`. The empty animated view this used to be pulsed nothing: the visible block was
+  // its sibling, so the skeleton sat still.
   return (
-    <View
+    <Animated.View
       accessibilityElementsHidden
-      className={cn('h-space-16 w-full rounded-md bg-bg-surface', className)}
       importantForAccessibility="no-hide-descendants"
+      style={animatedStyle}
     >
-      <Animated.View style={[animatedStyle, { flex: 1 }]} />
-    </View>
+      <View className={cn('h-space-16 w-full rounded-md bg-bg-surface', className)} />
+    </Animated.View>
   );
 }

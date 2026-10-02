@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
-import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmptyState, LoadingSpinner, PrimaryButton } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
@@ -36,9 +36,12 @@ export function RequireAuth({ children }: RequireAuthProps) {
   // start, so the wait is a spinner rather than a decision.
   if (checking) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <SafeAreaView
+        className="flex-1 items-center justify-center bg-bg-main"
+        edges={['top', 'bottom']}
+      >
         <LoadingSpinner />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -47,7 +50,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
   }
 
   return (
-    <View className="flex-1 justify-center">
+    <SafeAreaView className="flex-1 justify-center bg-bg-main" edges={['top', 'bottom']}>
       <EmptyState
         action={
           <PrimaryButton
@@ -66,6 +69,6 @@ export function RequireAuth({ children }: RequireAuthProps) {
         padded={false}
         title={t('auth.guard.title')}
       />
-    </View>
+    </SafeAreaView>
   );
 }

@@ -23,6 +23,12 @@ export type FavoritesValue = {
   toggle: (spot: Spot) => void;
   /** The saved list is loading, so a screen can show a spinner instead of an empty list. */
   loading: boolean;
+  /** A failed read, distinct from an empty list: the screen offers a retry for this. */
+  error: boolean;
+  /** Re-reads the saved list, for a pull-to-refresh or a retry. */
+  refetch: () => void;
+  /** Whether a refetch is in flight, for `RefreshControl`. */
+  refreshing: boolean;
   signedIn: boolean;
 };
 
@@ -45,7 +51,7 @@ export const FavoritesContext = createContext<FavoritesValue | null>(null);
  * before being told they must sign in to use it.
  */
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const { data, isLoading, isFetching } = useFavoriteSpotsQuery();
+  const { data, isLoading, isFetching, isError, refetch } = useFavoriteSpotsQuery();
   const { mutate } = useToggleFavoriteMutation();
   const { requireAuth, signedIn } = useRequireAuth();
 
@@ -65,8 +71,17 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<FavoritesValue>(
-    () => ({ isFavorite, loading: isLoading || isFetching, spots, toggle, signedIn }),
-    [isFavorite, isLoading, isFetching, spots, toggle, signedIn],
+    () => ({
+      error: isError,
+      isFavorite,
+      loading: isLoading || isFetching,
+      refetch: () => void refetch(),
+      refreshing: isFetching,
+      spots,
+      toggle,
+      signedIn,
+    }),
+    [isError, isFavorite, isLoading, isFetching, refetch, spots, toggle, signedIn],
   );
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;

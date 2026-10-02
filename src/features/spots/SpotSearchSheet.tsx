@@ -5,7 +5,15 @@ import { FlatList, Modal as RNModal, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Card, EmptyState, IconButton, LoadingSpinner, Rating, SearchInput } from '@/components';
+import {
+  Card,
+  EmptyState,
+  ErrorState,
+  IconButton,
+  LoadingSpinner,
+  Rating,
+  SearchInput,
+} from '@/components';
 import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { SEARCH_MIN_QUERY_LENGTH } from '@/features/spots/spots-api';
 import type { Spot } from '@/features/spots/types';
@@ -27,6 +35,9 @@ export type SpotSearchSheetProps = {
   browseSpots: readonly Spot[];
   /** True while a search request is in flight. */
   searching: boolean;
+  /** True when the last search failed; the sheet then offers a retry instead of "no results". */
+  searchError: boolean;
+  onRetry: () => void;
   onClose: () => void;
   onSelect: (spot: Spot) => void;
 };
@@ -50,6 +61,8 @@ export function SpotSearchSheet({
   results,
   browseSpots,
   searching,
+  searchError,
+  onRetry,
   onClose,
   onSelect,
 }: SpotSearchSheetProps) {
@@ -115,9 +128,11 @@ export function SpotSearchSheet({
           </View>
 
           <FlatList
+            automaticallyAdjustKeyboardInsets
             className="flex-1"
             contentContainerClassName="gap-list-gap pb-section-gap-lg"
             data={shown}
+            keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="handled"
             keyExtractor={(spot) => spot.id}
             ListEmptyComponent={
@@ -125,11 +140,19 @@ export function SpotSearchSheet({
                 <View className="items-center justify-center pt-space-24">
                   <LoadingSpinner />
                 </View>
+              ) : isSearching && searchError ? (
+                <ErrorState onRetry={onRetry} />
               ) : isSearching ? (
                 <EmptyState
                   description={t('search.noResultsDescription', { query: trimmed })}
                   padded={false}
                   title={t('search.noResultsTitle')}
+                />
+              ) : browseSpots.length === 0 ? (
+                <EmptyState
+                  description={t('search.browseEmptyDescription')}
+                  padded={false}
+                  title={t('search.browseEmptyTitle')}
                 />
               ) : null
             }

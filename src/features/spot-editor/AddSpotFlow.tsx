@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
@@ -50,7 +50,12 @@ export function AddSpotFlow() {
 
   return (
     <Screen edges={['top']} padded={false}>
-      <View className="flex-1">
+      {/* The action bar is a sibling of the step's scroll view, so the step's own keyboard insets
+          never lift it: on iOS the keyboard covered Continue while the athlete typed. */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        className="flex-1"
+      >
         <AddSpotHeader onBack={handleBack} step={step} />
 
         <View className="flex-1">
@@ -82,7 +87,7 @@ export function AddSpotFlow() {
             <PrimaryButton fullWidth label={t('common.continue')} onPress={handleContinue} />
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
 
       {submitting ? (
         <Animated.View

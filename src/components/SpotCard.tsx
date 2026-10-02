@@ -113,11 +113,17 @@ function SpotBody({
 
           {distanceLabel !== undefined ? (
             <View className="flex-row items-center gap-space-4">
-              <Ionicons
-                color={schemeTextSecondary[scheme]}
-                name="location-outline"
-                size={iconSizeValues.xs}
-              />
+              <View
+                accessibilityElementsHidden
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Ionicons
+                  color={schemeTextSecondary[scheme]}
+                  name="location-outline"
+                  size={iconSizeValues.xs}
+                />
+              </View>
               <Text className="text-caption text-text-secondary">{distanceLabel}</Text>
             </View>
           ) : null}
@@ -173,7 +179,7 @@ function CompactSpotCard({
         ) : null}
 
         <View className="flex-1 gap-space-4">
-          <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
+          <Text className="font-semibold text-h3 text-text-primary" numberOfLines={2}>
             {name}
           </Text>
           {rating !== undefined ? (

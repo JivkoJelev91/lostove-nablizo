@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { View } from 'react-native';
 import type { ReactNode } from 'react';
 
@@ -10,6 +9,7 @@ import { iconSizeValues, schemeTextPrimary } from '@/constants/design-tokens';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
+import { goBackOrHome } from '@/utils/navigation';
 
 export type ScreenHeaderProps = {
   title: string;
@@ -48,7 +48,7 @@ export function ScreenHeader({
               size={iconSizeValues.md}
             />
           }
-          onPress={() => router.back()}
+          onPress={goBackOrHome}
           variant="surface"
         />
       ) : null}

@@ -59,6 +59,7 @@ function QuantityStepper({ name, quantity, onQuantity }: QuantityStepperProps) {
         disabled && 'opacity-50',
       )}
       disabled={disabled}
+      hitSlop={8}
       onPress={(event) => {
         event.stopPropagation();
         onQuantity(delta);

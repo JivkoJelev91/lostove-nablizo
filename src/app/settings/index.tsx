@@ -56,7 +56,7 @@ function SettingsRow({ label, value, onPress }: SettingsRowData) {
 
   return (
     <Pressable
-      accessibilityLabel={label}
+      accessibilityLabel={value === undefined ? label : `${label}, ${value}`}
       accessibilityRole="button"
       className="active:opacity-70"
       onPress={onPress}

@@ -67,7 +67,12 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
   }
 
   return (
-    <BottomSheet onClose={onClose} title={t('report.title')} visible={visible}>
+    <BottomSheet
+      dismissible={!report.isPending}
+      onClose={onClose}
+      title={t('report.title')}
+      visible={visible}
+    >
       <View className="gap-space-4">
         <Text className="font-semibold text-h3 text-text-primary">{spotName}</Text>
         <Text className="text-bodySmall text-text-secondary">{t('report.intro')}</Text>

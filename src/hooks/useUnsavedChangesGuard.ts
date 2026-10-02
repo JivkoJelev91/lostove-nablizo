@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { router, useNavigation } from 'expo-router';
+import { useNavigation } from 'expo-router';
+import { goBackOrHome } from '@/utils/navigation';
 
 /**
  * Keeps a dirty screen from being popped by the platform's own back affordances.
@@ -34,6 +35,6 @@ export function useUnsavedChangesGuard(isDirty: boolean, onBlocked: () => void):
 
   return useCallback(() => {
     leavingRef.current = true;
-    router.back();
+    goBackOrHome();
   }, []);
 }

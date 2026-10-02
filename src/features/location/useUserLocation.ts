@@ -13,6 +13,32 @@ const ACCEPTED_FIX_AGE_MS = 5 * 60 * 1000;
 /** The worst accuracy still good enough for "which park is closer", in metres. */
 const ACCEPTED_FIX_ACCURACY_M = 1000;
 
+/**
+ * How long a fresh fix may take before the athlete is told it is not coming.
+ *
+ * `getCurrentPositionAsync` powers up the receiver and waits; indoors, or with location services
+ * in a bad state, it can wait indefinitely. Without a bound the feed would sit in its loading
+ * state forever, when the directory and an honest note are both available.
+ */
+const FIX_TIMEOUT_MS = 10_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Location fix timed out')), ms);
+
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error instanceof Error ? error : new Error(String(error)));
+      },
+    );
+  });
+}
+
 export type UserLocation = {
   /** The device's position, or `null` when permission is not granted or no fix has arrived. */
   coordinate: Coordinate | null;
@@ -24,6 +50,8 @@ export type UserLocation = {
   failed: boolean;
   /** Asks for permission, or opens the system settings when the OS will not ask again. */
   request: () => void;
+  /** Tries the fix again after a failure. */
+  retry: () => void;
 };
 
 /**
@@ -65,7 +93,10 @@ export function useUserLocation(): UserLocation {
 
       const position =
         stored ??
-        (await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }));
+        (await withTimeout(
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+          FIX_TIMEOUT_MS,
+        ));
 
       return {
         latitude: position.coords.latitude,
@@ -95,5 +126,6 @@ export function useUserLocation(): UserLocation {
     resolved,
     failed: granted && query.isError,
     request,
+    retry: () => void query.refetch(),
   };
 }

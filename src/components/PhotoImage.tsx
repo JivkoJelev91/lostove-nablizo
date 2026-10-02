@@ -53,7 +53,8 @@ export function PhotoImage({
   return (
     <Image
       accessibilityLabel={accessibilityLabel}
-      accessible={accessible}
+      accessibilityRole="image"
+      accessible={accessible ?? accessibilityLabel !== undefined}
       className={className}
       onError={() => setFailed(true)}
       onLoad={onLoad}

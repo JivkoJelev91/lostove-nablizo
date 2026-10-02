@@ -42,16 +42,22 @@ export function ReviewCard({
     <Card className={className} onPress={onPress} variant="flat">
       {spotName !== undefined ? (
         <View className="flex-row items-center justify-between gap-space-8">
-          <Text className="flex-1 font-semibold text-h3 text-text-primary" numberOfLines={1}>
+          <Text className="flex-1 font-semibold text-h3 text-text-primary" numberOfLines={2}>
             {spotName}
           </Text>
 
           {onPress !== undefined ? (
-            <Ionicons
-              color={schemeTextMuted[scheme]}
-              name="chevron-forward"
-              size={iconSizeValues.sm}
-            />
+            <View
+              accessibilityElementsHidden
+              accessible={false}
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Ionicons
+                color={schemeTextMuted[scheme]}
+                name="chevron-forward"
+                size={iconSizeValues.sm}
+              />
+            </View>
           ) : null}
         </View>
       ) : null}

@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { FlatList } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 
-import { EmptyState, PrimaryButton, ScreenShell } from '@/components';
+import { EmptyState, ErrorState, LoadingSpinner, PrimaryButton, ScreenShell } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { ProfileReviewCard } from '@/features/profile/ProfileReviewCard';
 import { useProfile } from '@/features/profile/useProfile';
@@ -17,7 +17,7 @@ import { cn } from '@/utils/cn';
  */
 export default function ProfileReviewsScreen() {
   const scheme = useScheme();
-  const { reviews } = useProfile();
+  const { error, loading, refetch, refreshing, reviews } = useProfile();
 
   const renderReview = ({ item }: ListRenderItemInfo<OwnReview>) => (
     <ProfileReviewCard review={item} />
@@ -34,27 +34,42 @@ export default function ProfileReviewsScreen() {
           'gap-space-16 pb-section-gap-lg',
           reviews.length === 0 && 'grow',
         )}
-        data={reviews}
+        data={loading || error ? [] : reviews}
         keyExtractor={(review) => review.id}
         ListEmptyComponent={
-          <EmptyState
-            action={
-              <PrimaryButton
-                label={t('profile.allReviewsFindSpot')}
-                onPress={() => router.navigate('/')}
-              />
-            }
-            className="flex-1 justify-center"
-            description={t('profile.allReviewsEmptyDescription')}
-            icon={
-              <Ionicons
-                color={schemeTextMuted[scheme]}
-                name="star-outline"
-                size={iconSizeValues.lg}
-              />
-            }
-            padded={false}
-            title={t('profile.allReviewsEmptyTitle')}
+          loading ? (
+            <View className="flex-1 items-center justify-center">
+              <LoadingSpinner />
+            </View>
+          ) : error ? (
+            <ErrorState className="flex-1 justify-center" onRetry={() => void refetch()} />
+          ) : (
+            <EmptyState
+              action={
+                <PrimaryButton
+                  label={t('profile.allReviewsFindSpot')}
+                  onPress={() => router.navigate('/')}
+                />
+              }
+              className="flex-1 justify-center"
+              description={t('profile.allReviewsEmptyDescription')}
+              icon={
+                <Ionicons
+                  color={schemeTextMuted[scheme]}
+                  name="star-outline"
+                  size={iconSizeValues.lg}
+                />
+              }
+              padded={false}
+              title={t('profile.allReviewsEmptyTitle')}
+            />
+          )
+        }
+        refreshControl={
+          <RefreshControl
+            onRefresh={() => void refetch()}
+            refreshing={refreshing}
+            tintColor={schemeTextMuted[scheme]}
           />
         }
         renderItem={renderReview}

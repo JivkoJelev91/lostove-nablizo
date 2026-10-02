@@ -45,6 +45,7 @@ export function AddReviewSheet({
 
   return (
     <BottomSheet
+      dismissible={!saving}
       onClose={onClose}
       title={editing ? t('reviews.sheetEditTitle') : t('reviews.sheetWriteTitle')}
       visible={visible}

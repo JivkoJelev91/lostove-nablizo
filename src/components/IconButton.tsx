@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, View } from 'react-native';
+import type { AccessibilityState } from 'react-native';
 import type { ReactNode } from 'react';
 
 import Animated, {
@@ -24,6 +25,8 @@ export type IconButtonProps = {
   size?: IconButtonSize;
   disabled?: boolean;
   loading?: boolean;
+  /** Extra semantic state for the control, e.g. `{ selected: true }` for a favourite. */
+  accessibilityState?: AccessibilityState;
   className?: string;
   testID?: string;
 };
@@ -50,6 +53,13 @@ const SIZE_CLASS: Record<IconButtonSize, string> = {
 };
 
 /**
+ * Grows the touch target of the two sizes drawn below the 44-point guideline without moving a
+ * pixel of the layout: the visual stays the size the design system asks for, the finger does not
+ * have to find it. The largest size is already wide enough for the hitSlop to add nothing.
+ */
+const SIZE_HIT_SLOP: Record<IconButtonSize, number> = { sm: 8, md: 4, lg: 0 };
+
+/**
  * A square, icon-only button. The accessibility label is mandatory because there is no text
  * for a screen reader to announce; the icon itself is hidden from assistive technology.
  *
@@ -64,6 +74,7 @@ export function IconButton({
   size = 'md',
   disabled = false,
   loading = false,
+  accessibilityState,
   className,
   testID,
 }: IconButtonProps) {
@@ -90,13 +101,14 @@ export function IconButton({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel}
-          accessibilityState={{ disabled: inactive, busy: loading }}
+          accessibilityState={{ ...accessibilityState, disabled: inactive, busy: loading }}
           className={cn(
             'items-center justify-center rounded-pill',
             SIZE_CLASS[size],
             inactive ? 'opacity-50 active:bg-bg-surface' : VARIANT_CLASS[variant],
           )}
           disabled={inactive}
+          hitSlop={SIZE_HIT_SLOP[size]}
           onPress={onPress}
           onPressIn={pressIn}
           onPressOut={pressOut}

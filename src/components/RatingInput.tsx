@@ -52,7 +52,7 @@ export function RatingInput({
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             className="p-space-4"
-            hitSlop={8}
+            hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             key={rating}
             onPress={() => onChange(rating)}
           >

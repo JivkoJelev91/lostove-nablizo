@@ -1,9 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { FlatList, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 
-import { EmptyState, LoadingSpinner, PrimaryButton, ScreenShell, SpotCard } from '@/components';
+import {
+  EmptyState,
+  ErrorState,
+  LoadingSpinner,
+  PrimaryButton,
+  ScreenShell,
+  SpotCard,
+} from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { coverImage } from '@/features/spots/spot-photos';
@@ -23,7 +30,8 @@ import { cn } from '@/utils/cn';
  */
 export default function FavoritesScreen() {
   const scheme = useScheme();
-  const { spots, isFavorite, toggle, loading, signedIn } = useFavorites();
+  const { spots, isFavorite, toggle, loading, error, refetch, refreshing, signedIn } =
+    useFavorites();
 
   const openSpot = (spot: Spot) => {
     router.push({ pathname: '/spot/[id]', params: { id: spot.id } });
@@ -85,15 +93,17 @@ export default function FavoritesScreen() {
         className="flex-1"
         contentContainerClassName={cn(
           'gap-space-16 pb-section-gap-lg',
-          spots.length === 0 && !loading && 'grow',
+          spots.length === 0 && !loading && !error && 'grow',
         )}
-        data={spots}
+        data={error ? [] : spots}
         keyExtractor={(spot) => spot.id}
         ListEmptyComponent={
           loading ? (
             <View className="flex-1 items-center justify-center">
               <LoadingSpinner />
             </View>
+          ) : error ? (
+            <ErrorState className="flex-1 justify-center" onRetry={refetch} />
           ) : (
             <EmptyState
               action={
@@ -115,6 +125,13 @@ export default function FavoritesScreen() {
               title={t('favorites.emptyTitle')}
             />
           )
+        }
+        refreshControl={
+          <RefreshControl
+            onRefresh={refetch}
+            refreshing={refreshing}
+            tintColor={schemeTextMuted[scheme]}
+          />
         }
         renderItem={renderSpot}
       />

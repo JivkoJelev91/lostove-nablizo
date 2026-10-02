@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { displayNameFromUser, usernameFromUser } from '@/features/auth/identity';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
@@ -29,6 +29,10 @@ const STATUS_ORDER: Record<SpotStatus, number> = {
  * The contributions come from the database: the adopted spots are the rows this account owns,
  * whatever their moderation state, and the reviews are the rows it wrote, each carrying the spot
  * it is about. An empty list is what a brand-new account has.
+ *
+ * Loading and failure travel with the data because the screens cannot tell them apart otherwise:
+ * an empty list from a query that has not answered yet reads as "you have added nothing", which is
+ * a different statement from "we do not know yet".
  */
 export function useProfile() {
   const { profile, user } = useCurrentUser();
@@ -44,9 +48,26 @@ export function useProfile() {
     [owned.data],
   );
 
+  const refetchOwned = owned.refetch;
+  const refetchReviews = ownedReviews.refetch;
+
+  const refetch = useCallback(async () => {
+    await Promise.all([refetchOwned(), refetchReviews()]);
+  }, [refetchOwned, refetchReviews]);
+
   const signedIn = user !== null;
   const displayName = signedIn ? (displayNameFromUser(user) ?? profile?.username ?? '') : '';
   const username = signedIn ? (profile?.username ?? usernameFromUser(user) ?? '') : '';
 
-  return { displayName, reviews: ownedReviews.data ?? [], signedIn, spots, username };
+  return {
+    displayName,
+    error: owned.isError || ownedReviews.isError,
+    loading: owned.isLoading || ownedReviews.isLoading,
+    refetch,
+    refreshing: owned.isFetching || ownedReviews.isFetching,
+    reviews: ownedReviews.data ?? [],
+    signedIn,
+    spots,
+    username,
+  };
 }

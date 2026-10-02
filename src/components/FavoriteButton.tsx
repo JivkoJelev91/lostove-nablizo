@@ -57,6 +57,7 @@ export function FavoriteButton({
   return (
     <IconButton
       accessibilityLabel={isFavorite ? t('spot.removeFavorite') : t('spot.addFavorite')}
+      accessibilityState={{ selected: isFavorite }}
       className={className}
       icon={
         <Animated.View style={animatedStyle}>

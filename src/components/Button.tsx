@@ -128,6 +128,7 @@ export function Button({
             fullWidth && 'w-full',
           )}
           disabled={inactive}
+          hitSlop={size === 'sm' ? 4 : undefined}
           onPress={onPress}
           onPressIn={pressIn}
           onPressOut={pressOut}

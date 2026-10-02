@@ -10,12 +10,16 @@ export const DISCOVERY = {
   'home.nearbyEmptyTitle': 'Няма места наблизо',
   'home.nearbyEmptyDescription':
     'В радиус от {radius} км още няма добавено място. Разгледай по-късно или добави ти.',
+  'home.searchElsewhere': 'Търси в цялата страна',
   'home.emptyTitle': 'Още няма места',
   'home.emptyDescription': 'Добави първото място, където тренираш на открито.',
   'home.locationTitle': 'Включи локацията',
   'home.locationDescription':
     'За да подредим местата по разстояние от теб, ни трябва позицията ти.',
   'home.locationEnable': 'Разреши локацията',
+  'home.locationFailedTitle': 'Локацията не е достъпна',
+  'home.locationFailedDescription':
+    'Показваме всички места. Провери дали услугите за локация са включени, и опитай отново.',
 
   'favorites.title': 'Любими',
   'favorites.description': 'Твоите запазени места',
@@ -28,6 +32,8 @@ export const DISCOVERY = {
   'search.close': 'Затвори търсенето',
   'search.noResultsTitle': 'Няма намерени места',
   'search.noResultsDescription': 'Нищо не съвпада с „{query}“.',
+  'search.browseEmptyTitle': 'Няма какво да прегледаш',
+  'search.browseEmptyDescription': 'Опитай да потърсиш място по име или добави ново.',
 
   'filters.title': 'Филтри',
   'filters.open': 'Филтри',

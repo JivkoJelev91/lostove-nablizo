@@ -64,6 +64,7 @@ export function FilterChip({
         className,
       )}
       disabled={disabled}
+      hitSlop={4}
       onPress={onPress}
     >
       {leftIcon !== undefined ? <View accessible={false}>{leftIcon}</View> : null}
@@ -127,6 +128,7 @@ export function EquipmentChip({
       accessibilityState={{ selected, disabled }}
       className={cn(containerClass, 'active:bg-bg-main')}
       disabled={disabled}
+      hitSlop={4}
       onPress={onPress}
     >
       {content}

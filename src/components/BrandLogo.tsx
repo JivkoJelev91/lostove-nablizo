@@ -41,7 +41,13 @@ function PullUpMark({ color, size }: { color: string; size: number }) {
 export function BrandLogo({ className }: BrandLogoProps) {
   return (
     <View className={cn('flex-row items-center gap-space-8', className)}>
-      <View className="h-icon-lg w-icon-lg items-center justify-center rounded-pill bg-primary">
+      {/* Decorative: the wordmark beside it already says the app's name. */}
+      <View
+        accessibilityElementsHidden
+        accessible={false}
+        className="h-icon-lg w-icon-lg items-center justify-center rounded-pill bg-primary"
+        importantForAccessibility="no-hide-descendants"
+      >
         <PullUpMark color={brandColors.onPrimary} size={iconSizeValues.md} />
       </View>
 

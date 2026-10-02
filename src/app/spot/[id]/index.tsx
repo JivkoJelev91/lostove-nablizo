@@ -33,6 +33,7 @@ import type { Spot } from '@/features/spots/types';
 import { useSpotQuery } from '@/features/spots/useSpotsQuery';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
+import { goBackOrHome } from '@/utils/navigation';
 
 /** Turns a spot's equipment into the tiles the list renders, icons included where one exists. */
 function equipmentItemsFor(spot: Spot): EquipmentListItem[] {
@@ -65,7 +66,7 @@ function SpotHeader({ spot, canEdit }: { spot: Spot; canEdit: boolean }) {
             size={iconSizeValues.md}
           />
         }
-        onPress={() => router.back()}
+        onPress={goBackOrHome}
         variant="surface"
       />
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, RefreshControl, Text, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 
 import { router } from 'expo-router';
@@ -8,12 +8,14 @@ import {
   Card,
   DangerButton,
   EmptyState,
+  ErrorState,
   GhostButton,
   LoadingSpinner,
   ScreenShell,
   StatusChip,
 } from '@/components';
 import type { StatusTone } from '@/components';
+import { schemeTextMuted } from '@/constants/design-tokens';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import type { ModerationReport, ReportStatus } from '@/features/moderation/moderation-api';
 import {
@@ -23,6 +25,7 @@ import {
   useSetReportStatusMutation,
 } from '@/features/moderation/useModerationQuery';
 import { reportReasonLabel } from '@/features/reports/report-reasons';
+import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 import type { TranslationKey } from '@/i18n';
 import { formatMonthDayYear } from '@/utils/dates';
@@ -41,7 +44,10 @@ const STATUS_KEYS: Record<ReportStatus, TranslationKey> = {
 
 type ReportCardProps = {
   report: ModerationReport;
-  busy: boolean;
+  /** Each action's own pending state: one report's write must not spin every card's buttons. */
+  spotBusy: boolean;
+  resolving: boolean;
+  dismissing: boolean;
   onOpenSpot: () => void;
   onEditSpot: () => void;
   onToggleSpot: () => void;
@@ -52,7 +58,9 @@ type ReportCardProps = {
 /** One report: the claim, the spot it names, and every action the queue can take on it. */
 function ReportCard({
   report,
-  busy,
+  spotBusy,
+  resolving,
+  dismissing,
   onOpenSpot,
   onEditSpot,
   onToggleSpot,
@@ -65,7 +73,7 @@ function ReportCard({
     <Card gap="md" variant="outlined">
       <View className="flex-row items-start justify-between gap-space-8">
         <View className="flex-1 gap-space-4">
-          <Text className="font-semibold text-h3 text-text-primary" numberOfLines={1}>
+          <Text className="font-semibold text-h3 text-text-primary" numberOfLines={2}>
             {report.spotName}
           </Text>
           <Text className="text-bodySmall text-text-secondary">
@@ -90,11 +98,16 @@ function ReportCard({
         <GhostButton label={t('moderation.editSpot')} onPress={onEditSpot} size="sm" />
 
         {closed ? (
-          <GhostButton label={t('moderation.reopenSpot')} onPress={onToggleSpot} size="sm" />
+          <GhostButton
+            label={t('moderation.reopenSpot')}
+            loading={spotBusy}
+            onPress={onToggleSpot}
+            size="sm"
+          />
         ) : (
           <DangerButton
             label={t('moderation.closeSpot')}
-            loading={busy}
+            loading={spotBusy}
             onPress={onToggleSpot}
             size="sm"
           />
@@ -102,8 +115,18 @@ function ReportCard({
 
         {report.status === 'open' ? (
           <>
-            <GhostButton label={t('moderation.resolve')} onPress={onResolve} size="sm" />
-            <GhostButton label={t('moderation.dismiss')} onPress={onDismiss} size="sm" />
+            <GhostButton
+              label={t('moderation.resolve')}
+              loading={resolving}
+              onPress={onResolve}
+              size="sm"
+            />
+            <GhostButton
+              label={t('moderation.dismiss')}
+              loading={dismissing}
+              onPress={onDismiss}
+              size="sm"
+            />
           </>
         ) : null}
       </View>
@@ -129,6 +152,60 @@ export default function ModerationScreen() {
 
 function ModeratorQueue() {
   const moderator = useIsModeratorQuery();
+
+  if (moderator.isLoading) {
+    return (
+      <ScreenShell
+        description={t('moderation.description')}
+        title={t('moderation.title')}
+        variant="stack"
+      >
+        <View className="flex-1 items-center justify-center">
+          <LoadingSpinner />
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  // A failed check is not a refusal: an offline moderator must not be told they lack access.
+  if (moderator.isError) {
+    return (
+      <ScreenShell
+        description={t('moderation.description')}
+        title={t('moderation.title')}
+        variant="stack"
+      >
+        <View className="flex-1 justify-center">
+          <ErrorState onRetry={() => void moderator.refetch()} />
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  if (moderator.data !== true) {
+    return (
+      <ScreenShell
+        description={t('moderation.description')}
+        title={t('moderation.title')}
+        variant="stack"
+      >
+        <View className="flex-1 justify-center">
+          <EmptyState
+            description={t('moderation.noAccessDescription')}
+            padded={false}
+            title={t('moderation.noAccessTitle')}
+          />
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  return <ReportQueue />;
+}
+
+/** The queue itself, rendered only once the moderator check has said yes. */
+function ReportQueue() {
+  const scheme = useScheme();
   const reports = useModerationReportsQuery();
   const moderateSpot = useModerateSpotMutation();
   const reportStatus = useSetReportStatusMutation();
@@ -156,66 +233,40 @@ function ModeratorQueue() {
     }
   };
 
-  if (moderator.isLoading) {
-    return (
-      <ScreenShell
-        description={t('moderation.description')}
-        title={t('moderation.title')}
-        variant="tab"
-      >
-        <View className="flex-1 items-center justify-center">
-          <LoadingSpinner />
-        </View>
-      </ScreenShell>
-    );
-  }
+  const renderReport = ({ item }: ListRenderItemInfo<ModerationReport>) => {
+    const statusVariables = reportStatus.isPending ? reportStatus.variables : undefined;
 
-  if (moderator.data !== true) {
     return (
-      <ScreenShell
-        description={t('moderation.description')}
-        title={t('moderation.title')}
-        variant="tab"
-      >
-        <View className="flex-1 justify-center">
-          <EmptyState
-            description={t('moderation.noAccessDescription')}
-            padded={false}
-            title={t('moderation.noAccessTitle')}
-          />
-        </View>
-      </ScreenShell>
+      <ReportCard
+        dismissing={statusVariables?.reportId === item.id && statusVariables.status === 'dismissed'}
+        onDismiss={() =>
+          void run(reportStatus.mutateAsync({ reportId: item.id, status: 'dismissed' }))
+        }
+        onEditSpot={() => router.push({ pathname: '/spot/[id]/edit', params: { id: item.spotId } })}
+        onOpenSpot={() => router.push({ pathname: '/spot/[id]', params: { id: item.spotId } })}
+        onResolve={() =>
+          void run(reportStatus.mutateAsync({ reportId: item.id, status: 'resolved' }))
+        }
+        onToggleSpot={() =>
+          void run(
+            moderateSpot.mutateAsync({
+              spotId: item.spotId,
+              status: item.spotStatus === 'closed' ? 'approved' : 'closed',
+            }),
+          )
+        }
+        report={item}
+        resolving={statusVariables?.reportId === item.id && statusVariables.status === 'resolved'}
+        spotBusy={moderateSpot.isPending && moderateSpot.variables?.spotId === item.spotId}
+      />
     );
-  }
-
-  const renderReport = ({ item }: ListRenderItemInfo<ModerationReport>) => (
-    <ReportCard
-      busy={moderateSpot.isPending || reportStatus.isPending}
-      onDismiss={() =>
-        void run(reportStatus.mutateAsync({ reportId: item.id, status: 'dismissed' }))
-      }
-      onEditSpot={() => router.push({ pathname: '/spot/[id]/edit', params: { id: item.spotId } })}
-      onOpenSpot={() => router.push({ pathname: '/spot/[id]', params: { id: item.spotId } })}
-      onResolve={() =>
-        void run(reportStatus.mutateAsync({ reportId: item.id, status: 'resolved' }))
-      }
-      onToggleSpot={() =>
-        void run(
-          moderateSpot.mutateAsync({
-            spotId: item.spotId,
-            status: item.spotStatus === 'closed' ? 'approved' : 'closed',
-          }),
-        )
-      }
-      report={item}
-    />
-  );
+  };
 
   return (
     <ScreenShell
       description={t('moderation.description')}
       title={t('moderation.title')}
-      variant="tab"
+      variant="stack"
     >
       <FlatList
         className="flex-1"
@@ -223,22 +274,35 @@ function ModeratorQueue() {
         data={sorted}
         keyExtractor={(report) => report.id}
         ListEmptyComponent={
-          reports.isLoading ? (
+          reports.isError ? (
+            <View className="flex-1 justify-center">
+              <ErrorState onRetry={() => void reports.refetch()} />
+            </View>
+          ) : reports.isLoading ? (
             <View className="flex-1 items-center justify-center">
               <LoadingSpinner />
             </View>
           ) : (
-            <EmptyState
-              description={t('moderation.emptyDescription')}
-              padded={false}
-              title={t('moderation.emptyTitle')}
-            />
+            <View className="flex-1 justify-center">
+              <EmptyState
+                description={t('moderation.emptyDescription')}
+                padded={false}
+                title={t('moderation.emptyTitle')}
+              />
+            </View>
           )
         }
         ListHeaderComponent={
           failed ? (
             <Text className="text-bodySmall text-status-bad">{t('moderation.failed')}</Text>
           ) : null
+        }
+        refreshControl={
+          <RefreshControl
+            onRefresh={() => void reports.refetch()}
+            refreshing={reports.isFetching}
+            tintColor={schemeTextMuted[scheme]}
+          />
         }
         renderItem={renderReport}
       />

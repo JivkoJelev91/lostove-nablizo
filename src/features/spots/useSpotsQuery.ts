@@ -63,6 +63,10 @@ export function useFeedSpotsQuery(location: UserLocation) {
         : spotsQueryKeys.nearby(coordinate.latitude, coordinate.longitude, NEARBY_RADIUS_M),
     queryFn: () => (coordinate === null ? getSpots() : getNearbySpots(coordinate, NEARBY_RADIUS_M)),
     enabled: resolved && !waitingForFix,
+    // The two modes are separate cache entries, so granting location switches the key. Without a
+    // placeholder that switch blanks the feed to its loading state; carrying the previous rows
+    // over keeps the list the athlete was reading on screen until the nearby one arrives.
+    placeholderData: (previous) => previous,
     staleTime: FEED_STALE_TIME_MS,
   });
 
@@ -134,6 +138,9 @@ export function useCreateSpotMutation() {
 
   return useMutation({
     mutationFn: (submission: SpotSubmission) => createSpot(submission),
+    // No retry: a create whose response was lost may already have inserted, and the insert has no
+    // idempotency key, so a retry on a flaky connection is how one submission becomes two spots.
+    retry: 0,
     onSuccess: async () => {
       // Every spots query, not just the plain list: the feed may be the nearby query, whose key
       // carries the athlete's position. Invalidating `lists()` alone would leave a newly added
@@ -155,6 +162,9 @@ export function useUpdateSpotMutation() {
   return useMutation({
     mutationFn: ({ spotId, edits }: { spotId: string; edits: SpotEdits }) =>
       updateSpot(spotId, edits),
+    // Same reason as create: the write is not keyed, and a retry after a lost response could
+    // upload the same new photos twice.
+    retry: 0,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: spotsQueryKeys.all });
     },

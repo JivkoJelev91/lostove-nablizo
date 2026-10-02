@@ -44,10 +44,14 @@ export function Modal({
       visible={visible}
     >
       <View className="flex-1 items-center justify-center px-screen-px">
+        {/* Hidden from assistive tech whichever mode it is in: when it dismisses, the close
+            control in the header is the announced way out, and when it does not, a focusable
+            backdrop that does nothing would be worse than none. */}
         <Pressable
-          accessibilityLabel={t('common.close')}
-          accessibilityRole="button"
+          accessibilityElementsHidden
+          accessible={false}
           className="absolute inset-0 bg-scrim"
+          importantForAccessibility="no-hide-descendants"
           onPress={dismissOnBackdropPress ? onClose : undefined}
         />
 

@@ -72,6 +72,7 @@ export function Rating({
   if (variant === 'summary') {
     return (
       <View
+        accessible
         accessibilityLabel={label}
         accessibilityRole="text"
         className={cn('flex-row items-center gap-space-4', className)}
@@ -95,6 +96,7 @@ export function Rating({
 
   return (
     <View
+      accessible
       accessibilityLabel={label}
       accessibilityRole="text"
       className={cn('flex-row items-center gap-space-4', className)}

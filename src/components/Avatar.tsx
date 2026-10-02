@@ -46,6 +46,8 @@ export function Avatar({ uri, name, size = 'md', accessibilityLabel, className }
     return (
       <Image
         accessibilityLabel={label}
+        accessibilityRole="image"
+        accessible
         className={cn('rounded-pill bg-bg-surface', SIZE_CLASS[size], className)}
         source={uri}
       />
@@ -54,6 +56,7 @@ export function Avatar({ uri, name, size = 'md', accessibilityLabel, className }
 
   return (
     <View
+      accessible
       accessibilityLabel={label}
       accessibilityRole="image"
       className={cn(

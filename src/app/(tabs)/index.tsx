@@ -1,197 +1,23 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
-import { FlatList, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import {
-  BrandLogo,
-  EmptyState,
-  GhostButton,
-  ScreenShell,
-  SecondaryButton,
-  SectionHeader,
-} from '@/components';
-import { brandColors, iconSizeValues } from '@/constants/design-tokens';
+import { ScreenShell } from '@/components';
 import { useFavorites } from '@/features/favorites/useFavorites';
-import { LocationPrompt } from '@/features/location/LocationPrompt';
 import { useUserLocation } from '@/features/location/useUserLocation';
-import type { UserLocation } from '@/features/location/useUserLocation';
-import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
+import { FeedList } from '@/features/spots/FeedList';
 import { FeedSpotCard } from '@/features/spots/FeedSpotCard';
 import { byDistance } from '@/features/spots/spot-distance';
-import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotFilterSheet } from '@/features/spots/SpotFilterSheet';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { filterSpots, useSpotFilters } from '@/features/spots/useSpotFilters';
-import {
-  NEARBY_RADIUS_M,
-  useFeedSpotsQuery,
-  useSearchSpotsQuery,
-} from '@/features/spots/useSpotsQuery';
+import { useFeedSpotsQuery, useSearchSpotsQuery } from '@/features/spots/useSpotsQuery';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { t } from '@/i18n';
 
 /** How long typing must pause before a search is sent, so each keystroke is not its own request. */
 const SEARCH_DEBOUNCE_MS = 300;
-
-function SpotCardSeparator() {
-  return <View className="h-space-16" />;
-}
-
-type FeedEmptyStateProps = {
-  isLoading: boolean;
-  isError: boolean;
-  hasFilters: boolean;
-  /** Whether the rows were measured from a position, which decides what an empty list means. */
-  measured: boolean;
-  onClearFilters: () => void;
-  onRetry: () => void;
-};
-
-/**
- * What the feed shows when it has no rows, and the reason why.
- *
- * The four cases are four different facts: not loaded yet, failed to load, filtered down to
- * nothing, or simply nothing here. Each has its own next step — wait, retry, clear the filters,
- * or look elsewhere — and collapsing them into one message would blame the athlete for a state
- * they did not create.
- */
-function FeedEmptyState({
-  hasFilters,
-  isError,
-  isLoading,
-  measured,
-  onClearFilters,
-  onRetry,
-}: FeedEmptyStateProps) {
-  if (isLoading) {
-    return (
-      <EmptyState description={t('common.loading')} padded={false} title={t('home.aroundYou')} />
-    );
-  }
-
-  if (isError) {
-    return (
-      <EmptyState
-        action={<GhostButton label={t('common.tryAgain')} onPress={onRetry} />}
-        description={t('common.errorDescription')}
-        padded={false}
-        title={t('common.errorTitle')}
-      />
-    );
-  }
-
-  if (hasFilters) {
-    return (
-      <EmptyState
-        action={<GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />}
-        description={t('home.noMatchDescription')}
-        padded={false}
-        title={t('home.noMatchTitle')}
-      />
-    );
-  }
-
-  // Nothing within the radius is a different fact from nothing in the directory: the first can be
-  // answered by looking elsewhere, the second by adding the first spot. Saying "no match" here
-  // would blame filters nobody set.
-  if (measured) {
-    return (
-      <EmptyState
-        description={t('home.nearbyEmptyDescription', { radius: NEARBY_RADIUS_M / 1000 })}
-        padded={false}
-        title={t('home.nearbyEmptyTitle')}
-      />
-    );
-  }
-
-  return (
-    <EmptyState
-      description={t('home.emptyDescription')}
-      padded={false}
-      title={t('home.emptyTitle')}
-    />
-  );
-}
-
-type FeedHeaderProps = {
-  filterCount: number;
-  location: UserLocation;
-  selectedEquipment: readonly string[];
-  onClearEquipment: () => void;
-  onOpenFilters: () => void;
-  onOpenSearch: () => void;
-  onToggleEquipment: (name: string) => void;
-};
-
-/** The feed's top matter: brand, search and filters, the location ask, and the section heading. */
-function FeedHeader({
-  filterCount,
-  location,
-  selectedEquipment,
-  onClearEquipment,
-  onOpenFilters,
-  onOpenSearch,
-  onToggleEquipment,
-}: FeedHeaderProps) {
-  return (
-    <View className="gap-space-12 pb-space-12">
-      <View className="px-screen-px">
-        <BrandLogo />
-      </View>
-
-      <View className="gap-space-12">
-        <View className="flex-row items-center gap-space-8 px-screen-px">
-          <View className="flex-1">
-            <SpotsSearchBar onPress={onOpenSearch} />
-          </View>
-
-          <SecondaryButton
-            label={
-              filterCount > 0
-                ? t('filters.openWithCount', { count: filterCount })
-                : t('filters.open')
-            }
-            leftIcon={
-              <Ionicons
-                color={brandColors.primary}
-                name="options-outline"
-                size={iconSizeValues.sm}
-              />
-            }
-            onPress={onOpenFilters}
-            size="sm"
-          />
-        </View>
-
-        <EquipmentFilterChips
-          onClear={onClearEquipment}
-          onToggle={onToggleEquipment}
-          selectedNames={selectedEquipment}
-        />
-      </View>
-
-      <View className="px-screen-px">
-        <LocationPrompt location={location} />
-      </View>
-
-      <View className="px-screen-px">
-        <SectionHeader
-          action={
-            <View accessible accessibilityLabel={t('home.sortedByDistance')}>
-              <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
-            </View>
-          }
-          title={t('home.aroundYou')}
-          titleSize="h1"
-        />
-      </View>
-    </View>
-  );
-}
 
 /**
  * The app's home feed: the spots nearest to the athlete, discovered through photos.
@@ -208,6 +34,7 @@ export default function HomeScreen() {
     data: spots = [],
     isLoading,
     isError,
+    isFetching,
     refetch,
     nearby: measured,
   } = useFeedSpotsQuery(location);
@@ -238,6 +65,8 @@ export default function HomeScreen() {
     setFilterVisible(true);
   }, []);
 
+  const openSearch = useCallback(() => setSearchVisible(true), []);
+
   const closeSearch = useCallback(() => {
     setSearchVisible(false);
     setSearchQuery('');
@@ -263,45 +92,26 @@ export default function HomeScreen() {
     [isFavorite, openSpot, toggleFavorite],
   );
 
-  const renderEmpty = useCallback(
-    () => (
-      <View className="px-screen-px">
-        <FeedEmptyState
-          hasFilters={activeCount > 0}
-          isError={isError}
-          isLoading={isLoading}
-          measured={measured}
-          onClearFilters={clear}
-          onRetry={refetch}
-        />
-      </View>
-    ),
-    [activeCount, clear, isError, isLoading, measured, refetch],
-  );
-
   return (
     <>
       <ScreenShell header={false} padded={false} variant="tab">
-        <FlatList
-          className="flex-1"
-          contentContainerClassName="pb-section-gap-lg"
-          data={sortedSpots}
-          initialNumToRender={4}
-          ItemSeparatorComponent={SpotCardSeparator}
-          keyExtractor={(spot) => spot.id}
-          ListEmptyComponent={renderEmpty}
-          ListHeaderComponent={
-            <FeedHeader
-              filterCount={activeCount}
-              location={location}
-              onClearEquipment={clear}
-              onOpenFilters={openFilters}
-              onOpenSearch={() => setSearchVisible(true)}
-              onToggleEquipment={toggle}
-              selectedEquipment={filters.equipment}
-            />
-          }
-          renderItem={renderSpot}
+        <FeedList
+          activeCount={activeCount}
+          isError={isError}
+          isFetching={isFetching}
+          isLoading={isLoading}
+          location={location}
+          measured={measured}
+          onAddSpot={() => router.navigate('/(tabs)/add')}
+          onClearFilters={clear}
+          onOpenFilters={openFilters}
+          onOpenSearch={openSearch}
+          onRefresh={() => void refetch()}
+          onRetry={refetch}
+          onToggleEquipment={toggle}
+          renderSpot={renderSpot}
+          selectedEquipment={filters.equipment}
+          spots={sortedSpots}
         />
       </ScreenShell>
 
@@ -309,9 +119,11 @@ export default function HomeScreen() {
         browseSpots={sortedSpots}
         onChangeQuery={setSearchQuery}
         onClose={closeSearch}
+        onRetry={() => void search.refetch()}
         onSelect={openSpot}
         query={searchQuery}
         results={searchResults}
+        searchError={search.isError}
         searching={search.isFetching}
         visible={searchVisible}
       />
