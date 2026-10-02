@@ -3,13 +3,7 @@ import { router } from 'expo-router';
 import { FlatList, View } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 
-import {
-  EmptyState,
-  LoadingSpinner,
-  PrimaryButton,
-  ScreenShell,
-  SpotCard,
-} from '@/components';
+import { EmptyState, LoadingSpinner, PrimaryButton, ScreenShell, SpotCard } from '@/components';
 import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { coverImage } from '@/features/spots/spot-photos';
@@ -52,7 +46,11 @@ export default function FavoritesScreen() {
 
   if (!signedIn) {
     return (
-      <ScreenShell description={t('favorites.description')} title={t('favorites.title')} variant="tab">
+      <ScreenShell
+        description={t('favorites.description')}
+        title={t('favorites.title')}
+        variant="tab"
+      >
         <View className="flex-1 justify-center">
           <EmptyState
             action={

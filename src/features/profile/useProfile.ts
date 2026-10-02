@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { displayNameFromUser, usernameFromUser } from '@/features/auth/identity';
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useReviews } from '@/features/reviews/useReviews';
+import { byDistance } from '@/features/spots/spot-distance';
 import { useSpots } from '@/features/spots/useSpots';
 import type { SpotStatus } from '@/components';
 
@@ -38,10 +39,7 @@ export function useProfile() {
     () =>
       [...ownedSpots].sort(
         (first, second) =>
-          STATUS_ORDER[first.status] - STATUS_ORDER[second.status] ||
-          first.distanceMeters === null || second.distanceMeters === null
-            ? 0
-            : first.distanceMeters - second.distanceMeters,
+          STATUS_ORDER[first.status] - STATUS_ORDER[second.status] || byDistance(first, second),
       ),
     [ownedSpots],
   );

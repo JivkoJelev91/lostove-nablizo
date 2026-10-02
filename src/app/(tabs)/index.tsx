@@ -15,6 +15,8 @@ import {
 } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { LocationPrompt } from '@/features/location/LocationPrompt';
+import { useUserLocation } from '@/features/location/useUserLocation';
 import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
 import { formatDistanceAway } from '@/features/spots/format-distance';
 import { byDistance } from '@/features/spots/spot-distance';
@@ -23,30 +25,117 @@ import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { useSpotFilters } from '@/features/spots/useSpotFilters';
-import { useSpotsQuery } from '@/features/spots/useSpotsQuery';
+import { NEARBY_RADIUS_M, useFeedSpotsQuery } from '@/features/spots/useSpotsQuery';
 import { t } from '@/i18n';
 
 function SpotCardSeparator() {
   return <View className="h-space-16" />;
 }
 
+type FeedEmptyStateProps = {
+  isLoading: boolean;
+  isError: boolean;
+  hasFilters: boolean;
+  /** Whether the rows were measured from a position, which decides what an empty list means. */
+  measured: boolean;
+  onClearFilters: () => void;
+  onRetry: () => void;
+};
+
+/**
+ * What the feed shows when it has no rows, and the reason why.
+ *
+ * The four cases are four different facts: not loaded yet, failed to load, filtered down to
+ * nothing, or simply nothing here. Each has its own next step — wait, retry, clear the filters,
+ * or look elsewhere — and collapsing them into one message would blame the athlete for a state
+ * they did not create.
+ */
+function FeedEmptyState({
+  hasFilters,
+  isError,
+  isLoading,
+  measured,
+  onClearFilters,
+  onRetry,
+}: FeedEmptyStateProps) {
+  if (isLoading) {
+    return (
+      <EmptyState description={t('common.loading')} padded={false} title={t('home.aroundYou')} />
+    );
+  }
+
+  if (isError) {
+    return (
+      <EmptyState
+        action={<GhostButton label={t('common.tryAgain')} onPress={onRetry} />}
+        description={t('common.errorDescription')}
+        padded={false}
+        title={t('common.errorTitle')}
+      />
+    );
+  }
+
+  if (hasFilters) {
+    return (
+      <EmptyState
+        action={<GhostButton label={t('home.clearFilters')} onPress={onClearFilters} />}
+        description={t('home.noMatchDescription')}
+        padded={false}
+        title={t('home.noMatchTitle')}
+      />
+    );
+  }
+
+  // Nothing within the radius is a different fact from nothing in the directory: the first can be
+  // answered by looking elsewhere, the second by adding the first spot. Saying "no match" here
+  // would blame filters nobody set.
+  if (measured) {
+    return (
+      <EmptyState
+        description={t('home.nearbyEmptyDescription', { radius: NEARBY_RADIUS_M / 1000 })}
+        padded={false}
+        title={t('home.nearbyEmptyTitle')}
+      />
+    );
+  }
+
+  return (
+    <EmptyState
+      description={t('home.emptyDescription')}
+      padded={false}
+      title={t('home.emptyTitle')}
+    />
+  );
+}
+
 /**
  * The app's home feed: the spots nearest to the athlete, discovered through photos.
  *
- * It sits on the first tab, which lists spots by distance rather than on a map.
+ * It sits on the first tab, which lists spots by distance rather than on a map. The nearest-first
+ * order and the distances themselves come from the database's `nearby_spots` function when a
+ * position is known, so the work of finding them is a spatial query on an index rather than a
+ * download of every spot followed by a sort on the phone. Without a position the feed falls back
+ * to the full directory, which is what a guest sees.
  */
 export default function HomeScreen() {
-  const { data: spots = [], isLoading, isError, refetch } = useSpotsQuery();
+  const location = useUserLocation();
+  const {
+    data: spots = [],
+    isLoading,
+    isError,
+    refetch,
+    nearby: measured,
+  } = useFeedSpotsQuery(location);
   const approvedSpots = useMemo(() => spots.filter((spot) => spot.status === 'approved'), [spots]);
   const { selectedNames, toggle, clear, filtered } = useSpotFilters(approvedSpots);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const nearby = useMemo(
-    () => [...filtered].sort(byDistance),
-    [filtered],
-  );
+  // The rows arrive nearest-first from the function. The sort is what orders the fallback list,
+  // where no position means no distances, and it keeps a spot without one at the end rather than
+  // at the top. On the nearby list it is a no-op.
+  const sortedSpots = useMemo(() => [...filtered].sort(byDistance), [filtered]);
 
   const closeSearch = useCallback(() => {
     setSearchVisible(false);
@@ -85,26 +174,17 @@ export default function HomeScreen() {
   const renderEmpty = useCallback(
     () => (
       <View className="px-screen-px">
-        {isLoading ? (
-          <EmptyState description={t('common.loading')} padded={false} title={t('home.aroundYou')} />
-        ) : isError ? (
-          <EmptyState
-            action={<GhostButton label="Retry" onPress={() => refetch()} />}
-            description={t('common.errorDescription')}
-            padded={false}
-            title={t('common.errorTitle')}
-          />
-        ) : (
-          <EmptyState
-            action={<GhostButton label={t('home.clearFilters')} onPress={clear} />}
-            description={t('home.noMatchDescription')}
-            padded={false}
-            title={t('home.noMatchTitle')}
-          />
-        )}
+        <FeedEmptyState
+          hasFilters={selectedNames.length > 0}
+          isError={isError}
+          isLoading={isLoading}
+          measured={measured}
+          onClearFilters={clear}
+          onRetry={refetch}
+        />
       </View>
     ),
-    [clear, isError, isLoading, refetch],
+    [clear, isError, isLoading, measured, refetch, selectedNames.length],
   );
 
   return (
@@ -113,7 +193,7 @@ export default function HomeScreen() {
         <FlatList
           className="flex-1"
           contentContainerClassName="pb-section-gap-lg"
-          data={nearby}
+          data={sortedSpots}
           initialNumToRender={4}
           ItemSeparatorComponent={SpotCardSeparator}
           keyExtractor={(spot) => spot.id}
@@ -128,6 +208,9 @@ export default function HomeScreen() {
                   <SpotsSearchBar onPress={() => setSearchVisible(true)} />
                 </View>
                 <EquipmentFilterChips onToggle={toggle} selectedNames={selectedNames} />
+              </View>
+              <View className="px-screen-px">
+                <LocationPrompt location={location} />
               </View>
               <View className="px-screen-px">
                 <SectionHeader
@@ -155,7 +238,7 @@ export default function HomeScreen() {
         onClose={closeSearch}
         onSelect={openSpot}
         query={searchQuery}
-        spots={nearby}
+        spots={sortedSpots}
         visible={searchVisible}
       />
     </>

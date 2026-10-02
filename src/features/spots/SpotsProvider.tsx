@@ -22,8 +22,6 @@ export type SpotsValue = {
 /** Null until a provider is above it, so the hook can tell a missing provider from no spots. */
 export const SpotsContext = createContext<SpotsValue | null>(null);
 
-
-
 /**
  * Owns every spot the app renders: the seeded ones and whatever this athlete submits.
  *

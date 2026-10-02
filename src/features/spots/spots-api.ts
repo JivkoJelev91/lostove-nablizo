@@ -3,7 +3,7 @@ import type { TablesInsert } from '@/lib/supabase';
 import { resolveEquipmentIds, toSpot } from '@/features/spots/spots-mappers';
 import { SPOT_SELECT } from '@/features/spots/spot-select';
 import type { SpotWithRelations } from '@/features/spots/spots-mappers';
-import type { Spot, SpotEdits, SpotSubmission } from '@/features/spots/types';
+import type { Coordinate, Spot, SpotEdits, SpotSubmission } from '@/features/spots/types';
 
 /** The signed-in athlete's id, or `null` for a guest. */
 async function currentUserId(): Promise<string | null> {
@@ -26,7 +26,10 @@ async function writeEquipment(
   names: readonly string[],
   condition: string,
 ): Promise<void> {
-  const { error: clearError } = await supabase.from('spot_equipment').delete().eq('spot_id', spotId);
+  const { error: clearError } = await supabase
+    .from('spot_equipment')
+    .delete()
+    .eq('spot_id', spotId);
 
   if (clearError) throw clearError;
 
@@ -59,7 +62,38 @@ export async function getSpots(): Promise<Spot[]> {
 }
 
 /**
- * One spot with its reviews joined, or `null` when there is no such row.
+ * Approved spots within `radiusM` of `origin`, nearest first.
+ *
+ * One call, and the card comes whole: the function returns the spot's columns with its equipment
+ * and photos embedded, so there is no second request per result set and nothing to merge. The
+ * distance is the database's, measured on the GiST index — but it lands in the same
+ * `distanceMeters` field the client-side calculation fills, and the display formats both the same
+ * way. One field, one meaning, whichever layer measured it.
+ */
+export async function getNearbySpots(origin: Coordinate, radiusM: number): Promise<Spot[]> {
+  const { data, error } = await supabase.rpc('nearby_spots', {
+    p_latitude: origin.latitude,
+    p_longitude: origin.longitude,
+    p_radius_m: radiusM,
+  });
+
+  if (error) throw error;
+
+  // The relation columns arrive as jsonb, which the generated types call `Json`. The function
+  // builds exactly the shapes the mapper reads, so this is the one boundary where that is
+  // asserted rather than carried through the app as `unknown`.
+  return (data ?? []).map((row) => ({
+    ...toSpot(row as unknown as SpotWithRelations),
+    distanceMeters: row.distance_m,
+  }));
+}
+
+/**
+ * One spot with its equipment and photos, or `null` when there is no such row.
+ *
+ * The reviews are not embedded here even though the spot page shows them: they come from
+ * `useSpotReviewsQuery`, which is the query a review write invalidates, and embedding them too
+ * meant fetching and serialising every review twice on every visit.
  *
  * `null` and an error are different answers: a removed or never-existing spot is not a failure,
  * and the screen shows the same "not found" for both a wrong id and a spot moderation closed.
@@ -67,27 +101,7 @@ export async function getSpots(): Promise<Spot[]> {
 export async function getSpotById(spotId: string): Promise<Spot | null> {
   const { data, error } = await supabase
     .from('spots')
-    .select(
-      `
-      *,
-      spot_equipment (
-        condition,
-        quantity,
-        equipment ( id, name )
-      ),
-      photos ( id, storage_path, created_at ),
-      reviews (
-        id,
-        rating,
-        comment,
-        created_at,
-        updated_at,
-        spot_id,
-        user_id,
-        profiles ( username )
-      )
-    `,
-    )
+    .select(SPOT_SELECT)
     .eq('id', spotId)
     .maybeSingle();
 

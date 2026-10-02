@@ -69,9 +69,7 @@ export function SpotReviewsSection({
         <Text className="text-bodySmall text-text-secondary">{t('common.loading')}</Text>
       ) : error ? (
         <View className="gap-space-12">
-          <Text className="text-bodySmall text-text-secondary">
-            {t('common.errorDescription')}
-          </Text>
+          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
           <SecondaryButton fullWidth label={t('common.tryAgain')} onPress={onRetry} />
         </View>
       ) : reviews.length === 0 ? (

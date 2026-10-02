@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import type { UserLocation } from '@/features/location/useUserLocation';
 import {
   createSpot,
+  getNearbySpots,
   getSpotById,
   getSpots,
   reportSpot,
@@ -14,16 +16,60 @@ import { queryKeys } from '@/lib/query-keys';
 export const spotsQueryKeys = queryKeys.spots;
 
 /**
- * The discovery list: every spot with its equipment and photos.
+ * How far from the athlete the feed still counts as "around you", in metres.
  *
- * Not filtered by status here — the caller decides, because the profile legitimately shows a
- * submission that is still under review while the home feed must not.
+ * Twenty-five kilometres covers a city and its suburbs without reaching the next one, which is the
+ * distance at which "nearby" stops being a distinction worth making. It is deliberately generous
+ * inside that: a spot at the edge of the city is still a place they could go today, and an empty
+ * feed is a worse failure than an extra row.
  */
-export function useSpotsQuery() {
-  return useQuery({
-    queryKey: spotsQueryKeys.lists(),
-    queryFn: getSpots,
+export const NEARBY_RADIUS_M = 25_000;
+
+/** How long a feed answer is served without asking the database again. */
+const FEED_STALE_TIME_MS = 60_000;
+
+/**
+ * The discovery list: the spots around the athlete, or every approved spot without a position.
+ *
+ * The mode is decided by whether a coordinate exists, and the two modes are separate cache
+ * entries. That separation is load-bearing: sharing one entry would let an athlete who grants
+ * location be served the country-wide list from cache and never see the nearby one, and it would
+ * let a distance measured in Sofia be shown after they land in Varna.
+ *
+ * The fallback is not a failure path. A guest or an athlete who declines location still gets the
+ * directory — the prompt says browsing is public — and the cards say the distance is unknown
+ * rather than printing a number the app cannot know.
+ *
+ * The fetch waits for the permission question to be answered and, when it is granted, for the fix.
+ * Fetching the full list first would download every spot on a launch that is about to ask for the
+ * nearby ones instead: exactly the redundant download this whole path exists to avoid.
+ */
+export function useFeedSpotsQuery(location: UserLocation) {
+  const { coordinate, failed, granted, resolved } = location;
+
+  // A granted permission with no fix yet is a wait, not an answer. A *failed* fix is not a wait:
+  // location services can be switched off, and the feed falling back to the full list is better
+  // than a spinner that never resolves. The failure is already surfaced by the prompt.
+  const waitingForFix = granted && !failed && coordinate === null;
+
+  const query = useQuery({
+    queryKey:
+      coordinate === null
+        ? spotsQueryKeys.lists()
+        : spotsQueryKeys.nearby(coordinate.latitude, coordinate.longitude, NEARBY_RADIUS_M),
+    queryFn: () => (coordinate === null ? getSpots() : getNearbySpots(coordinate, NEARBY_RADIUS_M)),
+    enabled: resolved && !waitingForFix,
+    staleTime: FEED_STALE_TIME_MS,
   });
+
+  return {
+    ...query,
+    /** Whether the rows were measured from a position, which decides what an empty list means. */
+    nearby: coordinate !== null,
+    // A disabled query is `pending`, not `loading`, in v5, so the caller is told the difference
+    // between "no spots" and "not allowed to ask yet".
+    isLoading: query.isLoading || !resolved || waitingForFix,
+  };
 }
 
 /**
@@ -41,20 +87,23 @@ export function useSpotQuery(spotId: string | null) {
   });
 }
 
-/** Files a submission and refreshes the list so the new spot appears under the athlete's profile. */
+/** Files a submission and refreshes the feed so the new spot appears under the athlete's profile. */
 export function useCreateSpotMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (submission: SpotSubmission) => createSpot(submission),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: spotsQueryKeys.lists() });
+      // Every spots query, not just the plain list: the feed may be the nearby query, whose key
+      // carries the athlete's position. Invalidating `lists()` alone would leave a newly added
+      // spot out of the list the athlete is actually looking at.
+      await queryClient.invalidateQueries({ queryKey: spotsQueryKeys.all });
     },
   });
 }
 
 /**
- * Saves an owner's edits and refreshes the spot and the list.
+ * Saves an owner's edits and refreshes the spot and the feed.
  *
  * Refetched rather than patched from the mutation's return value: the save resets the status to
  * under review, and only a refetched row is guaranteed to agree with what the database now holds.
@@ -65,11 +114,8 @@ export function useUpdateSpotMutation() {
   return useMutation({
     mutationFn: ({ spotId, edits }: { spotId: string; edits: SpotEdits }) =>
       updateSpot(spotId, edits),
-    onSuccess: async (_spot, { spotId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: spotsQueryKeys.detail(spotId) }),
-        queryClient.invalidateQueries({ queryKey: spotsQueryKeys.lists() }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: spotsQueryKeys.all });
     },
   });
 }

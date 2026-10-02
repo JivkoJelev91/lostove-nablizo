@@ -114,9 +114,7 @@ export default function SpotScreen() {
       <Screen edges={['top', 'bottom']} padded={false} scroll>
         <View className="gap-space-12 p-space-24">
           <Text className="text-body text-text-primary">{t('common.errorTitle')}</Text>
-          <Text className="text-bodySmall text-text-secondary">
-            {t('common.errorDescription')}
-          </Text>
+          <Text className="text-bodySmall text-text-secondary">{t('common.errorDescription')}</Text>
           <GhostButton label={t('common.tryAgain')} onPress={() => refetch()} />
         </View>
       </Screen>

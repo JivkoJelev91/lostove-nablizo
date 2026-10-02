@@ -316,6 +316,30 @@ export type Database = {
     };
     Functions: {
       current_profile_id: { Args: never; Returns: string };
+      // Hand-maintained until the migration is applied and `pnpm db:types` can regenerate this
+      // file. The shape is what the generator emits for a `returns table` function: Args named
+      // after the parameters, Returns an array of the result columns.
+      nearby_spots: {
+        Args: {
+          p_latitude: number;
+          p_longitude: number;
+          p_radius_m: number;
+        };
+        Returns: {
+          created_by: string | null;
+          description: string | null;
+          distance_m: number;
+          id: string;
+          latitude: number;
+          longitude: number;
+          name: string;
+          photos: Json;
+          rating_average: number;
+          rating_count: number;
+          spot_equipment: Json;
+          status: string;
+        }[];
+      };
       recompute_spot_rating: {
         Args: { target_spot_id: string };
         Returns: undefined;

@@ -2,7 +2,10 @@ import { createContext, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
 import { useRequireAuth } from '@/features/auth/useRequireAuth';
-import { useFavoriteSpotsQuery, useToggleFavoriteMutation } from '@/features/favorites/useFavoritesQuery';
+import {
+  useFavoriteSpotsQuery,
+  useToggleFavoriteMutation,
+} from '@/features/favorites/useFavoritesQuery';
 import type { Spot } from '@/features/spots/types';
 
 export type FavoritesValue = {
@@ -45,10 +48,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
   const spots = useMemo<readonly Spot[]>(() => data ?? [], [data]);
 
-  const savedIds = useMemo(
-    () => new Set(spots.map((spot) => spot.id)),
-    [spots],
-  );
+  const savedIds = useMemo(() => new Set(spots.map((spot) => spot.id)), [spots]);
 
   const isFavorite = useCallback((spotId: string) => savedIds.has(spotId), [savedIds]);
 

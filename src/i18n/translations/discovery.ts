@@ -6,6 +6,15 @@ export const DISCOVERY = {
   'home.noMatchTitle': 'Няма съвпадение',
   'home.noMatchDescription': 'Няма места с всички избрани уреди.',
   'home.clearFilters': 'Изчисти филтрите',
+  'home.nearbyEmptyTitle': 'Няма места наблизо',
+  'home.nearbyEmptyDescription':
+    'В радиус от {radius} км още няма добавено място. Разгледай по-късно или добави ти.',
+  'home.emptyTitle': 'Още няма места',
+  'home.emptyDescription': 'Добави първото място, където тренираш на открито.',
+  'home.locationTitle': 'Включи локацията',
+  'home.locationDescription':
+    'За да подредим местата по разстояние от теб, ни трябва позицията ти.',
+  'home.locationEnable': 'Разреши локацията',
 
   'favorites.title': 'Любими',
   'favorites.description': 'Твоите запазени места',
@@ -22,5 +31,5 @@ export const DISCOVERY = {
   'distance.meters': '{distance} м от теб',
   'distance.kilometers': '{distance} км от теб',
   'distance.here': 'Тук, до теб',
-  'distance.unknown': ' — няма локация',
+  'distance.unknown': 'Без локация',
 } satisfies Record<string, string>;

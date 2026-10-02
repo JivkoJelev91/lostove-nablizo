@@ -46,7 +46,10 @@ const STATUS_BY_DATABASE_VALUE: Record<string, SpotStatus> = {
  * spot has not been cleared for the public, which is the only thing the badge can say for sure.
  */
 export function toSpotStatus(status: string | null | undefined): SpotStatus {
-  return (status === null || status === undefined ? undefined : STATUS_BY_DATABASE_VALUE[status]) ?? 'under_review';
+  return (
+    (status === null || status === undefined ? undefined : STATUS_BY_DATABASE_VALUE[status]) ??
+    'under_review'
+  );
 }
 
 const CONDITIONS: readonly EquipmentCondition[] = ['good', 'worn', 'damaged'];
@@ -106,11 +109,12 @@ function photoSource(storagePath: string): ImageSourcePropType {
 /** The gallery, oldest first, so the first photo a contributor uploaded is the cover. */
 function toImages(photos: PhotoRow[] | undefined): readonly ImageSourcePropType[] {
   const ordered = [...(photos ?? [])].sort(
-    (first, second) =>
-      new Date(first.created_at).getTime() - new Date(second.created_at).getTime(),
+    (first, second) => new Date(first.created_at).getTime() - new Date(second.created_at).getTime(),
   );
 
-  return ordered.length === 0 ? [SPOT_PHOTO] : ordered.map((photo) => photoSource(photo.storage_path));
+  return ordered.length === 0
+    ? [SPOT_PHOTO]
+    : ordered.map((photo) => photoSource(photo.storage_path));
 }
 
 /**
@@ -139,7 +143,10 @@ export function toSpotReview(row: ReviewWithAuthor): SpotReview {
 /** The reviews of a spot, newest first. */
 export function toSpotReviews(rows: ReviewWithAuthor[] | undefined): SpotReview[] {
   return [...(rows ?? [])]
-    .sort((first, second) => new Date(second.created_at).getTime() - new Date(first.created_at).getTime())
+    .sort(
+      (first, second) =>
+        new Date(second.created_at).getTime() - new Date(first.created_at).getTime(),
+    )
     .map(toSpotReview);
 }
 
