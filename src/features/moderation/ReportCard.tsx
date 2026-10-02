@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Card, DangerButton, GhostButton, SecondaryButton, StatusChip } from '@/components';
+import { Card, DangerButton, SecondaryButton, StatusChip } from '@/components';
 import type { StatusTone } from '@/components';
 import type { ModerationReport, ReportStatus } from '@/features/moderation/moderation-api';
 import { reportReasonLabel } from '@/features/reports/report-reasons';
@@ -74,11 +74,11 @@ export function ReportCard({
       </Text>
 
       <View className="flex-row flex-wrap gap-space-8">
-        <GhostButton label={t('moderation.openSpot')} onPress={onOpenSpot} size="sm" />
-        <GhostButton label={t('moderation.editSpot')} onPress={onEditSpot} size="sm" />
+        <SecondaryButton label={t('moderation.openSpot')} onPress={onOpenSpot} size="sm" />
+        <SecondaryButton label={t('moderation.editSpot')} onPress={onEditSpot} size="sm" />
 
         {closed ? (
-          <GhostButton
+          <SecondaryButton
             label={t('moderation.reopenSpot')}
             loading={spotBusy}
             onPress={onToggleSpot}
@@ -101,7 +101,7 @@ export function ReportCard({
               onPress={onResolve}
               size="sm"
             />
-            <GhostButton
+            <SecondaryButton
               label={t('moderation.dismiss')}
               loading={dismissing}
               onPress={onDismiss}

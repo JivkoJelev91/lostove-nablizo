@@ -148,8 +148,13 @@ export async function getRejectedSpots(): Promise<RejectedSpot[]> {
  * Deletes a spot and its photos, as a moderator.
  *
  * Objects first, then the row: the database cascades every child row, but the bucket is not part
- * of the database, so a failure after the row was gone would leave bytes nothing can find. This
- * order leaves a row that still names its objects instead, which a retry can finish.
+ * of the database, so a failure after the row was gone would leave bytes nothing can find. The
+ * removal is best-effort, though — a storage hiccup must not make a rejected spot impossible to
+ * remove, which is the outcome the moderator is trying to fix.
+ *
+ * The delete asks for the removed id back and treats an empty answer as a failure. RLS makes a
+ * delete match no policy by silently removing nothing, and without this check the app would
+ * report success while the spot stayed on screen.
  */
 export async function deleteSpotAsModerator(spotId: string): Promise<void> {
   const { data, error } = await supabase
@@ -162,14 +167,20 @@ export async function deleteSpotAsModerator(spotId: string): Promise<void> {
   const paths = (data ?? []).map((row) => row.storage_path);
 
   if (paths.length > 0) {
-    const { error: removeError } = await supabase.storage.from('photos').remove(paths);
-
-    if (removeError) throw removeError;
+    await supabase.storage.from('photos').remove(paths);
   }
 
-  const { error: deleteError } = await supabase.from('spots').delete().eq('id', spotId);
+  const { data: removed, error: deleteError } = await supabase
+    .from('spots')
+    .delete()
+    .eq('id', spotId)
+    .select('id');
 
   if (deleteError) throw deleteError;
+
+  if (removed.length === 0) {
+    throw new Error('The spot was not deleted. Only moderators can delete a spot.');
+  }
 }
 
 /**

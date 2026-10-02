@@ -2,7 +2,14 @@ import { useState } from 'react';
 
 import { Text, View } from 'react-native';
 
-import { Card, DangerButton, GhostButton, Modal, SectionHeader } from '@/components';
+import {
+  Card,
+  DangerButton,
+  GhostButton,
+  Modal,
+  SecondaryButton,
+  SectionHeader,
+} from '@/components';
 import type { RejectedSpot } from '@/features/moderation/moderation-api';
 import { t } from '@/i18n';
 import { formatMonthDayYear } from '@/utils/dates';
@@ -66,7 +73,7 @@ export function RejectedSpotsSection({
             </View>
 
             <View className="flex-row flex-wrap gap-space-8">
-              <GhostButton
+              <SecondaryButton
                 label={t('moderation.openSpot')}
                 onPress={() => onOpenSpot(spot)}
                 size="sm"

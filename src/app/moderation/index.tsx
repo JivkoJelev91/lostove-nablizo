@@ -112,7 +112,7 @@ function ReportQueue() {
   const moderateSpot = useModerateSpotMutation();
   const deleteSpot = useDeleteSpotMutation();
   const reportStatus = useSetReportStatusMutation();
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
 
   const pendingSpots = pending.data ?? [];
   const rejectedSpots = rejected.data ?? [];
@@ -122,12 +122,14 @@ function ReportQueue() {
   const sorted = useMemo(() => sortReports(reports.data ?? []), [reports.data]);
 
   const run = async (action: Promise<unknown>) => {
-    setFailed(false);
+    setFailed(null);
 
     try {
       await action;
-    } catch {
-      setFailed(true);
+    } catch (error: unknown) {
+      // The raw message is shown under the translated line: this is an admin tool, and a
+      // moderator chasing a failure needs what the server actually said.
+      setFailed(error instanceof Error ? error.message : String(error));
     }
   };
 

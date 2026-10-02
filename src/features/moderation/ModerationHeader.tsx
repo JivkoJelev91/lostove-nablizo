@@ -8,7 +8,8 @@ import { t } from '@/i18n';
 export type ModerationHeaderProps = {
   pending: readonly ModerationSpot[];
   rejected: readonly ModerationSpot[];
-  failed: boolean;
+  /** The last failed action's raw message, or null when nothing failed. */
+  failed: string | null;
   pendingBusyId: string | null;
   rejectedBusyId: string | null;
   onApprove: (spot: ModerationSpot) => void;
@@ -46,11 +47,14 @@ export function ModerationHeader({
         spots={rejected}
       />
 
-      {failed ? (
-        <Text className="font-regular text-bodySmall text-status-bad">
-          {t('moderation.failed')}
-        </Text>
-      ) : null}
+      {failed === null ? null : (
+        <View className="gap-space-4">
+          <Text className="font-regular text-bodySmall text-status-bad">
+            {t('moderation.failed')}
+          </Text>
+          <Text className="font-regular text-caption text-text-muted">{failed}</Text>
+        </View>
+      )}
     </View>
   );
 }

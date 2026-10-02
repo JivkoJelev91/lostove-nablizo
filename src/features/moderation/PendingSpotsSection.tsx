@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Card, DangerButton, GhostButton, SecondaryButton, SectionHeader } from '@/components';
+import { Card, DangerButton, SecondaryButton, SectionHeader } from '@/components';
 import type { ModerationSpot } from '@/features/moderation/moderation-api';
 import { t } from '@/i18n';
 import { formatMonthDayYear } from '@/utils/dates';
@@ -66,7 +66,7 @@ export function PendingSpotsSection({
                 onPress={() => onReject(spot)}
                 size="sm"
               />
-              <GhostButton
+              <SecondaryButton
                 label={t('moderation.openSpot')}
                 onPress={() => onOpenSpot(spot)}
                 size="sm"

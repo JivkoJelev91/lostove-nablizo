@@ -23,6 +23,7 @@ import { brandColors, iconSizeValues, schemeTextPrimary } from '@/constants/desi
 import { useCurrentUser } from '@/features/auth/useCurrentUser';
 import { useRequireAuth } from '@/features/auth/useRequireAuth';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { useIsModeratorQuery } from '@/features/moderation/useModerationQuery';
 import { ReportSpotSheet } from '@/features/reports/ReportSpotSheet';
 import { SpotReviews } from '@/features/reviews/SpotReviews';
 import { EQUIPMENT_ICONS, isEquipmentName } from '@/features/spots/equipment-icons';
@@ -93,12 +94,13 @@ function SpotHeader({ spot, canEdit }: { spot: Spot; canEdit: boolean }) {
 type SpotSummaryProps = {
   spot: Spot;
   isFavorite: boolean;
-  isOwner: boolean;
+  /** Owners and moderators get the moderation state spelled out; nobody else sees a pending spot. */
+  showStatusNotice: boolean;
   onToggleFavorite: () => void;
 };
 
 /** The name, the heart, the aggregate rating and the moderation state, when it is the owner's. */
-function SpotSummary({ spot, isFavorite, isOwner, onToggleFavorite }: SpotSummaryProps) {
+function SpotSummary({ spot, isFavorite, showStatusNotice, onToggleFavorite }: SpotSummaryProps) {
   const hasRating = spot.reviewCount > 0;
 
   return (
@@ -122,7 +124,7 @@ function SpotSummary({ spot, isFavorite, isOwner, onToggleFavorite }: SpotSummar
         verifiedAt={spot.verifiedAt}
       />
 
-      {isOwner && spot.status !== 'approved' ? (
+      {showStatusNotice && spot.status !== 'approved' ? (
         <SpotStatusNotice className="mt-space-16" status={spot.status} />
       ) : null}
     </View>
@@ -200,6 +202,7 @@ export default function SpotScreen() {
   const spotId = typeof id === 'string' ? id : null;
 
   const { data: spot, isLoading, isError, refetch } = useSpotQuery(spotId);
+  const moderator = useIsModeratorQuery();
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const { user } = useCurrentUser();
   const { requireAuth } = useRequireAuth();
@@ -228,15 +231,28 @@ export default function SpotScreen() {
   }
 
   const isOwner = spot.ownerId !== undefined && spot.ownerId === user?.id;
+  const canModerate = moderator.data === true;
 
-  // A spot that is not approved is only visible to the athlete who submitted it; everyone
-  // else gets the same answer as for a removed spot.
+  // A spot that is not approved is only visible to the athlete who submitted it and to
+  // moderators, who need to read it to decide about it. Everyone else gets the same answer as
+  // for a removed spot. While the moderator answer is loading, a non-owner waits rather than
+  // being told the spot does not exist and then watching it appear.
   if (spot.status !== 'approved' && !isOwner) {
-    return <SpotNotFound />;
+    if (moderator.isLoading) {
+      return (
+        <Screen edges={['top', 'bottom']} padded={false} scroll>
+          <LoadingSpinner className="flex-1 py-section-gap" />
+        </Screen>
+      );
+    }
+
+    if (!canModerate) {
+      return <SpotNotFound />;
+    }
   }
 
   const saved = isFavorite(spot.id);
-  const canEdit = isOwner && spot.status !== 'closed';
+  const canEdit = (isOwner || canModerate) && spot.status !== 'closed';
 
   return (
     <Screen
@@ -252,8 +268,8 @@ export default function SpotScreen() {
       <View className="px-screen-px pt-space-16">
         <SpotSummary
           isFavorite={saved}
-          isOwner={isOwner}
           onToggleFavorite={() => toggleFavorite(spot)}
+          showStatusNotice={isOwner || canModerate}
           spot={spot}
         />
 
