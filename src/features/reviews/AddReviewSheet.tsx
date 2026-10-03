@@ -46,6 +46,21 @@ export function AddReviewSheet({
   return (
     <BottomSheet
       dismissible={!saving}
+      footer={
+        <View className="gap-card-gap">
+          {errorText === undefined ? null : (
+            <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
+          )}
+
+          <PrimaryButton
+            disabled={rating === 0 || saving}
+            fullWidth
+            label={editing ? t('reviews.save') : t('reviews.post')}
+            loading={saving}
+            onPress={() => onSubmit(rating, text.trim())}
+          />
+        </View>
+      }
       onClose={onClose}
       title={editing ? t('reviews.sheetEditTitle') : t('reviews.sheetWriteTitle')}
       visible={visible}
@@ -66,18 +81,6 @@ export function AddReviewSheet({
         onChangeText={setText}
         placeholder={t('reviews.textPlaceholder')}
         value={text}
-      />
-
-      {errorText === undefined ? null : (
-        <Text className="font-medium text-caption text-status-bad">{errorText}</Text>
-      )}
-
-      <PrimaryButton
-        disabled={rating === 0 || saving}
-        fullWidth
-        label={editing ? t('reviews.save') : t('reviews.post')}
-        loading={saving}
-        onPress={() => onSubmit(rating, text.trim())}
       />
     </BottomSheet>
   );

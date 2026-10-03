@@ -69,6 +69,21 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
   return (
     <BottomSheet
       dismissible={!report.isPending}
+      footer={
+        <View className="gap-card-gap">
+          {report.isError ? (
+            <Text className="font-medium text-caption text-status-bad">{t('report.failed')}</Text>
+          ) : null}
+
+          <PrimaryButton
+            disabled={reason === null}
+            fullWidth
+            label={t('report.submit')}
+            loading={report.isPending}
+            onPress={() => void submit()}
+          />
+        </View>
+      }
       onClose={onClose}
       title={t('report.title')}
       visible={visible}
@@ -100,18 +115,6 @@ export function ReportSpotSheet({ visible, spotId, spotName, onClose }: ReportSp
         onChangeText={setDetails}
         placeholder={t('report.detailsPlaceholder')}
         value={details}
-      />
-
-      {report.isError ? (
-        <Text className="font-medium text-caption text-status-bad">{t('report.failed')}</Text>
-      ) : null}
-
-      <PrimaryButton
-        disabled={reason === null}
-        fullWidth
-        label={t('report.submit')}
-        loading={report.isPending}
-        onPress={() => void submit()}
       />
     </BottomSheet>
   );
