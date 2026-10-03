@@ -1,0 +1,180 @@
+/**
+ * Generates the SQL that attaches the imported OSM spots' images to those spots.
+ *
+ * The spots themselves were inserted by an earlier import run — same CSV, same UUIDs — so this
+ * script only produces the `public.photos` rows. Every image is uploaded to the `photos` bucket
+ * first (the row names the object, exactly like the app's own upload path does):
+ *
+ *   pnpm exec supabase storage cp --linked --experimental -r -j 8 \
+ *     ../process-images/maps_images "ss:///photos/<owner>/osm"
+ *
+ * The upload command has to use a relative source path: the CLI parses a Windows drive letter as a
+ * URL scheme and answers `Unsupported operation`. With the copy done, this script reads each
+ * image's real dimensions and byte size and writes one SQL file:
+ *
+ *   pnpm exec node scripts/import-spot-photos.mjs \
+ *     --csv ../process-images/scripts/osm-import/output/spots_updated.csv \
+ *     --images ../process-images/maps_images \
+ *     --owner <profile uuid>
+ *
+ *   pnpm exec supabase db query --linked --file <the written file>
+ *
+ * Rows are matched on `storage_path`, so re-running after a partial import attaches only what is
+ * missing. The owner is the profile that will own the photo rows (`photos.user_id` is NOT NULL);
+ * the spot's own `created_by` stays null because no athlete authored an imported spot.
+ */
+import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, resolve } from 'node:path';
+
+import { readCsv } from './osm-csv.mjs';
+
+/** Reads `--name value` from argv, or exits with the usage line when a required one is absent. */
+function readArg(name, required = true) {
+  const index = process.argv.indexOf(`--${name}`);
+
+  if (index === -1 || process.argv[index + 1] === undefined) {
+    if (required) {
+      console.error(`Missing --${name}.`);
+      console.error(
+        'Usage: node scripts/import-spot-photos.mjs --csv <file> --images <dir> --owner <uuid> [--out <file>]',
+      );
+      process.exit(1);
+    }
+
+    return undefined;
+  }
+
+  return process.argv[index + 1];
+}
+
+/**
+ * The width and height from a JPEG's frame header.
+ *
+ * Every JPEG starts with SOI and then a sequence of length-prefixed segments; a start-of-frame
+ * segment (C0-CF, minus the three that are not frames) carries the dimensions at a fixed offset.
+ * That is enough to avoid pulling an image library into a one-off import script.
+ */
+function jpegDimensions(bytes) {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+    throw new Error('not a JPEG (missing SOI)');
+  }
+
+  let offset = 2;
+
+  while (offset + 9 <= bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    const marker = bytes[offset + 1];
+
+    if (marker === 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    if (marker === 0xda || marker === 0xd9) {
+      break;
+    }
+
+    const isFrame =
+      marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+
+    if (isFrame) {
+      return { height: bytes.readUInt16BE(offset + 5), width: bytes.readUInt16BE(offset + 7) };
+    }
+
+    offset += 2 + bytes.readUInt16BE(offset + 2);
+  }
+
+  throw new Error('not a JPEG (no frame header)');
+}
+
+const csvPath = resolve(readArg('csv'));
+const imagesDir = resolve(readArg('images'));
+const owner = readArg('owner');
+const outPath = resolve(readArg('out', false) ?? join(dirname(csvPath), 'spot-photos.sql'));
+
+if (!/^[0-9a-f-]{36}$/i.test(owner)) {
+  console.error(`--owner must be a profile UUID, received "${owner}".`);
+  process.exit(1);
+}
+
+const { header, rows } = readCsv(csvPath);
+const idIndex = header.indexOf('id');
+const imageIndex = header.indexOf('image_path');
+
+if (idIndex === -1 || imageIndex === -1) {
+  console.error(`The CSV must have "id" and "image_path" columns, found: ${header.join(', ')}`);
+  process.exit(1);
+}
+
+const entries = [];
+const skipped = [];
+const missing = [];
+
+for (const [rowIndex, fields] of rows.entries()) {
+  const spotId = fields[idIndex];
+  const imagePath = fields[imageIndex] ?? '';
+
+  if (!/^[0-9a-f-]{36}$/i.test(spotId ?? '')) {
+    console.error(`Row ${rowIndex + 1} has no usable spot id.`);
+    process.exit(1);
+  }
+
+  // A row whose download found nothing carries a placeholder path, not an image.
+  if (!imagePath.startsWith('maps_images/')) {
+    skipped.push(spotId);
+    continue;
+  }
+
+  const filePath = join(imagesDir, basename(imagePath));
+
+  if (!existsSync(filePath)) {
+    missing.push(imagePath);
+    continue;
+  }
+
+  const bytes = readFileSync(filePath);
+  const { width, height } = jpegDimensions(bytes);
+
+  entries.push({
+    spotId,
+    storagePath: `${owner}/osm/${basename(imagePath)}`,
+    width,
+    height,
+    size: statSync(filePath).size,
+  });
+}
+
+const values = entries
+  .map(
+    (entry) =>
+      `  ('${entry.spotId}', '${owner}', '${entry.storagePath}', ${entry.width}, ${entry.height}, ${entry.size})`,
+  )
+  .join(',\n');
+
+const sql = `-- Generated by scripts/import-spot-photos.mjs. The spot rows already exist; this
+-- attaches one imported image to each. Matched on storage_path, so a re-run is a no-op.
+insert into public.photos (spot_id, user_id, storage_path, width, height, size)
+select v.spot_id::uuid, v.user_id::uuid, v.storage_path, v.width, v.height, v.size
+from (values
+${values}
+) as v(spot_id, user_id, storage_path, width, height, size)
+where not exists (
+  select 1 from public.photos p where p.storage_path = v.storage_path
+);
+`;
+
+writeFileSync(outPath, sql, 'utf8');
+
+console.log(`Photos to attach: ${entries.length}`);
+console.log(`Rows without an image: ${skipped.length}`);
+console.log(`Images named but not found: ${missing.length}`);
+
+if (missing.length > 0) {
+  console.log(missing.map((path) => `  missing: ${path}`).join('\n'));
+}
+
+console.log(`SQL written to ${outPath}`);
