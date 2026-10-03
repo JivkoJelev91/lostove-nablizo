@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { BrandLogo, GhostButton, SecondaryButton, SectionHeader } from '@/components';
+import { BrandLogo, SecondaryButton, SectionHeader } from '@/components';
 import { brandColors, iconSizeValues } from '@/constants/design-tokens';
 import { LocationPrompt } from '@/features/location/LocationPrompt';
 import type { UserLocation } from '@/features/location/useUserLocation';
@@ -33,6 +33,11 @@ export type FeedHeaderProps = {
  * and a second labelled button beside it would squeeze the title on a 360 dp screen. The switch
  * only appears when a position exists: without one the list is already the directory, and the
  * location prompt beside it is what explains that.
+ *
+ * It is drawn as an outlined pill with an icon rather than as bare text. Beside a search field a
+ * label alone reads as a caption for the field, not as something to press, and the icon carries the
+ * direction of the switch: a compass for the way back to what is near, a map for the way out to
+ * everything. Border, fill and the press dip are what tell a thumb it can push.
  */
 export function FeedHeader({
   filterCount,
@@ -61,8 +66,15 @@ export function FeedHeader({
           </View>
 
           {canBrowseNearby ? (
-            <GhostButton
+            <SecondaryButton
               label={browsingAll ? t('home.seeNearby') : t('home.seeAll')}
+              leftIcon={
+                <Ionicons
+                  color={brandColors.primary}
+                  name={browsingAll ? 'navigate-outline' : 'map-outline'}
+                  size={iconSizeValues.sm}
+                />
+              }
               onPress={onToggleScope}
               size="sm"
             />

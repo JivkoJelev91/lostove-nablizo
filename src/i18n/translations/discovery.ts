@@ -19,9 +19,9 @@ export const DISCOVERY = {
   'home.searchElsewhere': 'Търси в цялата страна',
   'home.emptyTitle': 'Още няма места',
   'home.emptyDescription': 'Добави първото място, където тренираш на открито.',
-  'home.locationTitle': 'Включи локацията',
+  'home.locationTitle': 'Покажи местата около теб',
   'home.locationDescription':
-    'За да подредим местата по разстояние от теб, ни трябва позицията ти.',
+    'Без локация виждаш всички места в страната. Разреши я и ще ги подредим по разстояние от теб — най-близките лостове първо.',
   'home.locationEnable': 'Разреши локацията',
   'home.locationFailedTitle': 'Локацията не е достъпна',
   'home.locationFailedDescription':

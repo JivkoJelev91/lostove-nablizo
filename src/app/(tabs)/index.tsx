@@ -13,6 +13,7 @@ import { SpotFilterSheet } from '@/features/spots/SpotFilterSheet';
 import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { filterSpots, NO_FILTERS, useSpotFilters } from '@/features/spots/useSpotFilters';
+import { useFeedScope } from '@/features/spots/useFeedScope';
 import { useFeedSpotsQuery, useSearchSpotsQuery } from '@/features/spots/useSpotsQuery';
 import type { FeedScope } from '@/features/spots/useSpotsQuery';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -31,9 +32,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 export default function HomeScreen() {
   const location = useUserLocation();
-  // Which catalogue the feed shows. Starts on the spots around the athlete, which is what the
-  // location prompt promises; the "all" scope is the same directory a guest sees.
-  const [scope, setScope] = useState<FeedScope>('nearby');
+  const { choose: chooseScope, scope } = useFeedScope(location);
   const {
     spots,
     isLoading,
@@ -84,8 +83,8 @@ export default function HomeScreen() {
       apply({ ...filters, maxDistanceM: 0 });
     }
 
-    setScope(next);
-  }, [apply, filters, scope]);
+    chooseScope(next);
+  }, [apply, chooseScope, filters, scope]);
 
   const closeSearch = useCallback(() => {
     setSearchVisible(false);
