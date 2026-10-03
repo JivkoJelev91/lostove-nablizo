@@ -21,6 +21,7 @@ pnpm exec expo install <package>      # ALWAYS use instead of pnpm add — resol
 pnpm start                            # start the dev server
 pnpm lint                             # lint
 pnpm typecheck                        # typecheck
+pnpm test                             # jest: unit tests for the business-critical logic
 pnpm run doctor                      # expo-doctor: diagnose dependency and config issues (bare `pnpm doctor` runs pnpm's own command, not this script)
 pnpm exec expo install --fix          # fix incompatible package versions
 ```
@@ -29,6 +30,27 @@ Run lint and typecheck before declaring any task done.
 
 Never reintroduce an npm or yarn lockfile. EAS selects the package manager from whichever lockfile
 it finds, so two lockfiles make build behaviour unpredictable.
+
+## Testing
+
+Jest with Expo's `jest-expo` preset, configured in `package.json`. Run it with `pnpm test`.
+
+Tests sit beside the code they cover, in `__tests__` directories, and target business-critical
+logic rather than the whole surface: validation, distance wording, discovery filtering, rating and
+number formatting, and the OSM import's normalization and duplicate detection. Do not chase 100%
+coverage; add a test where a wrong answer changes what an athlete sees or what the database stores.
+Component tests can use `@testing-library/react-native` when one earns it; end-to-end flows belong
+to Maestro/EAS, not a snapshot suite.
+
+Database functions and triggers cannot run under Jest. The rating aggregate's invariant is a
+read-only SQL check, `supabase/tests/rating_aggregate_invariant.sql`:
+
+```bash
+pnpm exec supabase db query --linked --file supabase/tests/rating_aggregate_invariant.sql
+```
+
+No rows returned means the invariant holds. The same file works against a local stack once Docker
+exists (`pnpm exec supabase db query --file ...`).
 
 ## Navigation & Routing
 

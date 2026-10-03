@@ -33,8 +33,12 @@ export function formatDistance(distanceMeters: number): string {
     return t('distance.here');
   }
 
-  if (distanceMeters < METERS_CUTOFF) {
-    return t('distance.meters', { distance: formatDecimal(roundMeters(distanceMeters), 0) });
+  const roundedMeters = roundMeters(distanceMeters);
+
+  // Rounding happens before the unit is picked, so 996 m is not printed as "1000 м от теб":
+  // anything that rounds up to a kilometre is a kilometre.
+  if (roundedMeters < METERS_CUTOFF) {
+    return t('distance.meters', { distance: formatDecimal(roundedMeters, 0) });
   }
 
   return t('distance.kilometers', { distance: formatDecimal(distanceMeters / 1000, 1) });

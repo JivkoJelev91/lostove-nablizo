@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { describeVerification } from '@/components';
-import type { EquipmentCondition } from '@/components';
+import type { EquipmentCondition } from '@/components/EquipmentList';
+import { describeVerification } from '@/components/VerificationBadge';
 import type { Spot } from '@/features/spots/types';
 
 /** The filter set the discovery screens combine. Empty, zero and false mean "everything". */
