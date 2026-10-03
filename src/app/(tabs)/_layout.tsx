@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import type { ColorValue } from 'react-native';
@@ -89,7 +89,12 @@ export default function TabsLayout() {
           title: t('nav.addSpot'),
           // The Add tab keeps its slot in the bar but renders as a filled primary circle, so it
           // reads as the app's main action without floating away from the other destinations.
-          // A location pin rather than a plus: the action adds a place, and the label says so.
+          // A plus rather than a pin: this button replaces its label, so the glyph alone has to
+          // say "add", and a plus is the one mark every thumb already reads that way. A pin said
+          // "map" or "near me" instead — the labels of the tabs on either side. The glyph is
+          // `plus-thick` from MaterialCommunityIcons rather than Ionicons' `add`, because at 24 px
+          // the Ionicons stroke disappears into the filled circle; icon fonts scale their stroke
+          // with the glyph, so weight is chosen by the face, not by a font-weight property.
           tabBarButton: ({ accessibilityState, onLongPress, onPress, style }) => (
             <Pressable
               accessibilityLabel={t('nav.addSpotLabel')}
@@ -101,9 +106,9 @@ export default function TabsLayout() {
             >
               <View className="flex-1 items-center justify-center">
                 <View className="h-control w-control items-center justify-center rounded-pill bg-primary">
-                  <Ionicons
+                  <MaterialCommunityIcons
                     color={brandColors.onPrimary}
-                    name="location"
+                    name="plus-thick"
                     size={bottomNav.iconSize}
                   />
                 </View>
