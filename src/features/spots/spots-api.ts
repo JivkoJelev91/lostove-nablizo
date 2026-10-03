@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { TablesInsert } from '@/lib/supabase';
 import { getCurrentUserId } from '@/features/auth/current-user';
 import { syncSpotPhotos } from '@/features/photos/photos-api';
+import type { ReportReason } from '@/features/reports/report-reasons';
 import { resolveEquipmentIds, toSpot } from '@/features/spots/spots-mappers';
 import { SPOT_SELECT } from '@/features/spots/spot-select';
 import type { SpotWithRelations } from '@/features/spots/spots-mappers';
@@ -264,7 +265,7 @@ export async function getOwnedSpots(ownerId: string): Promise<Spot[]> {
 
 export type ReportSpotInput = {
   spotId: string;
-  reason: string;
+  reason: ReportReason;
   /** What is wrong with the spot, when the reason alone does not say it. */
   description?: string;
 };
@@ -300,7 +301,7 @@ export async function reportSpot({ spotId, reason, description }: ReportSpotInpu
   const { error } = await supabase.from('reports').insert({
     spot_id: spotId,
     user_id: reporterId,
-    reason: reason.trim(),
+    reason,
     description: description?.trim() ?? null,
   });
 
