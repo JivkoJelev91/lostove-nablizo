@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { GhostButton, PrimaryButton, ScreenShell, TextInput } from '@/components';
+import { GhostButton, PasswordInput, PrimaryButton, ScreenShell, TextInput } from '@/components';
 import { isAuthFailure, signIn } from '@/features/auth/auth-api';
 import { isKnownRoute } from '@/features/auth/return-route';
 import { validateEmail, validatePasswordEntry } from '@/features/auth/validation';
@@ -54,11 +54,10 @@ export default function SignInScreen() {
           placeholder={t('auth.emailPlaceholder')}
           value={email}
         />
-        <TextInput
+        <PasswordInput
           label={t('auth.password')}
           onChangeText={setPassword}
           placeholder={t('auth.passwordPlaceholder')}
-          secureTextEntry
           value={password}
         />
 

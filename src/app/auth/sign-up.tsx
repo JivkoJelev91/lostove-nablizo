@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { router } from 'expo-router';
 
-import { GhostButton, PrimaryButton, ScreenShell, TextInput } from '@/components';
+import { GhostButton, PasswordInput, PrimaryButton, ScreenShell, TextInput } from '@/components';
 import { isAuthFailure, signUp } from '@/features/auth/auth-api';
 import { validateEmail, validateName, validateNewPassword } from '@/features/auth/validation';
 import { t } from '@/i18n';
@@ -65,11 +65,10 @@ export default function SignUpScreen() {
           placeholder={t('auth.emailPlaceholder')}
           value={email}
         />
-        <TextInput
+        <PasswordInput
           label={t('auth.password')}
           onChangeText={setPassword}
           placeholder={t('auth.newPasswordPlaceholder')}
-          secureTextEntry
           value={password}
         />
 

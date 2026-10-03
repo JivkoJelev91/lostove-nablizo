@@ -73,6 +73,9 @@ export type { ModalProps } from './Modal';
 
 export { OfflineBanner } from './OfflineBanner';
 
+export { PasswordInput } from './PasswordInput';
+export type { PasswordInputProps } from './PasswordInput';
+
 export { PhotoCard } from './PhotoCard';
 export type { PhotoCardProps } from './PhotoCard';
 

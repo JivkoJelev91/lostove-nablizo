@@ -55,6 +55,8 @@ export const ACCOUNT = {
   'auth.password': 'Парола',
   'auth.passwordPlaceholder': 'Въведи паролата си',
   'auth.newPasswordPlaceholder': 'Поне 8 символа',
+  'auth.showPassword': 'Покажи паролата',
+  'auth.hidePassword': 'Скрий паролата',
   'auth.signIn': 'Влез',
   'auth.createAccount': 'Създай акаунт',
   'auth.createAccountLink': 'Създай акаунт',
