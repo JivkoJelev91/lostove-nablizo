@@ -14,6 +14,7 @@ import { SpotSearchSheet } from '@/features/spots/SpotSearchSheet';
 import type { Spot } from '@/features/spots/types';
 import { filterSpots, NO_FILTERS, useSpotFilters } from '@/features/spots/useSpotFilters';
 import { useFeedSpotsQuery, useSearchSpotsQuery } from '@/features/spots/useSpotsQuery';
+import type { FeedScope } from '@/features/spots/useSpotsQuery';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 /** How long typing must pause before a search is sent, so each keystroke is not its own request. */
@@ -30,6 +31,9 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 export default function HomeScreen() {
   const location = useUserLocation();
+  // Which catalogue the feed shows. Starts on the spots around the athlete, which is what the
+  // location prompt promises; the "all" scope is the same directory a guest sees.
+  const [scope, setScope] = useState<FeedScope>('nearby');
   const {
     spots,
     isLoading,
@@ -40,7 +44,7 @@ export default function HomeScreen() {
     fetchNextPage,
     refetch,
     nearby: measured,
-  } = useFeedSpotsQuery(location);
+  } = useFeedSpotsQuery(location, scope);
   const approvedSpots = useMemo(() => spots.filter((spot) => spot.status === 'approved'), [spots]);
   const { activeCount, apply, clear, filtered, filters, toggle } = useSpotFilters(approvedSpots);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
@@ -69,6 +73,19 @@ export default function HomeScreen() {
   }, []);
 
   const openSearch = useCallback(() => setSearchVisible(true), []);
+
+  const toggleScope = useCallback(() => {
+    const next: FeedScope = scope === 'nearby' ? 'all' : 'nearby';
+
+    // The directory carries no distances, so a distance filter chosen for the nearby list would
+    // hide every row there. It is dropped on the way in; the filter sheet hides that section in
+    // this mode anyway, so the athlete cannot see a filter they cannot change.
+    if (next === 'all' && filters.maxDistanceM > 0) {
+      apply({ ...filters, maxDistanceM: 0 });
+    }
+
+    setScope(next);
+  }, [apply, filters, scope]);
 
   const closeSearch = useCallback(() => {
     setSearchVisible(false);
@@ -115,7 +132,9 @@ export default function HomeScreen() {
           onRefresh={() => void refetch()}
           onRetry={refetch}
           onToggleEquipment={toggle}
+          onToggleScope={toggleScope}
           renderSpot={renderSpot}
+          scope={scope}
           selectedEquipment={filters.equipment}
           spots={sortedSpots}
         />

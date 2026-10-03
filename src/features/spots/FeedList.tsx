@@ -3,23 +3,13 @@ import { FlatList, RefreshControl, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import {
-  BrandLogo,
-  EmptyState,
-  ErrorState,
-  GhostButton,
-  LoadingSpinner,
-  PrimaryButton,
-  SecondaryButton,
-  SectionHeader,
-} from '@/components';
-import { brandColors, iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
-import { LocationPrompt } from '@/features/location/LocationPrompt';
+import { EmptyState, ErrorState, GhostButton, LoadingSpinner, PrimaryButton } from '@/components';
+import { iconSizeValues, schemeTextMuted } from '@/constants/design-tokens';
 import type { UserLocation } from '@/features/location/useUserLocation';
-import { EquipmentFilterChips } from '@/features/spots/equipment-filters';
-import { SpotsSearchBar } from '@/features/spots/SpotsSearchBar';
+import { FeedHeader } from '@/features/spots/FeedHeader';
 import type { Spot } from '@/features/spots/types';
 import { NEARBY_RADIUS_M } from '@/features/spots/useSpotsQuery';
+import type { FeedScope } from '@/features/spots/useSpotsQuery';
 import { useScheme } from '@/hooks/useScheme';
 import { t } from '@/i18n';
 
@@ -143,81 +133,6 @@ function FeedEmptyState({
   );
 }
 
-type FeedHeaderProps = {
-  filterCount: number;
-  location: UserLocation;
-  selectedEquipment: readonly string[];
-  onClearEquipment: () => void;
-  onOpenFilters: () => void;
-  onOpenSearch: () => void;
-  onToggleEquipment: (name: string) => void;
-};
-
-/** The feed's top matter: brand, search and filters, the location ask, and the section heading. */
-function FeedHeader({
-  filterCount,
-  location,
-  selectedEquipment,
-  onClearEquipment,
-  onOpenFilters,
-  onOpenSearch,
-  onToggleEquipment,
-}: FeedHeaderProps) {
-  return (
-    <View className="gap-space-12 pb-space-12">
-      <View className="px-screen-px">
-        <BrandLogo />
-      </View>
-
-      <View className="gap-space-12">
-        <View className="px-screen-px">
-          <SpotsSearchBar onPress={onOpenSearch} />
-        </View>
-
-        <EquipmentFilterChips
-          onClear={onClearEquipment}
-          onToggle={onToggleEquipment}
-          selectedNames={selectedEquipment}
-        />
-      </View>
-
-      <View className="px-screen-px">
-        <LocationPrompt location={location} />
-      </View>
-
-      <View className="px-screen-px">
-        <SectionHeader
-          action={
-            <SecondaryButton
-              label={
-                filterCount > 0
-                  ? t('filters.openWithCount', { count: filterCount })
-                  : t('filters.open')
-              }
-              leftIcon={
-                <Ionicons
-                  color={brandColors.primary}
-                  name="options-outline"
-                  size={iconSizeValues.sm}
-                />
-              }
-              onPress={onOpenFilters}
-              size="sm"
-            />
-          }
-          title={t('home.aroundYou')}
-          titleIcon={
-            <View accessible accessibilityLabel={t('home.sortedByDistance')}>
-              <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
-            </View>
-          }
-          titleSize="h1"
-        />
-      </View>
-    </View>
-  );
-}
-
 export type FeedListProps = {
   activeCount: number;
   hasMore: boolean;
@@ -227,6 +142,7 @@ export type FeedListProps = {
   loadingMore: boolean;
   location: UserLocation;
   measured: boolean;
+  scope: FeedScope;
   selectedEquipment: readonly string[];
   spots: Spot[];
   onAddSpot: () => void;
@@ -237,6 +153,7 @@ export type FeedListProps = {
   onRefresh: () => void;
   onRetry: () => void;
   onToggleEquipment: (name: string) => void;
+  onToggleScope: () => void;
   renderSpot: ListRenderItem<Spot>;
 };
 
@@ -250,6 +167,7 @@ export function FeedList({
   loadingMore,
   location,
   measured,
+  scope,
   selectedEquipment,
   spots,
   onAddSpot,
@@ -260,6 +178,7 @@ export function FeedList({
   onRefresh,
   onRetry,
   onToggleEquipment,
+  onToggleScope,
   renderSpot,
 }: FeedListProps) {
   const scheme = useScheme();
@@ -299,6 +218,8 @@ export function FeedList({
           onOpenFilters={onOpenFilters}
           onOpenSearch={onOpenSearch}
           onToggleEquipment={onToggleEquipment}
+          onToggleScope={onToggleScope}
+          scope={scope}
           selectedEquipment={selectedEquipment}
         />
       }

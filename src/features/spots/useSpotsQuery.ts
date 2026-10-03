@@ -34,6 +34,16 @@ export const NEARBY_RADIUS_M = 25_000;
 const FEED_STALE_TIME_MS = 60_000;
 
 /**
+ * Which catalogue the feed is showing: the spots around the athlete, or every approved spot.
+ *
+ * `nearby` follows the position — before permission is answered it waits, and it falls back to the
+ * directory on its own when there is no fix. `all` is the directory by choice, which is why the
+ * scope decides the query rather than the permission: an athlete with a perfectly good position
+ * may still ask for the whole country.
+ */
+export type FeedScope = 'nearby' | 'all';
+
+/**
  * The discovery list: the spots around the athlete, or every approved spot without a position.
  *
  * The mode is decided by whether a coordinate exists, and the two modes are separate cache
@@ -48,31 +58,41 @@ const FEED_STALE_TIME_MS = 60_000;
  * Both modes are paged, one {@link FEED_PAGE_SIZE} at a time: the database orders by distance or
  * recency and the feed asks for the next page as the athlete nears the end of the list, so a
  * directory that grows to thousands never arrives in one response. The fetch also waits for the
- * permission question to be answered and, when it is granted, for the fix.
+ * permission question to be answered and, when it is granted, for the fix — unless the scope is
+ * `all`, where the position is irrelevant to the answer.
  */
-export function useFeedSpotsQuery(location: UserLocation) {
+export function useFeedSpotsQuery(location: UserLocation, scope: FeedScope = 'nearby') {
   const { coordinate, failed, granted, resolved } = location;
+  const wantsNearby = scope === 'nearby';
+
+  // The directory mode deliberately runs without a coordinate even when one exists: the athlete
+  // asked for every spot, and the coordinate is what "nearby" would have meant.
+  const scopedCoordinate = wantsNearby ? coordinate : null;
 
   // A granted permission with no fix yet is a wait, not an answer. A *failed* fix is not a wait:
   // location services can be switched off, and the feed falling back to the full list is better
   // than a spinner that never resolves. The failure is already surfaced by the prompt.
-  const waitingForFix = granted && !failed && coordinate === null;
+  const waitingForFix = wantsNearby && granted && !failed && coordinate === null;
 
   const query = useInfiniteQuery({
     queryKey:
-      coordinate === null
+      scopedCoordinate === null
         ? spotsQueryKeys.lists()
-        : spotsQueryKeys.nearby(coordinate.latitude, coordinate.longitude, NEARBY_RADIUS_M),
+        : spotsQueryKeys.nearby(
+            scopedCoordinate.latitude,
+            scopedCoordinate.longitude,
+            NEARBY_RADIUS_M,
+          ),
     queryFn: ({ pageParam }) =>
-      coordinate === null
+      scopedCoordinate === null
         ? getSpotsPage(pageParam)
-        : getNearbySpots(coordinate, NEARBY_RADIUS_M, pageParam),
+        : getNearbySpots(scopedCoordinate, NEARBY_RADIUS_M, pageParam),
     initialPageParam: 0,
     // A full page means there may be more; a short page is the end. No total count is requested:
     // the feed only needs to know whether to keep a loader at the bottom.
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === FEED_PAGE_SIZE ? allPages.length * FEED_PAGE_SIZE : undefined,
-    enabled: resolved && !waitingForFix,
+    enabled: (resolved || !wantsNearby) && !waitingForFix,
     // The two modes are separate cache entries, so granting location switches the key. Without a
     // placeholder that switch blanks the feed to its loading state; carrying the previous rows
     // over keeps the list the athlete was reading on screen until the nearby one arrives.
@@ -83,12 +103,12 @@ export function useFeedSpotsQuery(location: UserLocation) {
   return {
     ...query,
     /** Whether the rows were measured from a position, which decides what an empty list means. */
-    nearby: coordinate !== null,
+    nearby: scopedCoordinate !== null,
     /** The pages as the one list the screens render; nothing outside this hook knows about pages. */
     spots: query.data?.pages.flat() ?? [],
     // A disabled query is `pending`, not `loading`, in v5, so the caller is told the difference
     // between "no spots" and "not allowed to ask yet".
-    isLoading: query.isLoading || !resolved || waitingForFix,
+    isLoading: query.isLoading || (wantsNearby && (!resolved || waitingForFix)),
   };
 }
 

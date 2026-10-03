@@ -2,6 +2,9 @@
 export const DISCOVERY = {
   'home.searchPlaceholder': 'Търси места...',
   'home.aroundYou': 'Около теб',
+  'home.allSpots': 'Всички места',
+  'home.seeAll': 'Виж всички',
+  'home.seeNearby': 'Около мен',
   'home.sortedByDistance': 'Местата са подредени по близост до теб',
   'home.noMatchTitle': 'Няма съвпадение',
   'home.noMatchDescription': 'Няма места с всички избрани уреди.',
