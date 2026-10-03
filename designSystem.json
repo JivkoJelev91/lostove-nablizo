@@ -74,12 +74,12 @@
       }
     },
     "typography": {
-      "fontFamily": "Inter",
+      "fontFamily": "Oswald",
       "fontFamilies": {
-        "regular": "Inter_400Regular",
-        "medium": "Inter_500Medium",
-        "semibold": "Inter_600SemiBold",
-        "bold": "Inter_700Bold"
+        "regular": "Oswald_400Regular",
+        "medium": "Oswald_500Medium",
+        "semibold": "Oswald_600SemiBold",
+        "bold": "Oswald_700Bold"
       },
       "fontWeights": {
         "regular": "400",

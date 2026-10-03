@@ -1,11 +1,11 @@
 import '../../global.css';
 import { useEffect } from 'react';
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-} from '@expo-google-fonts/inter';
+  Oswald_400Regular,
+  Oswald_500Medium,
+  Oswald_600SemiBold,
+  Oswald_700Bold,
+} from '@expo-google-fonts/oswald';
 import * as Font from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -19,10 +19,11 @@ import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-token
 import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
 
-// Kept up until the first frame can be measured in Inter. Text laid out while the font is still
-// loading is measured in the fallback and drawn in Inter once it arrives, and the wider glyphs are
-// then clipped at the fallback's width — a clipped label on every weighted piece of text. The call
-// belongs at module scope: from inside the component it can run after the splash has gone.
+// Kept up until the first frame can be measured in the faces the app draws with. Text laid out
+// while a font is still loading is measured in the fallback and drawn in the real face once it
+// arrives, and the wider glyphs are then clipped at the fallback's width — a clipped label on
+// every weighted piece of text. The call belongs at module scope: from inside the component it
+// can run after the splash has gone.
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -30,10 +31,10 @@ export default function RootLayout() {
   const scheme = colorScheme === 'dark' ? 'dark' : 'light';
 
   const [fontsLoaded, fontError] = Font.useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    Oswald_400Regular,
+    Oswald_500Medium,
+    Oswald_600SemiBold,
+    Oswald_700Bold,
   });
 
   // An error releases the splash too: a fallback face is the right trade against an athlete stuck

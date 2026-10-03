@@ -37,6 +37,10 @@ function PullUpMark({ color, size }: { color: string; size: number }) {
  * A plain view, no animation and no size variants — the brand is part of the Home header, not an
  * event. An opening animation that covered the first screen only got in the way of it, so the
  * mark is simply there when the app starts.
+ *
+ * The wordmark carries the app's heaviest cut, because it is the one piece of text that names the
+ * product rather than describing something in it. Oswald covers Cyrillic, so the Bulgarian name
+ * is drawn in the same face rather than falling back per glyph.
  */
 export function BrandLogo({ className }: BrandLogoProps) {
   return (
