@@ -62,5 +62,4 @@ export const DISCOVERY = {
   'distance.meters': '{distance} м от теб',
   'distance.kilometers': '{distance} км от теб',
   'distance.here': 'Тук, до теб',
-  'distance.unknown': 'Без локация',
 } satisfies Record<string, string>;

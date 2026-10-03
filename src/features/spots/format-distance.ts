@@ -43,11 +43,12 @@ export function formatDistance(distanceMeters: number): string {
 /**
  * How far a spot is from the athlete, as the cards show it: `350 м от теб` or `1,2 км от теб`.
  *
- * `null` is a real answer, not a missing one: it means the app has no position to measure from,
- * because the athlete has not granted location access or the fix failed. A guest still gets the
- * whole feed, so the label has to be honest about not knowing rather than print `0 м`, which would
- * claim every spot is where they are standing.
+ * `null` means the app has no position to measure from, because the athlete has not granted
+ * location access or the fix failed. That case has no label: the feed already carries a prompt
+ * explaining that location is off, and a "no location" caption on every card under it is the same
+ * sentence repeated down the screen. A card with no distance simply states one less fact, and
+ * `SpotCard` drops the footer row entirely when the distance was the only thing on it.
  */
-export function formatDistanceAway(distanceMeters: number | null): string {
-  return distanceMeters === null ? t('distance.unknown') : formatDistance(distanceMeters);
+export function formatDistanceAway(distanceMeters: number | null): string | undefined {
+  return distanceMeters === null ? undefined : formatDistance(distanceMeters);
 }

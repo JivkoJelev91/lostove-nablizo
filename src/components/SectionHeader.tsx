@@ -12,6 +12,8 @@ export type SectionHeaderProps = {
   titleSize?: SectionHeaderTitleSize;
   /** Draws the lime bar before the title, as the spot page's sections do. */
   accent?: boolean;
+  /** Leading adornment drawn between the accent bar and the title, e.g. the feed's location mark. */
+  titleIcon?: ReactNode;
   /** Right-aligned content such as a "See all" link. */
   action?: ReactNode;
   className?: string;
@@ -33,6 +35,7 @@ export function SectionHeader({
   description,
   titleSize = 'h2',
   accent = false,
+  titleIcon,
   action,
   className,
 }: SectionHeaderProps) {
@@ -43,6 +46,7 @@ export function SectionHeader({
           {accent ? (
             <View accessible={false} className="h-icon-sm w-space-4 rounded-pill bg-primary" />
           ) : null}
+          {titleIcon !== undefined ? <View accessible={false}>{titleIcon}</View> : null}
           <Text
             accessibilityRole="header"
             className={cn(TITLE_CLASS[titleSize], 'text-text-primary')}

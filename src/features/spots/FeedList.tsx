@@ -188,30 +188,29 @@ function FeedHeader({
       <View className="px-screen-px">
         <SectionHeader
           action={
-            <View className="flex-row items-center gap-space-8">
-              <View accessible accessibilityLabel={t('home.sortedByDistance')}>
-                <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
-              </View>
-
-              <SecondaryButton
-                label={
-                  filterCount > 0
-                    ? t('filters.openWithCount', { count: filterCount })
-                    : t('filters.open')
-                }
-                leftIcon={
-                  <Ionicons
-                    color={brandColors.primary}
-                    name="options-outline"
-                    size={iconSizeValues.sm}
-                  />
-                }
-                onPress={onOpenFilters}
-                size="sm"
-              />
-            </View>
+            <SecondaryButton
+              label={
+                filterCount > 0
+                  ? t('filters.openWithCount', { count: filterCount })
+                  : t('filters.open')
+              }
+              leftIcon={
+                <Ionicons
+                  color={brandColors.primary}
+                  name="options-outline"
+                  size={iconSizeValues.sm}
+                />
+              }
+              onPress={onOpenFilters}
+              size="sm"
+            />
           }
           title={t('home.aroundYou')}
+          titleIcon={
+            <View accessible accessibilityLabel={t('home.sortedByDistance')}>
+              <Ionicons color={brandColors.primary} name="location" size={iconSizeValues.md} />
+            </View>
+          }
           titleSize="h1"
         />
       </View>

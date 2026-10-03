@@ -73,7 +73,7 @@ export const COMMON = {
   'verification.year.one': 'Потвърдено преди 1 година',
   'verification.year.few': 'Потвърдено преди {count} години',
   'verification.unknown': 'Датата на потвърждаване е неизвестна',
-  'verification.source.import': 'при внасяне от OpenStreetMap',
+  'verification.source.import': 'от OpenStreetMap',
   'verification.source.moderator': 'от модератор',
   'verification.source.user': 'от общността',
   'verification.confirmations.one': '1 потвърждение от общността',
