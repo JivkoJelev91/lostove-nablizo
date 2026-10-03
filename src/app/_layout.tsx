@@ -8,6 +8,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as Font from 'expo-font';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useColorScheme } from 'nativewind';
@@ -18,19 +19,30 @@ import { schemeBackground, schemeStatusBarStyle } from '@/constants/design-token
 import { SessionProvider } from '@/features/auth/SessionProvider';
 import { FavoritesProvider } from '@/features/favorites/FavoritesProvider';
 
+// Kept up until the first frame can be measured in Inter. Text laid out while the font is still
+// loading is measured in the fallback and drawn in Inter once it arrives, and the wider glyphs are
+// then clipped at the fallback's width — a clipped label on every weighted piece of text. The call
+// belongs at module scope: from inside the component it can run after the splash has gone.
+void SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme === 'dark' ? 'dark' : 'light';
 
-  // Inter is loaded for its side effect: the tree is deliberately not gated on it. Returning
-  // null until fonts resolve leaves a permanently blank screen with no error when a font load
-  // stalls, and rendering a few frames in the system font beats an undebuggable blank page.
-  Font.useFonts({
+  const [fontsLoaded, fontError] = Font.useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
   });
+
+  // An error releases the splash too: a fallback face is the right trade against an athlete stuck
+  // on a splash screen forever, and the error path is the only one that can reach that state.
+  useEffect(() => {
+    if (fontsLoaded || fontError !== null) {
+      SplashScreen.hide();
+    }
+  }, [fontsLoaded, fontError]);
 
   // The native window behind the navigators, so the frames a screen transition exposes show
   // the app's background instead of the platform's white. Without this, pushing a route in
@@ -38,6 +50,10 @@ export default function RootLayout() {
   useEffect(() => {
     void SystemUI.setBackgroundColorAsync(schemeBackground[scheme]).catch(() => {});
   }, [scheme]);
+
+  if (!fontsLoaded && fontError === null) {
+    return null;
+  }
 
   return (
     <>
